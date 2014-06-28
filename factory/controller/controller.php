@@ -1,0 +1,69 @@
+<?php
+namespace Cyan\Library;
+
+/**
+ * Class FactoryController
+ * @package Cyan\Library
+ */
+class FactoryController extends Factory
+{
+    /**
+     * Singleton Instance
+     *
+     * @var self
+     */
+    private static $instance;
+
+    /**
+     * Singleton Instance
+     *
+     * @param array $config
+     * @return self
+     */
+    public static function getInstance() {
+        if (!(self::$instance instanceof self)) {
+            self::$instance = new self;
+        }
+        return self::$instance;
+    }
+
+    /**
+     * @param $name
+     * @param array $config
+     * @return mixed
+     */
+    public function create($name, array $config = array(), \Closure $closure)
+    {
+        if (!isset($this->$name)) {
+            $this->$name = new Controller($config, $closure);
+        }
+
+        return $this->$name;
+    }
+
+    /**
+     * @return Array
+     */
+    public function getControllers()
+    {
+        return $this->_registry;
+    }
+
+    /**
+     * @param $name
+     * @return null
+     */
+    public function getController($name)
+    {
+        return $this->get($name);
+    }
+
+    /**
+     * @param $name
+     * @return bool
+     */
+    public function hasController($name)
+    {
+        return isset($this->$name);
+    }
+}
