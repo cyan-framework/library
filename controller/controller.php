@@ -34,4 +34,18 @@ class Controller
     {
         return $this->name;
     }
+
+    /**
+     * @param callable $closure
+     * @return $this
+     */
+    public function extend(\Closure $closure = null)
+    {
+        if (!empty($closure) && is_callable($closure)) {
+            $this->_extend = $closure->bindTo($this, $this);
+            call_user_func($this->_extend);
+        }
+
+        return $this;
+    }
 }

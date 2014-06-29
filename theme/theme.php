@@ -34,7 +34,7 @@ class Theme
     final public function __construct(array $config = array())
     {
         $finder = Finder::getInstance();
-        $app = \Cyan::initialize()->Application->getCurrent();
+        $app = \Cyan::initialize()->Application->current;
 
         $default_path = \Cyan::initialize()->getRootPath() . DIRECTORY_SEPARATOR . 'theme' ;
         if ($finder->hasResource('app') && !isset($config['path'])) {
@@ -56,9 +56,13 @@ class Theme
 
         if ($app instanceof Application) {
             $app_config = $app->getConfig();
+
+            $url = str_replace(basename($app->Router->base),'',$app->Router->base);
+
             $this->set('base_url', $app->Router->base);
-            $this->set('assets_url', $app->Router->base);
+            $this->set('assets_url', rtrim($url));
             $this->set('title', isset($app_config['title']) ? $app_config['title'] : $app->getName() );
+            $this->set('app_name', $app->getName());
         }
 
         $this->trigger('Initialize', $this);
@@ -126,6 +130,17 @@ class Theme
         $this->layout_path = $layout_path;
 
         return $this;
+    }
+
+    /**
+     * Return link
+     *
+     * @param $uri
+     * @param array $config
+     */
+    public function link_to($uri, array $config = array())
+    {
+        return \Cyan::initialize()->Application->current->Router->link_to($uri);
     }
 
     /**

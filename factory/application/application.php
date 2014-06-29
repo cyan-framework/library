@@ -65,40 +65,41 @@ class FactoryApplication extends Factory
                     }
                     $name = $args[0];
                     $initialize = $args[1];
-                    $instance = new Application($name, $initialize);
+                    $this->current = new Application($name, $initialize);
                     break;
                 case 1:
 
                     if (is_callable($args[0])) {
-                        $instance = new Application($name,$args[0]);
+                        $this->current = new Application($name,$args[0]);
                     } elseif (is_string($args[0])) {
-                        $instance = new Application($args[0]);
+                        $this->current = new Application($args[0]);
                     } else {
                         throw new ApplicationException('Invalid argument type! Spected String or Closure, "%s" given.',gettype($args[0]));
                     }
                     break;
                 case 0:
-                    $instance = new Application($name);
+                    $this->current = new Application($name);
                     break;
                 default:
                     throw new ApplicationException('Invalid arguments. Spected (String, Closure).');
                     break;
             }
+            $this->current->initialize();
 
-            $this->$name = $instance;
+            $this->$name = $this->current;
         }
         $this->current = $this->$name;
 
-        return $this->$name;
+        return $this->current;
     }
 
     /**
      * @param $name
      * @return Application
      */
-    public function get($name)
+    public function get($name, $default = null)
     {
-        return $this->get($name);
+        return $this->get($name, $default);
     }
 
     /**

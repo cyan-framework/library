@@ -53,6 +53,11 @@ class Cyan
     public $View;
 
     /**
+     * @var \Cyan\Library\Data
+     */
+    public $Data;
+
+    /**
      * @var \Cyan\Library\FactoryController
      */
     public $Controller;
@@ -121,6 +126,7 @@ class Cyan
         $this->Controller = \Cyan\Library\FactoryController::getInstance();
         $this->Plugin = \Cyan\Library\FactoryPlugin::getInstance();
         $this->Finder = \Cyan\Library\Finder::getInstance();
+        $this->Data = \Cyan\Library\Data::getInstance();
 
         //register root application path as resource
         $this->Finder->registerResource('root', $this->_rootPath);

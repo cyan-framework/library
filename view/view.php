@@ -32,6 +32,13 @@ class View
     protected $data = array();
 
     /**
+     * Static global Data
+     *
+     * @var array
+     */
+    private static $share = array();
+
+    /**
      * View Constructor
      *
      * @param array $config
@@ -43,6 +50,10 @@ class View
         $default_path = \Cyan::initialize()->getRootPath() . DIRECTORY_SEPARATOR . 'view' ;
         if ($finder->hasResource('app')) {
             $config['path'] = $finder->getPath('app:view');
+        }
+        if (!empty(\Cyan::initialize()->Application->current)) {
+            $this->set('app_name', \Cyan::initialize()->Application->current->getName());
+            $this->set('outlet', '');
         }
         $this->_path = isset($config['path']) ? $config['path'] : $default_path ;
 
@@ -98,6 +109,27 @@ class View
             $this->set($key, $value);
         }
         return $this;
+    }
+
+    /**
+     * Share Data Between all views
+     *
+     * @param $key
+     * @param $value
+     */
+    public static function share($key, $value)
+    {
+        self::$share[$key] = $value;
+    }
+
+    /**
+     * @param array $data
+     */
+    public static function shareData(array $data)
+    {
+        foreach ($data as $key => $value) {
+            self::share($key, $value);
+        }
     }
 
     /**
@@ -163,6 +195,17 @@ class View
         $this->trigger('Render', $this);
 
         return $this->_content;
+    }
+
+    /**
+     * Return link
+     *
+     * @param $uri
+     * @param array $config
+     */
+    public function link_to($uri, array $config = array())
+    {
+        return \Cyan::initialize()->Application->current->Router->link_to($uri, $config);
     }
 
     /**

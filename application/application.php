@@ -32,6 +32,13 @@ class Application
     protected $_registry;
 
     /**
+     * List set Data
+     *
+     * @var \ArrayObject
+     */
+    protected $_data;
+
+    /**
      * Application Router
      *
      * @var Router
@@ -42,6 +49,11 @@ class Application
      * @var FactoryController
      */
     public $Controller = false;
+
+    /**
+     * @var FactoryView
+     */
+    public $View = false;
 
     /**
      * Application Theme
@@ -87,29 +99,44 @@ class Application
         }
 
         $this->_name = $name;
+        $this->_registry = new \ArrayObject();
+        $this->_data = new \ArrayObject();
 
         if (isset($initialize) && is_callable($initialize)) {
             $this->__initializer = $initialize->bindTo($this, $this);
             $this->__initializer();
         }
 
-        if ($this->Router === false) {
+        if ($this->Controller == false) {
+            $this->Controller = new FactoryController;
+        }
+
+        if ($this->View == false) {
+            $this->View = new FactoryView;
+        }
+
+        if ($this->Router == false) {
             $router_config = Finder::getInstance()->getIdentifier('app:config.router', array());
             $router_name = sprintf('%sApplicationRoute', $this->getName());
             $router_factory = FactoryRouter::getInstance();
             $this->Router = $router_factory->getRouter($router_name, $router_factory->create($router_name, $router_config));
         }
 
-        if ($this->Controller === false) {
-            $this->Controller = new FactoryController;
-        }
+        $this->advanceReadiness();
+    }
+
+    /**
+     * Default Application
+     */
+    public function initialize()
+    {
+        $this->Router->resource('index');
+        $this->Router->setDefault('index');
 
         //import application plugins
         FactoryPlugin::getInstance()->assign('application', $this);
 
         $this->trigger('Initialize', $this);
-
-        $this->advanceReadiness();
     }
 
     /**
@@ -218,6 +245,18 @@ class Application
         $this->Theme->set('outlet', $response);
 
         echo $this->Theme;
+    }
+
+    /**
+     *
+     *
+     * @param $name
+     */
+    public function __get($name)
+    {
+        if (substr($name,-10) == 'Controller') {
+            return $this->Controller->getController($name);
+        }
     }
 
     /**

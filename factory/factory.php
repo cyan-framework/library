@@ -13,6 +13,14 @@ abstract class Factory
     protected $_registry;
 
     /**
+     * Construct
+     */
+    public function __construct()
+    {
+        $this->_registry = new \ArrayObject();
+    }
+
+    /**
      * @param $key
      * @param null $default
      * @return null

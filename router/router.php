@@ -253,6 +253,7 @@ class Router
      */
     public function route($name, $config)
     {
+        $name = ucfirst(strtolower($name));
         $uri = isset($config['path']) ? $config['path'] : $name ;
         $config['action'] = isset($config['action']) ? $config['action'] : '' ;
 
@@ -267,6 +268,57 @@ class Router
         return $this;
     }
 
+    public function resource($name, $config = null, \Closure $closure = null)
+    {
+        $name = ucfirst(strtolower($name));
+        $controller_name = sprintf('%sController',$name);
+        $view_name = sprintf('%sView',$name);
+
+        $app = \Cyan::initialize()->Application->current;
+        if (!empty($app)) {
+            if (!($app instanceof Application)) {
+                throw new RouterException('Current application instance its not an application object');
+            }
+            $app->Controller->create($controller_name, array(), function() use($name, $view_name) {
+                $this->get = function() use ($name, $view_name){
+                    return \Cyan::initialize()->Application->current->View->create($view_name, array(
+                        'tpl' => strtolower($name)
+                    ));
+                };
+            });
+        } else {
+            FactoryController::getInstance()->create($controller_name);
+        }
+        if (!is_null($config) || !is_null($closure)) {
+            if (is_null($closure)) {
+                if (is_array($config)) {
+                    $uri = strtolower($name);
+                    foreach ($config as $filter => $value) {
+                        $uri .= '/'.$filter.':'.$value;
+                    }
+                    $this->get($uri, array(
+                        'controller' => $controller_name
+                    ));
+                } elseif (is_callable($config)) {
+
+                } else {
+                    throw new RouterException(sprintf('2nd argument $config must be Array or Closure. Current type "%s".',gettype($config)));
+                }
+            } elseif (is_callable($closure)) {
+
+            } else {
+                throw new RouterException(sprintf('3rd argument $closure must be Closure. Current type "%s".',gettype($closure)));
+            }
+        } else {
+            $uri = strtolower($name);
+            $this->get($uri, array(
+                'controller' => $controller_name
+            ));
+        }
+
+        return $this;
+    }
+
     /**
      * @param callable $closure
      * @return $this
@@ -276,6 +328,20 @@ class Router
         if (!empty($closure) && is_callable($closure)) {
             $this->_closure = $closure->bindTo($this, $this);
             call_user_func($this->_closure);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param callable $closure
+     * @return $this
+     */
+    public function extend(\Closure $closure = null)
+    {
+        if (!empty($closure) && is_callable($closure)) {
+            $this->_extend = $closure->bindTo($this, $this);
+            call_user_func($this->_extend);
         }
 
         return $this;
@@ -406,7 +472,7 @@ class Router
                     return $this->error;
                 }
             }
-            throw new RouterException('Please send a config to dispatcher');
+            throw new RouterException(sprintf('The URI "%s" did not match any routes.',$this->current));
         }
 
         $controller = isset($config['controller']) && is_string($config['controller']) ? $config['controller'] : null ;
@@ -465,6 +531,50 @@ class Router
             return call_user_func_array(array($object, $method), $args[0]);
         } else {
             throw new \BadMethodCallException(sprintf('Undefined "%s" in %s',$name,get_class($this)));
+        }
+    }
+
+    public function buildUri($uri, $data)
+    {
+        $requested_method = strtolower($_SERVER['REQUEST_METHOD']);
+        if (empty($this->_route)) {
+            throw new RouterException('You must configure a router before run an application');
+        }
+
+        if (!isset($this->_route[$requested_method]) && !isset($this->_special_route[$requested_method])) {
+            throw new RouterException('Invalid Requested method');
+        }
+
+        if (!empty($data)) {
+            $uri .= '/'.implode('/',array_values($data));
+        };
+
+        return $uri;
+    }
+
+    /**
+     * Return link
+     *
+     * @param $uri
+     * @param array $config
+     * @return string
+     */
+    public function link_to($uri, array $config = array())
+    {
+        $app_config = Finder::getInstance()->getIdentifier('app:config.application');
+        if (!empty($app_config) && isset($app_config['sef'])) {
+            if (isset($app_config['sef_rewrite']) && intval($app_config['sef_rewrite'])) {
+                $file = basename($this->base);
+                if (strpos($file,'.php') === false) {
+                    return $this->base . '/' . $this->buildUri($uri, $config);
+                } else {
+                    return str_replace($file,'',$this->base) . '/' . $this->buildUri($uri, $config);
+                }
+            } else {
+                return $this->base . '/' . $this->buildUri($uri, $config);
+            }
+        } else {
+            return $this->base . '/' . $this->buildUri($uri, $config);
         }
     }
 }
