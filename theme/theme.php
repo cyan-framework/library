@@ -57,10 +57,14 @@ class Theme
         if ($app instanceof Application) {
             $app_config = $app->getConfig();
 
-            $url = str_replace(basename($app->Router->base),'',$app->Router->base);
+            if (substr($app->Router->base,-4) === '.php' {
+                $base_url = str_replace(basename($app->Router->base),'',$app->Router->base);
+            } else {
+                $base_url = $app->Router->base;
+            }
 
             $this->set('base_url', $app->Router->base);
-            $this->set('assets_url', rtrim($url));
+            $this->set('assets_url', rtrim($base_url));
             $this->set('title', isset($app_config['title']) ? $app_config['title'] : $app->getName() );
             $this->set('app_name', $app->getName());
         }
