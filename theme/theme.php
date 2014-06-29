@@ -57,7 +57,7 @@ class Theme
         if ($app instanceof Application) {
             $app_config = $app->getConfig();
 
-            if (substr($app->Router->base,-4) === '.php' {
+            if (substr($app->Router->base,-4) === '.php') {
                 $base_url = str_replace(basename($app->Router->base),'',$app->Router->base);
             } else {
                 $base_url = $app->Router->base;
