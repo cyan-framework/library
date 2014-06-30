@@ -119,9 +119,9 @@ class Cyan
         ));
 
         //Assign Factories
-        $this->Connection = Cyan\Library\FactoryConnection::getInstance();
-        $this->Router = Cyan\Library\FactoryRouter::getInstance();
-        $this->Application = Cyan\Library\FactoryApplication::getInstance();
+        $this->Connection = \Cyan\Library\FactoryConnection::getInstance();
+        $this->Router = \Cyan\Library\FactoryRouter::getInstance();
+        $this->Application = \Cyan\Library\FactoryApplication::getInstance();
         $this->View = \Cyan\Library\FactoryView::getInstance();
         $this->Controller = \Cyan\Library\FactoryController::getInstance();
         $this->Plugin = \Cyan\Library\FactoryPlugin::getInstance();
