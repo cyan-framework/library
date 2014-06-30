@@ -574,7 +574,12 @@ class Router
                 return $this->base . '/' . $this->buildUri($uri, $config);
             }
         } else {
-            return $this->base . '/' . $this->buildUri($uri, $config);
+            if (strpos($this->base,'.php') === false) {
+                return $this->base . '/' . basename($_SERVER['SCRIPT_NAME']) . '/' . $this->buildUri($uri, $config);
+            } else {
+                return $this->base . '/' . $this->buildUri($uri, $config);
+            }
+            
         }
     }
 }
