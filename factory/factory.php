@@ -25,7 +25,7 @@ abstract class Factory
      * @param null $default
      * @return null
      */
-    protected function get($key, $default = null)
+    public function get($key, $default = null)
     {
         return isset($this->$key) ? $this->$key : $default ;
     }
@@ -36,7 +36,7 @@ abstract class Factory
      */
     public function __get($key)
     {
-        return $this->_registry[$key];
+        return isset($this->_registry[$key]) ? $this->_registry[$key] : null ;
     }
 
     /**

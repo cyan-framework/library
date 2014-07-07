@@ -46,9 +46,15 @@ class FactoryApplication extends Factory
         //create default name
         if (!is_string($name)) {
             foreach (debug_backtrace() as $debug) {
-                if (sprintf('%s::%s',$debug['class'],$debug['function']) == __METHOD__) {
+                if (isset($debug['class']) && sprintf('%s::%s',$debug['class'],$debug['function']) == __METHOD__) {
                     $name = basename(dirname($debug['file']));
-                    break;
+                    $base_dir = dirname($debug['file']);
+                }
+            }
+        } else {
+            foreach (debug_backtrace() as $debug) {
+                if (isset($debug['class']) && sprintf('%s::%s',$debug['class'],$debug['function']) == __METHOD__) {
+                    $base_dir = dirname($debug['file']);
                 }
             }
         }
@@ -87,19 +93,11 @@ class FactoryApplication extends Factory
             $this->current->initialize();
 
             $this->$name = $this->current;
+            Finder::getInstance()->registerResource('app', $base_dir);
         }
         $this->current = $this->$name;
 
         return $this->current;
-    }
-
-    /**
-     * @param $name
-     * @return Application
-     */
-    public function get($name, $default = null)
-    {
-        return $this->get($name, $default);
     }
 
     /**

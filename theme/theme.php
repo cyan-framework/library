@@ -176,7 +176,7 @@ class Theme
             $this->_content = ob_get_clean();
         } else {
             if (empty($this->_content)) {
-                $this->_content = $this->data['outlet'];
+                $this->_content = (string) $this->data['outlet'];
             }
         }
 

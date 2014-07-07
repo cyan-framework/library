@@ -199,8 +199,8 @@ class Finder
                     return $return;
                 } else {
                     $app = FactoryApplication::getInstance();
-                    if ($app->hasApplication($parse['scheme'])) {
-                        return $app->getApplication($parse['scheme']);
+                    if ($app->exists($parse['scheme'])) {
+                        return $app->get($parse['scheme']);
                     }
                 }
             }

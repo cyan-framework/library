@@ -44,25 +44,16 @@ class FactoryController extends Factory
     /**
      * @return Array
      */
-    public function getControllers()
+    public function all()
     {
         return $this->_registry;
     }
 
     /**
      * @param $name
-     * @return null
-     */
-    public function getController($name)
-    {
-        return $this->get($name);
-    }
-
-    /**
-     * @param $name
      * @return bool
      */
-    public function hasController($name)
+    public function exists($name)
     {
         return isset($this->$name);
     }

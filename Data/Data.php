@@ -1,6 +1,10 @@
 <?php
 namespace Cyan\Library;
 
+/**
+ * Class Data
+ * @package Cyan\Library
+ */
 class Data
 {
     /**

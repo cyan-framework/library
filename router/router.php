@@ -492,9 +492,9 @@ class Router
 
         if (isset($controller) && !empty($controller)) {
             if (!empty(\Cyan::initialize()->Application->current)) {
-                $object = \Cyan::initialize()->Application->current->Controller->getController($controller);
+                $object = \Cyan::initialize()->Application->current->Controller->get($controller);
             } else {
-                $object = FactoryController::getInstance()->getController($controller);
+                $object = FactoryController::getInstance()->get($controller);
             }
 
             $return = $object->run(array_merge(array('action' => $action), $config));

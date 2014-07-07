@@ -44,28 +44,16 @@ class FactoryRouter extends Factory
     /**
      * @return Array
      */
-    public function getRouters()
+    public function all()
     {
         return $this->_registry;
-    }
-
-    /**
-     * Return a Router
-     *
-     * @param $name
-     * @param null $default_value
-     * @return null
-     */
-    public function getRouter($name, $default_value = null)
-    {
-        return $this->get($name, $default_value);
     }
 
     /**
      * @param $name
      * @return bool
      */
-    public function hasRouter($name)
+    public function exists($name)
     {
         return isset($this->$name);
     }

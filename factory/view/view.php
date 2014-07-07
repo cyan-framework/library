@@ -37,7 +37,7 @@ class FactoryView extends Factory
         if (!isset($this->$name)) {
             if (empty($config)) {
                 $config = array(
-                    'tpl' => $name
+                    'tpl' => strtolower($name)
                 );
             }
             $this->$name = new View($config);
@@ -49,25 +49,16 @@ class FactoryView extends Factory
     /**
      * @return Array
      */
-    public function getViews()
+    public function all()
     {
         return $this->_registry;
     }
 
     /**
      * @param $name
-     * @return View
-     */
-    public function getView($name)
-    {
-        return $this->get($name);
-    }
-
-    /**
-     * @param $name
      * @return bool
      */
-    public function hasView($name)
+    public function exists($name)
     {
         return isset($this->$name);
     }

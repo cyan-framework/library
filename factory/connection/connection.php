@@ -47,25 +47,16 @@ class FactoryConnection extends Factory
     /**
      * @return Array
      */
-    public function getConnections()
+    public function all()
     {
         return $this->_registry;
     }
 
     /**
      * @param $name
-     * @return null
-     */
-    public function getConnection($name)
-    {
-        return $this->get($name);
-    }
-
-    /**
-     * @param $name
      * @return bool
      */
-    public function hasConnection($name)
+    public function exists($name)
     {
         return isset($this->$name);
     }

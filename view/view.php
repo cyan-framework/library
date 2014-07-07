@@ -32,6 +32,11 @@ class View
     protected $data = array();
 
     /**
+     * @var Finder
+     */
+    public $finder;
+
+    /**
      * Static global Data
      *
      * @var array
@@ -45,11 +50,11 @@ class View
      */
     final public function __construct(array $config = array())
     {
-        $finder = Finder::getInstance();
+        $this->finder = Finder::getInstance();
 
         $default_path = \Cyan::initialize()->getRootPath() . DIRECTORY_SEPARATOR . 'view' ;
-        if ($finder->hasResource('app')) {
-            $config['path'] = $finder->getPath('app:view');
+        if ($this->finder->hasResource('app')) {
+            $config['path'] = $this->finder->getPath('app:view');
         }
         if (!empty(\Cyan::initialize()->Application->current)) {
             $this->set('app_name', \Cyan::initialize()->Application->current->getName());
@@ -59,6 +64,23 @@ class View
 
         if (isset($config['tpl'])) {
             $this->tpl($config['tpl']);
+        }
+
+        $app = \Cyan::initialize()->Application->current;
+
+        if ($app instanceof Application) {
+            $app_config = $app->getConfig();
+
+            if (substr($app->Router->base,-4) === '.php') {
+                $base_url = str_replace(basename($app->Router->base),'',$app->Router->base);
+            } else {
+                $base_url = $app->Router->base;
+            }
+
+            $this->set('base_url', $app->Router->base);
+            $this->set('assets_url', rtrim($base_url));
+            $this->set('title', isset($app_config['title']) ? $app_config['title'] : $app->getName() );
+            $this->set('app_name', $app->getName());
         }
 
         $this->trigger('Initialize', $this);

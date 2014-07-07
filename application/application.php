@@ -119,7 +119,7 @@ class Application
             $router_config = Finder::getInstance()->getIdentifier('app:config.router', array());
             $router_name = sprintf('%sApplicationRoute', $this->getName());
             $router_factory = FactoryRouter::getInstance();
-            $this->Router = $router_factory->getRouter($router_name, $router_factory->create($router_name, $router_config));
+            $this->Router = $router_factory->get($router_name, $router_factory->create($router_name, $router_config));
         }
 
         $this->advanceReadiness();
@@ -231,7 +231,7 @@ class Application
             throw new ApplicationException(sprintf('%s Application Router not have any route.',$this->_name));
         }
 
-        if ($this->Theme === false) {
+        if ($this->Theme == false) {
             $theme_config = Finder::getInstance()->getIdentifier('app:config.theme', array());
             $this->Theme = new Theme($theme_config);
         }
@@ -255,7 +255,7 @@ class Application
     public function __get($name)
     {
         if (substr($name,-10) == 'Controller') {
-            return $this->Controller->getController($name);
+            return $this->Controller->get($name);
         }
     }
 
