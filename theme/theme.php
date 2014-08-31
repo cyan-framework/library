@@ -66,7 +66,7 @@ class Theme
             $this->set('base_url', $app->Router->base);
             $this->set('assets_url', rtrim($base_url));
             $this->set('title', isset($app_config['title']) ? $app_config['title'] : $app->getName() );
-            $this->set('app_name', $app->getName());
+            $this->set('app_name', isset($app_config['app_name']) ? $app_config['app_name'] : $app->getName() );
         }
 
         $this->trigger('Initialize', $this);

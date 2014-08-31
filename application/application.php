@@ -102,6 +102,11 @@ class Application
         $this->_registry = new \ArrayObject();
         $this->_data = new \ArrayObject();
 
+
+        if (!isset($this->_data['build_index'])) {
+            $this->_data['build_index'] = true;
+        }
+
         if (isset($initialize) && is_callable($initialize)) {
             $this->__initializer = $initialize->bindTo($this, $this);
             $this->__initializer();
@@ -130,8 +135,10 @@ class Application
      */
     public function initialize()
     {
-        $this->Router->resource('index');
-        $this->Router->setDefault('index');
+        if ($this->_data['build_index']) {
+            $this->Router->resource('index');
+            $this->Router->setDefault('index');
+        }
 
         //import application plugins
         FactoryPlugin::getInstance()->assign('application', $this);

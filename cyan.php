@@ -38,6 +38,11 @@ class Cyan
     protected $__initialize;
 
     /**
+     * @var Cyan\Library\FactoryApi
+     */
+    public $Api;
+
+    /**
      * @var \Cyan\Library\FactoryApplication
      */
     public $Application;
@@ -78,6 +83,11 @@ class Cyan
     public $Finder;
 
     /**
+     * @var Cyan\Library\Filter
+     */
+    public $Filter;
+
+    /**
      * Initialize Library
      *
      * @param bool $auto_register_apps True if you want to auto register apps on initialize framework
@@ -111,8 +121,10 @@ class Cyan
         \Cyan\Library\Filter::getInstance()->mapFilters(array(
             'cyan_int' => '/[0-9]*/',
             'cyan_str' => '/[A-ZA-za-z]*/',
+            'cyan_email' => '/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/',
             'cyan_action' => '/([A-ZA-za-z]*|[A-ZA-za-z]*.[A-ZA-za-z]*)/',
             'cyan_slug' => '/[0-9A-ZA-za-z-_]*/',
+            'cyan_uri' => '/[0-9A-ZA-za-z-_\/]*/',
             'cyan_rest_methods', '/(post|put|delete|get)/',
             'cyan_rest_fields' => '/^[A-Za-z][A-Za-z0-9](?:[.,A-Za-z0-9]+)$/',
             'cyan_callback_func' => '/^([A-ZA-za-z0-9_.])*$/'
@@ -121,12 +133,14 @@ class Cyan
         //Assign Factories
         $this->Connection = \Cyan\Library\FactoryConnection::getInstance();
         $this->Router = \Cyan\Library\FactoryRouter::getInstance();
+        $this->Api = \Cyan\Library\FactoryApi::getInstance();
         $this->Application = \Cyan\Library\FactoryApplication::getInstance();
         $this->View = \Cyan\Library\FactoryView::getInstance();
         $this->Controller = \Cyan\Library\FactoryController::getInstance();
         $this->Plugin = \Cyan\Library\FactoryPlugin::getInstance();
         $this->Finder = \Cyan\Library\Finder::getInstance();
         $this->Data = \Cyan\Library\Data::getInstance();
+        $this->Filter = Cyan\Library\Filter::getInstance();
 
         //register root application path as resource
         $this->Finder->registerResource('root', $this->_rootPath);

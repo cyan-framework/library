@@ -1,25 +1,184 @@
 <?php
 namespace Cyan\Library;
 
+/**
+ * Class ApplicationApi
+ * @package Cyan\Library
+ */
 class ApplicationApi
 {
-    /**
-     * Traits
-     */
-    use TraitsApplication;
+    use TraitsPrototype, TraitsEvent;
 
     /**
-     * Create Application
+     * Api Name
+     *
+     * @var string
      */
-    public function __construct($name)
+    protected $_name;
+
+    /**
+     * Start off the number of deferrals at 1. This will be
+     * decremented by the Application's own `initialize` method.
+     *
+     * @var int
+     */
+    protected $_readinessDeferrals = 1;
+
+    /**
+     * List of registries for application
+     *
+     * @var \ArrayObject
+     */
+    protected $_registry;
+
+    /**
+     * List set Data
+     *
+     * @var \ArrayObject
+     */
+    protected $_data;
+
+    /**
+     * Application Router
+     *
+     * @var Router
+     */
+    public $Router = false;
+
+    /**
+     * Application Constructor
+     */
+    public function __construct()
     {
-        $that = $this;
+        $args = func_get_args();
+
+        switch (count($args)) {
+            case 2:
+                if (!is_string($args[0]) && !is_callable($args[1])) {
+                    throw new ApplicationException('Invalid argument orders. Spected (String, Closure) given (%s,%s).',gettype($args[0]),gettype($args[1]));
+                }
+                $name = $args[0];
+                $initialize = $args[1];
+                break;
+            case 1:
+                if (is_string($args[0])) {
+                    $name = $args[0];
+                } elseif (is_callable($args[0])) {
+                    $initialize = $args[0];
+                } else {
+                    throw new ApplicationException('Invalid argument type! Spected String/Closure, "%s" given.',gettype($args[0]));
+                }
+                break;
+            case 0:
+                break;
+            default:
+                throw new ApplicationException('Invalid arguments. Spected (String, Closure).');
+                break;
+        }
+
+        //create default name
+        if (!isset($name)) {
+            throw new ApplicationException('You must send a name');
+        }
+
         $this->_name = $name;
-        $this->router = new RouterApi;
-        $this->finder = Finder::getInstance();
-        $this->connection = Connection::getMultiton($this->getName(), $this->finder->getIdentifier('app:config.database', array()));
+        $this->_registry = new \ArrayObject();
+        $this->_data = new \ArrayObject();
+
+        if (isset($initialize) && is_callable($initialize)) {
+            $this->__initializer = $initialize->bindTo($this, $this);
+            $this->__initializer();
+        }
+
+        if ($this->Router == false) {
+            $router_config = Finder::getInstance()->getIdentifier('app:config.router', array());
+            $router_name = sprintf('%sApiRoute', $this->getName());
+            $router_factory = FactoryRouter::getInstance();
+            $this->Router = $router_factory->get($router_name, $router_factory->create($router_name, $router_config));
+        }
+
+        $this->advanceReadiness();
+    }
+
+    /**
+     * Default Application
+     */
+    public function initialize()
+    {
+        //import application plugins
+        FactoryPlugin::getInstance()->assign('api', $this);
 
         $this->trigger('Initialize', $this);
+    }
+
+    /**
+     * Read a register
+     *
+     * @param $name
+     * @return mixed
+     */
+    public function getRegister($name)
+    {
+        return $this->_registry[$name];
+    }
+
+    /**
+     * Read Application Name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->_name;
+    }
+
+    /**
+     * Define Application Name
+     *
+     * @param $name
+     */
+    public function setName($name)
+    {
+        $this->_name = $name;
+    }
+
+    /**
+     * @param $name
+     * @param $value
+     */
+    public function register($name, $value)
+    {
+        $this->_registry[$name] = $value;
+    }
+
+    /**
+     * Increase readiness state
+     */
+    public function deferReadiness()
+    {
+        $this->_readinessDeferrals++;
+    }
+
+    /**
+     * Decrease readiness state
+     */
+    public function advanceReadiness()
+    {
+        if ($this->_readinessDeferrals) {
+            $this->_readinessDeferrals--;
+        }
+
+        $this->trigger('Ready', $this);
+    }
+
+    /**
+     * Read Application Config
+     *
+     * @return Array
+     */
+    public function getConfig()
+    {
+        return Finder::getInstance()->getIdentifier('app:config.application', array());
     }
 
     /**
@@ -27,7 +186,7 @@ class ApplicationApi
      */
     public function run()
     {
-        $output = $this->router->run();
+        $output = $this->Router->run();
 
         $supress_response_codes = (isset($_GET['supress_response_codes'])) ? true : false ;
 
@@ -52,5 +211,17 @@ class ApplicationApi
         }
 
         return sprintf($template,json_encode($output));
+    }
+
+    /**
+     * Listen PHP Built in Server
+     */
+    public function listen()
+    {
+        if (php_sapi_name() == 'cli-server') {
+            $this->run();
+        }
+
+        return $this;
     }
 }

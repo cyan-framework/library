@@ -195,12 +195,16 @@ class Finder
         } else {
             if ($parse['path'] == 'application') {
                 $this->registerResource('app', $this->_resources[$parse['scheme']]);
-                if ($return instanceof Application) {
+                if ($return instanceof Application || $return instanceof ApplicationApi) {
                     return $return;
                 } else {
                     $app = FactoryApplication::getInstance();
                     if ($app->exists($parse['scheme'])) {
                         return $app->get($parse['scheme']);
+                    }
+                    $api = FactoryApi::getInstance();
+                    if ($api->exists($parse['scheme'])) {
+                        return $api->get($parse['scheme']);
                     }
                 }
             }

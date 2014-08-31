@@ -156,6 +156,31 @@ class Connection
     }
 
     /**
+     * Fech all
+     *
+     * @param $sql
+     */
+    public function fetchAll($sql, $replacePrefix = true)
+    {
+        if ($replacePrefix) {
+            $sql = str_replace('#__',$this->_config['prefix'],$sql);
+        }
+
+        if (!($this->_pdo instanceof \PDO)) {
+            $this->connect();
+        }
+
+        $sth = $this->_pdo->prepare($sql);
+        $return = $sth->execute();
+
+        if (!$return) {
+            return array();
+        }
+
+        return $sth->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
      * @param $table
      * @param $condition
      * @return bool

@@ -358,9 +358,17 @@ class Router
         $route = array();
         $parts = array_filter(explode('/',$uri));
 
-        $isSpecial = strpos($uri,'/*') === false ? false : true ;
+        $special_pos = strpos($uri,'/*');
+        $isSpecial = $special_pos === false ? false : true ;
 
-        if (count($this->path) != count($parts) && !$isSpecial) {
+        $diff = array_diff($parts, $this->path);
+        $validate_uri = array_diff($parts, $diff);
+
+        if ($special_pos) {
+            if (empty($validate_uri)) {
+                return $route;
+            }
+        } else if (count($parts) != count($this->path) && !$isSpecial) {
             return $route;
         }
 
@@ -450,9 +458,11 @@ class Router
             }
 
             //search by router
-            foreach ($this->_route[$requested_method] as $uri => $uriConfig) {
-                $config = $this->matchUri($uri, $uriConfig);
-                if (isset($config['action']) || isset($config['controller'])) break;
+            if (isset($this->_route[$requested_method])) {
+                foreach ($this->_route[$requested_method] as $uri => $uriConfig) {
+                    $config = $this->matchUri($uri, $uriConfig);
+                    if (isset($config['action']) || isset($config['controller'])) break;
+                }
             }
 
             //search especial uri
@@ -534,6 +544,14 @@ class Router
         }
     }
 
+    /**
+     * Build URI
+     *
+     * @param $uri
+     * @param $data
+     * @return string
+     * @throws RouterException
+     */
     public function buildUri($uri, $data)
     {
         $requested_method = strtolower($_SERVER['REQUEST_METHOD']);
@@ -581,5 +599,15 @@ class Router
             }
             
         }
+    }
+
+    /**
+     * Redirect to uri
+     *
+     * @param $uri
+     */
+    public function redirect($uri)
+    {
+        header('location: '.$uri);
     }
 }
