@@ -3,7 +3,7 @@
     "type": "library",
     "license": "GPLv3",
     "description": "Cyan Framework",
-    "keywords": ["php", "framework", "cyan"],
+    "keywords": ["php", "framework", "cyan", "ember", "javascript code style"],
     "homepage": "https://github.com/cyanframerok/library",
     "version": "0.1",
     "authors": [
@@ -15,9 +15,7 @@
     ],
     "autoload": {
         "psr-4": {"Cyan\\Library\\": ""},
-        "files": [
-          "cyan.php"
-        ]
+        "classmap": ["cyan.php"]
     },
     "require": {
         "php": ">= 5.4.0"
