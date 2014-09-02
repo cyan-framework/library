@@ -501,7 +501,10 @@ class Router
         $return = '';
 
         if (isset($controller) && !empty($controller)) {
-            if (!empty(\Cyan::initialize()->Application->current)) {
+            $class_name = $controller.'Controller';
+            if (class_exists($class_name, false)) {
+                $object = new $class_name($controller);
+            } else if (!empty(\Cyan::initialize()->Application->current)) {
                 $object = \Cyan::initialize()->Application->current->Controller->get($controller);
             } else {
                 $object = FactoryController::getInstance()->get($controller);

@@ -53,7 +53,7 @@ class View
         $this->finder = Finder::getInstance();
 
         $default_path = \Cyan::initialize()->getRootPath() . DIRECTORY_SEPARATOR . 'view' ;
-        if ($this->finder->hasResource('app')) {
+        if ($this->finder->hasResource('app') && !isset($config['path'])) {
             $config['path'] = $this->finder->getPath('app:view');
         }
         if (!empty(\Cyan::initialize()->Application->current)) {

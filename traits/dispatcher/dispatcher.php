@@ -53,7 +53,7 @@ trait TraitsDispatcher
 
             $return = $this->$controller($action, $config);
         } else {
-            if (!property_exists($this,$action)) {
+            if (!property_exists($this,$action) && !method_exists($this,$action)) {
                 throw new TraitsException(sprintf('Undefined "%s" in %s',$action,get_class($this)));
             }
 

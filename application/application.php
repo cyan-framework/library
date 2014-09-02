@@ -262,7 +262,11 @@ class Application
     public function __get($name)
     {
         if (substr($name,-10) == 'Controller') {
-            return $this->Controller->get($name);
+            $controller_name = substr($name,0,-10);
+            if (!$this->Controller->exists($controller_name)) {
+                $this->Controller->create($controller_name);
+            }
+            return $this->Controller->get($controller_name);
         }
     }
 
