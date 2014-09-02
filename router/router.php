@@ -583,8 +583,8 @@ class Router
     public function link_to($uri, array $config = array())
     {
         $app_config = Finder::getInstance()->getIdentifier('app:config.application');
-        if (!empty($app_config) && isset($app_config['sef'])) {
-            if (isset($app_config['sef_rewrite']) && intval($app_config['sef_rewrite'])) {
+        if (!empty($app_config) && isset($app_config['sef']) && $app_config['sef']) {
+            if (isset($app_config['sef_rewrite'])) {
                 $file = basename($this->base);
                 if (strpos($file,'.php') === false) {
                     return $this->base . '/' . $this->buildUri($uri, $config);
