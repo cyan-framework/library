@@ -48,7 +48,7 @@ class View
      *
      * @param array $config
      */
-    final public function __construct(array $config = array())
+    public function __construct(array $config = array())
     {
         $this->finder = Finder::getInstance();
 
@@ -163,7 +163,7 @@ class View
      * @return mixed
      * @throws RuntimeException
      */
-    final public function tpl($folder, $layout = null, $path = null)
+    public function tpl($folder, $layout = null, $path = null)
     {
         if (is_null($folder)) {
             throw new ViewException('Folder cant be null');
@@ -208,8 +208,9 @@ class View
     /**
      * Render a layout
      */
-    final public function render()
+    public function render()
     {
+        global $Cyan;
         ob_start();
         include $this->layout_path;
         $this->_content = ob_get_clean();

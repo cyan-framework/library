@@ -56,6 +56,11 @@ class Application
     public $View = false;
 
     /**
+     * @var FactoryDatabase
+     */
+    public $Database = false;
+
+    /**
      * Application Theme
      *
      * @var Theme
@@ -112,12 +117,29 @@ class Application
             $this->__initializer();
         }
 
+        $this->advanceReadiness();
+    }
+
+    /**
+     * Default Application
+     */
+    public function initialize()
+    {
         if ($this->Controller == false) {
             $this->Controller = new FactoryController;
         }
 
         if ($this->View == false) {
             $this->View = new FactoryView;
+        }
+
+        if ($this->Database == false) {
+            $db_configs = Finder::getInstance()->getIdentifier('app:config.database', array());
+            $db_factory = FactoryDatabase::getInstance();
+            foreach ($db_configs as $db_name => $db_config) {
+                $db_factory->create($db_name, $db_config);
+            }
+            $this->Database = $db_factory;
         }
 
         if ($this->Router == false) {
@@ -127,14 +149,11 @@ class Application
             $this->Router = $router_factory->get($router_name, $router_factory->create($router_name, $router_config));
         }
 
-        $this->advanceReadiness();
-    }
+        $filters = Finder::getInstance()->getIdentifier('app:config.filters', array());
+        if (!empty($filters)) {
+            Filter::getInstance()->mapFilters($filters);
+        }
 
-    /**
-     * Default Application
-     */
-    public function initialize()
-    {
         if ($this->_data['build_index']) {
             $this->Router->resource('index');
             $this->Router->setDefault('index');
@@ -255,7 +274,7 @@ class Application
     }
 
     /**
-     *
+     * Create a Controller if not exists
      *
      * @param $name
      */

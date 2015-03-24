@@ -2,10 +2,10 @@
 namespace Cyan\Library;
 
 /**
- * Class FactoryConnection
+ * Class FactoryDatabase
  * @package Cyan\Library
  */
-class FactoryConnection extends Factory
+class FactoryDatabase extends Factory
 {
     /**
      * Singleton Instance
@@ -13,6 +13,11 @@ class FactoryConnection extends Factory
      * @var self
      */
     private static $instance;
+
+    /**
+     * @var Database
+     */
+    public $current;
 
     /**
      * Singleton Instance
@@ -35,10 +40,14 @@ class FactoryConnection extends Factory
     public function create($name, array $config = array())
     {
         if (!isset($this->$name)) {
-            $this->$name = new Connection($name);
+            $this->$name = new Database($name);
             if (!empty($config)) {
                 $this->$name->setConfig($config);
             }
+        }
+
+        if (!isset($this->current)) {
+            $this->current = $this->$name;
         }
 
         return $this->$name;
@@ -53,11 +62,11 @@ class FactoryConnection extends Factory
     }
 
     /**
-     * @param $name
+     * @param $driver
      * @return bool
      */
-    public function exists($name)
+    public function exists($driver)
     {
-        return isset($this->$name);
+        return isset($this->$driver);
     }
 }

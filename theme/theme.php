@@ -1,37 +1,18 @@
 <?php
 namespace Cyan\Library;
 
-class Theme
+/**
+ * Class Theme
+ * @package Cyan\Library
+ */
+class Theme extends View
 {
-    use TraitsEvent;
-
-    /**
-     * Base path to views
-     *
-     * @var String
-     */
-    protected $_path;
-
-    /**
-     * Layout Buffer
-     *
-     * @var string
-     */
-    protected $_content;
-
-    /**
-     * Data Mapper
-     *
-     * @var array
-     */
-    protected $data = array();
-
     /**
      * View Constructor
      *
      * @param array $config
      */
-    final public function __construct(array $config = array())
+    public function __construct(array $config = array())
     {
         $finder = Finder::getInstance();
         $app = \Cyan::initialize()->Application->current;
@@ -73,37 +54,6 @@ class Theme
     }
 
     /**
-     * @return String
-     */
-    public function getPath()
-    {
-        return $this->_path;
-    }
-
-    /**
-     * @param $key
-     * @param $value
-     * @return $this
-     */
-    public function set($key, $value)
-    {
-        $this->data[$key] = $value;
-
-        return $this;
-    }
-
-    /**
-     * @param array $data
-     * @return $this
-     */
-    public function setData(array $data)
-    {
-        $this->data = array_merge($this->data, $data);
-
-        return $this;
-    }
-
-    /**
      * Render Layout
      *
      * @param $folder
@@ -112,7 +62,7 @@ class Theme
      * @return mixed
      * @throws RuntimeException
      */
-    final public function tpl($folder, $layout = null, $path = null)
+    public function tpl($folder, $layout = null, $path = null)
     {
         if (is_null($folder)) {
             throw new ThemeException('Folder cant be null');
@@ -137,39 +87,11 @@ class Theme
     }
 
     /**
-     * Return link
-     *
-     * @param $uri
-     * @param array $config
-     */
-    public function link_to($uri, array $config = array())
-    {
-        return \Cyan::initialize()->Application->current->Router->link_to($uri);
-    }
-
-    /**
-     * @return string
-     */
-    public function getContent()
-    {
-        return $this->_content;
-    }
-
-    /**
-     * @param $content
-     * @return $this
-     */
-    public function setContent($content)
-    {
-        $this->_content = $content;
-        return $this;
-    }
-
-    /**
      * Render a layout
      */
     final public function render()
     {
+        global $Cyan;
         if (!empty($this->layout_path) && is_readable($this->layout_path) & file_exists($this->layout_path)) {
             ob_start();
             include $this->layout_path;
@@ -183,13 +105,5 @@ class Theme
         $this->trigger('Render', $this);
 
         return $this->_content;
-    }
-
-    /**
-     * Output a view
-     */
-    public function __toString()
-    {
-        return $this->render();
     }
 }

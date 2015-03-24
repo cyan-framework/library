@@ -66,6 +66,25 @@ class Filter
     }
 
     /**
+     * Filter Array List from a $handle source
+     *
+     * @param array $filters
+     * @param $handle
+     * @return array
+     */
+    public function getArray(array $filters, array $handle)
+    {
+        $data = [];
+        foreach ($filters as $key => $filter) {
+            if (isset($handle[$key])) {
+                $data[$key] = $this->filter($filter, $handle[$key]);
+            }
+        }
+
+        return $data;
+    }
+
+    /**
      * Map single Filter
      *
      * @param $identifier
@@ -93,5 +112,15 @@ class Filter
         }
 
         return $this;
+    }
+
+    /**
+     * List of filters keys
+     *
+     * @return array
+     */
+    public function getFiltersList()
+    {
+        return array_keys($this->filters);
     }
 }

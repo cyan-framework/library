@@ -9,7 +9,7 @@ class Cyan
      *
      * @var string
      */
-    const VERSION = '0.1';
+    const VERSION = '0.5';
 
     /**
      * Library Path
@@ -73,9 +73,9 @@ class Cyan
     public $Plugin;
 
     /**
-     * @var \Cyan\Library\FactoryConnection
+     * @var \Cyan\Library\FactoryDatabase
      */
-    public $Connection;
+    public $Database;
 
     /**
      * @var Cyan\Library\Finder
@@ -86,6 +86,16 @@ class Cyan
      * @var Cyan\Library\Filter
      */
     public $Filter;
+
+    /**
+     * @var Cyan\Library\Csrf
+     */
+    public $CSRF;
+
+    /**
+     * @var Cyan\Library\Autoload
+     */
+    public $Loader;
 
     /**
      * Initialize Library
@@ -120,18 +130,19 @@ class Cyan
 
         \Cyan\Library\Filter::getInstance()->mapFilters(array(
             'cyan_int' => '/[0-9]*/',
-            'cyan_str' => '/[A-ZA-za-z]*/',
+            'cyan_string' => '/[A-ZA-za-z]*/',
             'cyan_email' => '/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/',
             'cyan_action' => '/([A-ZA-za-z]*|[A-ZA-za-z]*.[A-ZA-za-z]*)/',
             'cyan_slug' => '/[0-9A-ZA-za-z-_]*/',
             'cyan_uri' => '/[0-9A-ZA-za-z-_\/]*/',
+            'cyan_url' => '/\b(?:(?:https?):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i',
             'cyan_rest_methods', '/(post|put|delete|get)/',
             'cyan_rest_fields' => '/^[A-Za-z][A-Za-z0-9](?:[.,A-Za-z0-9]+)$/',
             'cyan_callback_func' => '/^([A-ZA-za-z0-9_.])*$/'
         ));
 
         //Assign Factories
-        $this->Connection = \Cyan\Library\FactoryConnection::getInstance();
+        $this->Database = \Cyan\Library\FactoryDatabase::getInstance();
         $this->Router = \Cyan\Library\FactoryRouter::getInstance();
         $this->Api = \Cyan\Library\FactoryApi::getInstance();
         $this->Application = \Cyan\Library\FactoryApplication::getInstance();
@@ -141,6 +152,8 @@ class Cyan
         $this->Finder = \Cyan\Library\Finder::getInstance();
         $this->Data = \Cyan\Library\Data::getInstance();
         $this->Filter = Cyan\Library\Filter::getInstance();
+        $this->CSRF = \Cyan\Library\Csrf::getInstance();
+        $this->Loader = $loader;
 
         //register root application path as resource
         $this->Finder->registerResource('root', $this->_rootPath);

@@ -3,9 +3,9 @@
     "type": "library",
     "license": "GPLv3",
     "description": "Cyan Framework",
-    "keywords": ["php", "framework", "cyan", "ember", "javascript code style"],
+    "keywords": ["php", "framework", "cyan", "emberjs php like", "javascript code style"],
     "homepage": "https://github.com/cyanframerok/library",
-    "version": "0.1",
+    "version": "0.5",
     "authors": [
         {
             "name": "Julio Pontes",

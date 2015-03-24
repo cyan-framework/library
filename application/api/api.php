@@ -193,12 +193,12 @@ class ApplicationApi
         if ($supress_response_codes) {
             $code = 200;
         } else {
-            $code = $output['status'];
+            $code = isset($output['status']) ? $output['status'] : 200 ;
             unset($output['status']);
         }
 
         $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
-        $text = (!isset($output['message'])) ? 'OK' : $output['message'] ;
+        $text = (!isset($output['header_message'])) ? 'OK' : $output['header_message'] ;
         header("Access-Control-Allow-Origin: *");
         header($protocol . ' ' . $code . ' ' . $text);
 
@@ -210,7 +210,23 @@ class ApplicationApi
             $template = '%s';
         }
 
-        return sprintf($template,json_encode($output));
+        echo sprintf($template,json_encode($output));
+    }
+
+    /**
+     * Return Error Array from app:config.errors
+     *
+     * @param $code
+     * @return array
+     */
+    public function error($code)
+    {
+        $errors = Finder::getInstance()->getIdentifier('app:config.errors', array());
+        //assign error code to response
+        if (isset($errors[$code])) {
+            $errors[$code]['code'] = $code;
+        }
+        return isset($errors[$code]) ? array('error' => $errors[$code]) : array() ;
     }
 
     /**

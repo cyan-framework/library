@@ -422,6 +422,17 @@ class Router
     }
 
     /**
+     * Create a router
+     *
+     * @param $route
+     * @param $arguments
+     */
+    public function generate($route, $arguments)
+    {
+
+    }
+
+    /**
      * @param $uri
      * @return $this
      */
@@ -501,7 +512,10 @@ class Router
         $return = '';
 
         if (isset($controller) && !empty($controller)) {
-            $class_name = $controller.'Controller';
+            $class_name = $controller;
+            if (strpos($class_name,'controller') === false) {
+                $class_name .= 'Controller';
+            }
             if (class_exists($class_name, false)) {
                 $object = new $class_name($controller);
             } else if (!empty(\Cyan::initialize()->Application->current)) {

@@ -90,10 +90,9 @@ class FactoryApplication extends Factory
                     throw new ApplicationException('Invalid arguments. Spected (String, Closure).');
                     break;
             }
-            $this->current->initialize();
-
             $this->$name = $this->current;
             Finder::getInstance()->registerResource('app', $base_dir);
+            $this->current->initialize();
         }
         $this->current = $this->$name;
 
