@@ -61,6 +61,11 @@ class Application
     public $Database = false;
 
     /**
+     * @var Text
+     */
+    protected $Text = false;
+
+    /**
      * Application Theme
      *
      * @var Theme
@@ -258,8 +263,15 @@ class Application
         }
 
         if ($this->Theme == false) {
-            $theme_config = Finder::getInstance()->getIdentifier('app:config.theme', array());
+            $theme_config = Finder::getInstance()->getIdentifier('app:config.theme', $this->getConfig());
             $this->Theme = new Theme($theme_config);
+        }
+
+        if ($this->Text == false) {
+            $this->Text = new Text;
+            $config = $this->getConfig();
+            if (isset($config['language']))
+                $this->Text->loadLanguage($config['language']);
         }
 
         $this->trigger('BeforeRun', $this);

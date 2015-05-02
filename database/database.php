@@ -164,7 +164,7 @@ class Database
     private function isConnected($action)
     {
         if (!isset($this->_pdo[$action])) {
-            throw new \RuntimeException(sprintf('Pdo not support "%s" only support READ and WRITE action.'));
+            throw new \RuntimeException(sprintf('Pdo not support "%s" only support READ and WRITE action.', $action));
         }
         $pool = $this->_pdo[$action];
 
@@ -218,10 +218,10 @@ class Database
      * Create
      *
      * @param $table
-     * @param $data
+     * @param array $data
      * @return array
      */
-    public function insert($table, $data)
+    public function insert($table, array $data)
     {
         $this->isConnected('write');
 
@@ -229,7 +229,7 @@ class Database
             return $data;
         }
 
-        $sql = $this->createQuery()->insertInto($table, $data);
+        $sql = $this->createQuery()->insertInto($table)->columns(array_keys($data))->values(array_values($data));
         $return = $sql->execute();
 
         return $return;

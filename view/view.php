@@ -211,6 +211,10 @@ class View
     public function render()
     {
         global $Cyan;
+        $App = $Cyan->Application->current;
+        $Router = $App->Router;
+        $Text = $App->Text;
+
         ob_start();
         include $this->layout_path;
         $this->_content = ob_get_clean();
@@ -226,9 +230,9 @@ class View
      * @param $uri
      * @param array $config
      */
-    public function link_to($uri, array $config = array())
+    public function link_to($name, array $config = array())
     {
-        return \Cyan::initialize()->Application->current->Router->link_to($uri, $config);
+        return \Cyan::initialize()->Application->current->Router->link_to($name, $config);
     }
 
     /**

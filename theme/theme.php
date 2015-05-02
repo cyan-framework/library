@@ -106,4 +106,15 @@ class Theme extends View
 
         return $this->_content;
     }
+
+    /**
+     * Add custom string to head position
+     *
+     * @param $content
+     */
+    public function addHeader($content)
+    {
+        $this->share['header'][] = $content;
+        $this->set('head', implode(chr(13).chr(9),$this->share['header']));
+    }
 }

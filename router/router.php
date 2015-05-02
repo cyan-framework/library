@@ -18,6 +18,11 @@ class Router
     protected $_route = array();
 
     /**
+     * @var \Array
+     */
+    protected $_route_name = array();
+
+    /**
      * Special routes start with a variable.
      * Examples: cyan_slug:user, cyan_slug:user/dashboard
      *
@@ -135,12 +140,11 @@ class Router
      * @param $method
      * @param $uri
      * @param $data
+     * @param $route_name
      * @return $this
      */
-    protected function mapRequestMethod($method, $uri, $data)
+    protected function mapRequestMethod($method, $uri, $data, $route_name = null)
     {
-        $uri = $uri;
-
         $parts = explode('/', $uri);
         if (!empty($parts)) {
             if (strpos($parts[0],':') !== false) {
@@ -164,6 +168,11 @@ class Router
             $this->_route[$method][$uri] = $data;
         }
 
+        $this->_route_name[$route_name] = array(
+            'url' => $uri,
+            'config' => $data
+        );
+
         return $this;
     }
 
@@ -172,9 +181,9 @@ class Router
      * @param $config
      * @return $this
      */
-    public function get($uri, $config)
+    public function get($uri, $config, $route_name)
     {
-        return $this->mapRequestMethod('get', $uri, $config);
+        return $this->mapRequestMethod('get', $uri, $config, $route_name);
     }
 
     /**
@@ -182,9 +191,20 @@ class Router
      * @param $config
      * @return $this
      */
-    public function post($uri, $config)
+    public function post($uri, $config, $route_name)
     {
-        return $this->mapRequestMethod('post', $uri, $config);
+        return $this->mapRequestMethod('post', $uri, $config, $route_name);
+    }
+
+    /**
+     * @param $uri
+     * @param $config
+     * @param $route_name
+     * @return $this
+     */
+    public function put($uri, $config, $route_name)
+    {
+        return $this->mapRequestMethod('put', $uri, $config, $route_name);
     }
 
     /**
@@ -192,19 +212,9 @@ class Router
      * @param $config
      * @return $this
      */
-    public function put($uri, $config)
+    public function delete($uri, $config, $route_name)
     {
-        return $this->mapRequestMethod('put', $uri, $config);
-    }
-
-    /**
-     * @param $uri
-     * @param $config
-     * @return $this
-     */
-    public function delete($uri, $config)
-    {
-        return $this->mapRequestMethod('delete', $uri, $config);
+        return $this->mapRequestMethod('delete', $uri, $config, $route_name);
     }
 
     /**
@@ -213,12 +223,12 @@ class Router
      * @param $uri
      * @param $config
      */
-    public function rest($uri, $config)
+    public function rest($uri, $config, $route_name)
     {
-        $this->get($uri, $config);
-        $this->post($uri, $config);
-        $this->put($uri, $config);
-        $this->delete($uri, $config);
+        $this->get($uri, $config, $route_name);
+        $this->post($uri, $config, $route_name);
+        $this->put($uri, $config, $route_name);
+        $this->delete($uri, $config, $route_name);
 
         return $this;
     }
@@ -263,9 +273,25 @@ class Router
         if (!empty($config['action'])) {
             $routeConfig['action'] = $config['action'];
         }
-        $this->get($uri, $routeConfig);
+        $this->get($uri, $routeConfig, $this->_createRouteName($uri, $routeConfig));
 
         return $this;
+    }
+
+    /**
+     * Create a router name
+     *
+     * @param $uri
+     * @param $config
+     * @return string
+     */
+    private function _createRouteName($uri, $config)
+    {
+        $name = '';
+
+        if (isset($config['action'])) $name .= '_action';
+
+        return $name;
     }
 
     public function resource($name, $config = null, \Closure $closure = null)
@@ -298,7 +324,7 @@ class Router
                     }
                     $this->get($uri, array(
                         'controller' => $controller_name
-                    ));
+                    ), $this->_createRouteName($uri,[]));
                 } elseif (is_callable($config)) {
 
                 } else {
@@ -313,7 +339,7 @@ class Router
             $uri = strtolower($name);
             $this->get($uri, array(
                 'controller' => $controller_name
-            ));
+            ), $this->_createRouteName($uri,[]));
         }
 
         return $this;
@@ -424,12 +450,71 @@ class Router
     /**
      * Create a router
      *
-     * @param $route
+     * @param $name
      * @param $arguments
      */
-    public function generate($route, $arguments)
+    public function generate($name, array $arguments = array())
     {
+        if (!isset($this->_route_name[$name])) {
+            throw new RouterException(sprintf('Router named "%s" not exists!', $name));
+        }
+        $match = $this->_route_name[$name];
+        $match['config'] = is_array($match['config']) ? array_merge($match['config'],$arguments) : $arguments ;
 
+        if (isset($match['config']['controller']))
+            unset($match['config']['controller']);
+        if (isset($match['config']['action']))
+            unset($match['config']['action']);
+
+
+        $route = array();
+        $parts = array_filter(explode('/',$match['url']));
+
+        $special_pos = strpos($match['url'],'/*');
+        $isSpecial = $special_pos === false ? false : true ;
+
+        $arguments = array();
+        $total_arguments = count($parts) - 1;
+        foreach ($parts as $key => $pattern) {
+            if (preg_match('/[a-z0-9-_A-Z]*:[a-z0-9-_A-Z]*/', $pattern)) {
+                $argument = explode(':', $pattern);
+
+                $type = $argument[0];
+                $name = $argument[1];
+                $value = $match['config'][$name];
+                if ($argument[0] == '*') {
+                    $route_any = true;
+                    $route[$name] = $value;
+                } else {
+                    $match['url'] = str_replace($pattern, Filter::getInstance()->filter($type,$value), $match['url']);
+                    unset($match['config'][$name]);
+                }
+            }
+        }
+
+        $uri = $match['url'];
+        if (!empty($match['config']))
+            $uri .= '?' . http_build_query($match['config']);
+
+        $app_config = Finder::getInstance()->getIdentifier('app:config.application');
+        if (!empty($app_config) && isset($app_config['sef']) && $app_config['sef']) {
+            if (isset($app_config['sef_rewrite'])) {
+                $file = basename($this->base);
+                if (strpos($file,'.php') === false) {
+                    return $this->base . '/' . $uri;
+                } else {
+                    return str_replace($file,'',$this->base) . '/' . $uri;
+                }
+            }
+        }elseif (strpos($this->base,'.php') === false) {
+            return $this->base . '/' . basename($_SERVER['SCRIPT_NAME']) . '/' . $uri;
+        }
+
+        if ($uri == '/') {
+            $uri = '';
+        }
+
+        return $this->base . '/' . $uri;
     }
 
     /**

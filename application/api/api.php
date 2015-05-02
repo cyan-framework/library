@@ -46,6 +46,11 @@ class ApplicationApi
     public $Router = false;
 
     /**
+     * @var FactoryDatabase
+     */
+    public $Database = false;
+
+    /**
      * Application Constructor
      */
     public function __construct()
@@ -90,13 +95,6 @@ class ApplicationApi
             $this->__initializer();
         }
 
-        if ($this->Router == false) {
-            $router_config = Finder::getInstance()->getIdentifier('app:config.router', array());
-            $router_name = sprintf('%sApiRoute', $this->getName());
-            $router_factory = FactoryRouter::getInstance();
-            $this->Router = $router_factory->get($router_name, $router_factory->create($router_name, $router_config));
-        }
-
         $this->advanceReadiness();
     }
 
@@ -105,6 +103,22 @@ class ApplicationApi
      */
     public function initialize()
     {
+        if ($this->Database == false) {
+            $db_configs = Finder::getInstance()->getIdentifier('app:config.database', array());
+            $db_factory = FactoryDatabase::getInstance();
+            foreach ($db_configs as $db_name => $db_config) {
+                $db_factory->create($db_name, $db_config);
+            }
+            $this->Database = $db_factory;
+        }
+
+        if ($this->Router == false) {
+            $router_config = Finder::getInstance()->getIdentifier('app:config.router', array());
+            $router_name = sprintf('%sApiRoute', $this->getName());
+            $router_factory = FactoryRouter::getInstance();
+            $this->Router = $router_factory->get($router_name, $router_factory->create($router_name, $router_config));
+        }
+
         //import application plugins
         FactoryPlugin::getInstance()->assign('api', $this);
 

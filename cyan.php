@@ -131,6 +131,7 @@ class Cyan
         \Cyan\Library\Filter::getInstance()->mapFilters(array(
             'cyan_int' => '/[0-9]*/',
             'cyan_string' => '/[A-ZA-za-z]*/',
+            'cyan_username' => '/^[A-ZA-za-z0-9_.]*$/',
             'cyan_email' => '/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/',
             'cyan_action' => '/([A-ZA-za-z]*|[A-ZA-za-z]*.[A-ZA-za-z]*)/',
             'cyan_slug' => '/[0-9A-ZA-za-z-_]*/',
@@ -180,9 +181,9 @@ class Cyan
      * @param array $config
      * @return Cyan
      */
-    public static function initialize() {
+    public static function initialize(array $config = array()) {
         if (!(self::$instance instanceof self)) {
-            self::$instance = new self;
+            self::$instance = new self($config);
         }
         return self::$instance;
     }
