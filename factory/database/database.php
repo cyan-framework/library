@@ -37,7 +37,7 @@ class FactoryDatabase extends Factory
      * @param array $config
      * @return mixed
      */
-    public function create($name, array $config = array())
+    public function create($name, array $config = [])
     {
         if (!isset($this->$name)) {
             $this->$name = new Database($name);
@@ -62,11 +62,11 @@ class FactoryDatabase extends Factory
     }
 
     /**
-     * @param $driver
+     * @param $name
      * @return bool
      */
-    public function exists($driver)
+    public function exists($name)
     {
-        return isset($this->$driver);
+        return isset($this->$name);
     }
 }

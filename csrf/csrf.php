@@ -35,9 +35,6 @@ class Csrf
      */
     public function __construct()
     {
-        if (empty(session_id())) {
-            session_start();
-        }
     }
 
     /**
@@ -70,8 +67,9 @@ class Csrf
      * @param $method
      * @return bool
      */
-    public function isValid($method)
+    public function isValid($method = null)
     {
+        $method = is_null($method) ? strtolower($_SERVER['REQUEST_METHOD'])  : strtolower($method) ;
         switch ($method) {
             case 'get':
                 $handle = $_GET;

@@ -32,13 +32,13 @@ class FactoryView extends Factory
      * @param array $config
      * @return View
      */
-    public function create($name, array $config = array())
+    public function create($name, array $config = [])
     {
         if (!isset($this->$name)) {
             if (empty($config)) {
-                $config = array(
+                $config = [
                     'tpl' => strtolower($name)
-                );
+                ];
             }
             $this->$name = new View($config);
         }

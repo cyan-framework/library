@@ -15,7 +15,7 @@ trait QueryTraitLimit
      */
     public function limit($limit)
     {
-        $this->limit = intal($limit);
+        $this->limit = intval($limit);
 
         return $this;
     }
@@ -29,7 +29,7 @@ trait QueryTraitLimit
      */
     public function offset($offset)
     {
-        $this->offset = intal($offset);
+        $this->offset = intval($offset);
 
         return $this;
     }

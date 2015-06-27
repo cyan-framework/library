@@ -51,6 +51,18 @@ class ApplicationApi
     public $Database = false;
 
     /**
+     * Cache
+     *
+     * @var Cache
+     */
+    public $Cache = false;
+
+    /**
+     * @var Text
+     */
+    public $Text = false;
+
+    /**
      * Application Constructor
      */
     public function __construct()
@@ -104,7 +116,7 @@ class ApplicationApi
     public function initialize()
     {
         if ($this->Database == false) {
-            $db_configs = Finder::getInstance()->getIdentifier('app:config.database', array());
+            $db_configs = Finder::getInstance()->getIdentifier('app:config.database', []);
             $db_factory = FactoryDatabase::getInstance();
             foreach ($db_configs as $db_name => $db_config) {
                 $db_factory->create($db_name, $db_config);
@@ -112,11 +124,33 @@ class ApplicationApi
             $this->Database = $db_factory;
         }
 
+        if ($this->Cache == false) {
+            $defaultCacheConfig = ['cache_path' => Finder::getInstance()->getPath('app:cache').DIRECTORY_SEPARATOR, 'cache_time' => 172800]; //48 hours cache
+            $cacheConfig = Finder::getInstance()->getIdentifier('app:config.application', $defaultCacheConfig);
+            if (!isset($cacheConfig['cache_path'])) {
+                $cacheConfig = array_merge($cacheConfig, $defaultCacheConfig);
+            }
+            $this->Cache = new Cache($cacheConfig['cache_path'], $cacheConfig['cache_time']);
+        }
+
         if ($this->Router == false) {
-            $router_config = Finder::getInstance()->getIdentifier('app:config.router', array());
+            $router_config = Finder::getInstance()->getIdentifier('app:config.router', []);
             $router_name = sprintf('%sApiRoute', $this->getName());
             $router_factory = FactoryRouter::getInstance();
             $this->Router = $router_factory->get($router_name, $router_factory->create($router_name, $router_config));
+        }
+
+        $filters = Finder::getInstance()->getIdentifier('app:config.filters', []);
+        if (!empty($filters)) {
+            Filter::getInstance()->mapFilters($filters);
+        }
+
+        if ($this->Text == false) {
+            $language = !empty($this->getConfig()['language']) ? $this->getConfig()['language'] : '' ;
+            $this->Text = Text::getInstance();
+            if (!empty($language)) {
+                $this->Text->loadLanguage($language);
+            }
         }
 
         //import application plugins
@@ -192,7 +226,7 @@ class ApplicationApi
      */
     public function getConfig()
     {
-        return Finder::getInstance()->getIdentifier('app:config.application', array());
+        return Finder::getInstance()->getIdentifier('app:config.application', []);
     }
 
     /**
@@ -213,7 +247,6 @@ class ApplicationApi
 
         $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
         $text = (!isset($output['header_message'])) ? 'OK' : $output['header_message'] ;
-        header("Access-Control-Allow-Origin: *");
         header($protocol . ' ' . $code . ' ' . $text);
 
         $callback = isset($_GET['callback']) ? Filter::getInstance()->filter('cyan_callback_func', $_GET['callback']) : '' ;
@@ -224,7 +257,13 @@ class ApplicationApi
             $template = '%s';
         }
 
-        echo sprintf($template,json_encode($output));
+        $json_string = json_encode($output);
+
+        if ($json_string === false) {
+            throw new ApplicationException('JSON encode has failed!');
+        }
+
+        echo sprintf($template,$json_string);
     }
 
     /**
@@ -235,12 +274,18 @@ class ApplicationApi
      */
     public function error($code)
     {
-        $errors = Finder::getInstance()->getIdentifier('app:config.errors', array());
+        $errors = Finder::getInstance()->getIdentifier('app:config.errors', []);
         //assign error code to response
         if (isset($errors[$code])) {
             $errors[$code]['code'] = $code;
         }
-        return isset($errors[$code]) ? array('error' => $errors[$code]) : array() ;
+        $error = isset($errors[$code]) ? ['error' => $errors[$code]] : [] ;
+
+        if (isset($error['error']['message'])) {
+            $error['error']['message'] = $this->Text->translate($error['error']['message']);
+        }
+
+        return $error;
     }
 
     /**

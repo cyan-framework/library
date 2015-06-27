@@ -29,7 +29,7 @@ class View
      *
      * @var array
      */
-    protected $data = array();
+    protected $data = [];
 
     /**
      * @var Finder
@@ -41,14 +41,14 @@ class View
      *
      * @var array
      */
-    private static $share = array();
+    private static $share = [];
 
     /**
      * View Constructor
      *
      * @param array $config
      */
-    public function __construct(array $config = array())
+    public function __construct(array $config = [])
     {
         $this->finder = Finder::getInstance();
 
@@ -230,9 +230,9 @@ class View
      * @param $uri
      * @param array $config
      */
-    public function link_to($name, array $config = array())
+    public function link_to($name, array $config = [])
     {
-        return \Cyan::initialize()->Application->current->Router->link_to($name, $config);
+        return \Cyan::initialize()->Application->current->Router->generate($name, $config);
     }
 
     /**

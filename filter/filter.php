@@ -12,7 +12,7 @@ class Filter
      *
      * @var array
      */
-    protected $filters = array();
+    protected $filters = [];
 
     /**
      * Self Instance
@@ -43,7 +43,7 @@ class Filter
      * @return null|string
      * @throws \RuntimeException
      */
-    public function filter($filter, $value = null)
+    public function filter($filter, $value = null, $default_value = null)
     {
         // skip condition
         if (!is_string($value)) {
@@ -56,7 +56,7 @@ class Filter
             if (!empty($output)) {
                 $value = is_string($output) ? $output : is_array($output) ? implode($output[0]) : $value ;
             } else {
-                $value = null;
+                $value = $default_value;
             }
         } else {
             throw new FilterException(sprintf('Filter "%s" not found in %s',$filter,get_class($this)));
@@ -104,7 +104,7 @@ class Filter
      * @param array $filters
      * @return $this
      */
-    public function mapFilters(array $filters = array())
+    public function mapFilters(array $filters = [])
     {
         foreach ($filters as $filter => $regex)
         {

@@ -9,7 +9,7 @@ trait QueryTraitGroup
 {
     public function groupBy($condition)
     {
-
+        $this->statements['group'] = $condition;
 
         return $this;
     }

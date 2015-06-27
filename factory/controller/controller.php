@@ -32,7 +32,7 @@ class FactoryController extends Factory
      * @param array $config
      * @return mixed
      */
-    public function create($name, array $config = array(), \Closure $closure = null)
+    public function create($name, array $config = [], \Closure $closure = null)
     {
         if (!isset($this->$name)) {
             $this->$name = new Controller($name,$config, $closure);

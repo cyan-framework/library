@@ -102,7 +102,7 @@ class Cyan
      *
      * @param bool $auto_register_apps True if you want to auto register apps on initialize framework
      */
-    final public function __construct(array $config = array())
+    final public function __construct(array $config = [])
     {
         //Initialize the path
         $this->_path = __DIR__;
@@ -121,17 +121,20 @@ class Cyan
         //Create loader
         require_once $this->_path . '/autoload/autoload.php';
 
-        $config_autoloader = array(
-            'namespaces' => array(
+        $config_autoloader = [
+            'namespaces' => [
                 '\Cyan\Library' => __DIR__
-            )
-        );
+            ]
+        ];
         $loader = \Cyan\Library\Autoload::getInstance($config_autoloader);
 
-        \Cyan\Library\Filter::getInstance()->mapFilters(array(
+        \Cyan\Library\Filter::getInstance()->mapFilters([
             'cyan_int' => '/[0-9]*/',
-            'cyan_string' => '/[A-ZA-za-z]*/',
+            'cyan_float' => '/^[0-9]*\.?[0-9]+$/',
+            'cyan_string' => '/[A-ZA-za-z\s]*/',
+            'cyan_search' => '/[A-ZA-za-z0-9\.\s]*/',
             'cyan_username' => '/^[A-ZA-za-z0-9_.]*$/',
+            'cyan_password' => '/^[A-ZA-za-z0-9_.]*$/',
             'cyan_email' => '/^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/',
             'cyan_action' => '/([A-ZA-za-z]*|[A-ZA-za-z]*.[A-ZA-za-z]*)/',
             'cyan_slug' => '/[0-9A-ZA-za-z-_]*/',
@@ -139,8 +142,9 @@ class Cyan
             'cyan_url' => '/\b(?:(?:https?):\/\/|www\.)[-a-z0-9+&@#\/%?=~_|!:,.;]*[-a-z0-9+&@#\/%=~_|]/i',
             'cyan_rest_methods', '/(post|put|delete|get)/',
             'cyan_rest_fields' => '/^[A-Za-z][A-Za-z0-9](?:[.,A-Za-z0-9]+)$/',
-            'cyan_callback_func' => '/^([A-ZA-za-z0-9_.])*$/'
-        ));
+            'cyan_callback_func' => '/^([A-ZA-za-z0-9_.])*$/',
+            'cyan_base64' => '/^(?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{2}==|[A-Za-z0-9+\/]{3}=)?$/'
+        ]);
 
         //Assign Factories
         $this->Database = \Cyan\Library\FactoryDatabase::getInstance();
@@ -154,6 +158,7 @@ class Cyan
         $this->Data = \Cyan\Library\Data::getInstance();
         $this->Filter = Cyan\Library\Filter::getInstance();
         $this->CSRF = \Cyan\Library\Csrf::getInstance();
+        $this->Text = \Cyan\Library\Text::getInstance();
         $this->Loader = $loader;
 
         //register root application path as resource
@@ -181,7 +186,7 @@ class Cyan
      * @param array $config
      * @return Cyan
      */
-    public static function initialize(array $config = array()) {
+    public static function initialize(array $config = []) {
         if (!(self::$instance instanceof self)) {
             self::$instance = new self($config);
         }
@@ -223,7 +228,7 @@ class Cyan
     public function setRootPath($root_path)
     {
         if (!is_dir($root_path)) {
-            throw new RuntimeException(sprintf('You must set a directory path in $cyan->setRootPath(), "%s" given.',gettype($root_path)));
+            throw new \RuntimeException(sprintf('You must set a directory path in $cyan->setRootPath(), "%s" given.',gettype($root_path)));
         }
 
         $this->_rootPath = $root_path;

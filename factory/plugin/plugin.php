@@ -34,7 +34,7 @@ class FactoryPlugin extends Factory
     public function create($type, $name, \Closure $closure = null)
     {
         if (!isset($this->_registry[$type])) {
-            $this->_registry[$type] = array();
+            $this->_registry[$type] = [];
         }
 
         $this->_registry[$type][$name] = new Plugin($closure);

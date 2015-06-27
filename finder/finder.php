@@ -32,21 +32,21 @@ class Finder
      *
      * @var array
      */
-    protected $_cache = array();
+    protected $_cache = [];
 
     /**
      * List of resources paths
      *
      * @var array
      */
-    protected $_resources = array();
+    protected $_resources = [];
 
     /**
      * Alias to resources
      *
      * @var array
      */
-    protected $_alias = array();
+    protected $_alias = [];
 
     /**
      * Register a resource
@@ -139,7 +139,7 @@ class Finder
             throw new FinderException(sprintf('"%s" are not registered as an resource.',$parse['scheme']));
         }
 
-        return implode(DIRECTORY_SEPARATOR,array_merge(array($this->_resources[$parse['scheme']]), empty($parse['path']) ? array() : explode('.',$parse['path']))).$ext;
+        return implode(DIRECTORY_SEPARATOR,array_merge([$this->_resources[$parse['scheme']]], empty($parse['path']) ? [] : explode('.',$parse['path']))).$ext;
     }
 
     /**

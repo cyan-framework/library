@@ -12,17 +12,17 @@ class Autoload
      *
      * @var array
      */
-    protected $_namespaces = array();
+    protected $_namespaces = [];
 
     /**
      * @var array
      */
-    protected $_prefixes = array();
+    protected $_prefixes = [];
 
     /**
      * @var array
      */
-    protected $_classes = array();
+    protected $_classes = [];
 
     /**
      * File name
@@ -44,7 +44,7 @@ class Autoload
      * @param array $config
      * @return Singleton
      */
-    public static function getInstance(array $config = array()) {
+    public static function getInstance(array $config = []) {
         if (!(self::$instance instanceof self)) {
             self::$instance = new self($config);
         }
@@ -80,7 +80,7 @@ class Autoload
      */
     public function register($prepend = false)
     {
-        spl_autoload_register(array($this, 'loadClass'), true, $prepend);
+        spl_autoload_register([$this, 'loadClass'], true, $prepend);
     }
 
     /**
@@ -90,7 +90,7 @@ class Autoload
      */
     public function unregister()
     {
-        spl_autoload_unregister(array($this, 'loadClass'));
+        spl_autoload_unregister([$this, 'loadClass']);
     }
 
     /**

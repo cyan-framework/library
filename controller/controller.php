@@ -15,7 +15,7 @@ class Controller
      * @param array $config
      * @param callable $closure
      */
-    public function __construct($name, array $config = array(), \Closure $closure = null)
+    public function __construct($name, array $config = [], \Closure $closure = null)
     {
         $this->name = $name;
 

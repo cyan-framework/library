@@ -12,7 +12,7 @@ class Theme extends View
      *
      * @param array $config
      */
-    public function __construct(array $config = array())
+    public function __construct(array $config = [])
     {
         $finder = Finder::getInstance();
         $app = \Cyan::initialize()->Application->current;
@@ -92,6 +92,10 @@ class Theme extends View
     final public function render()
     {
         global $Cyan;
+        $App = $Cyan->Application->current;
+        $Router = $App->Router;
+        $Text = $App->Text;
+
         if (!empty($this->layout_path) && is_readable($this->layout_path) & file_exists($this->layout_path)) {
             ob_start();
             include $this->layout_path;

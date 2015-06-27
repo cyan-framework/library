@@ -63,7 +63,7 @@ class Application
     /**
      * @var Text
      */
-    protected $Text = false;
+    public $Text = false;
 
     /**
      * Application Theme
@@ -139,7 +139,7 @@ class Application
         }
 
         if ($this->Database == false) {
-            $db_configs = Finder::getInstance()->getIdentifier('app:config.database', array());
+            $db_configs = Finder::getInstance()->getIdentifier('app:config.database', []);
             $db_factory = FactoryDatabase::getInstance();
             foreach ($db_configs as $db_name => $db_config) {
                 $db_factory->create($db_name, $db_config);
@@ -148,15 +148,23 @@ class Application
         }
 
         if ($this->Router == false) {
-            $router_config = Finder::getInstance()->getIdentifier('app:config.router', array());
+            $router_config = Finder::getInstance()->getIdentifier('app:config.router', []);
             $router_name = sprintf('%sApplicationRoute', $this->getName());
             $router_factory = FactoryRouter::getInstance();
             $this->Router = $router_factory->get($router_name, $router_factory->create($router_name, $router_config));
         }
 
-        $filters = Finder::getInstance()->getIdentifier('app:config.filters', array());
+        $filters = Finder::getInstance()->getIdentifier('app:config.filters', []);
         if (!empty($filters)) {
             Filter::getInstance()->mapFilters($filters);
+        }
+
+        if ($this->Text == false) {
+            $language = !empty($this->getConfig()['language']) ? $this->getConfig()['language'] : '' ;
+            $this->Text = Text::getInstance();
+            if (!empty($language)) {
+                $this->Text->loadLanguage($language);
+            }
         }
 
         if ($this->_data['build_index']) {
@@ -237,7 +245,7 @@ class Application
      */
     public function getConfig()
     {
-        return Finder::getInstance()->getIdentifier('app:config.application', array());
+        return Finder::getInstance()->getIdentifier('app:config.application', []);
     }
 
     /**
@@ -292,8 +300,8 @@ class Application
      */
     public function __get($name)
     {
-        if (substr($name,-10) == 'Controller') {
-            $controller_name = substr($name,0,-10);
+        if (strpos($name,'Controller')) {
+            $controller_name = str_replace('Controller','',$name);
             if (!$this->Controller->exists($controller_name)) {
                 $this->Controller->create($controller_name);
             }

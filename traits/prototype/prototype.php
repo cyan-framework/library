@@ -15,7 +15,7 @@ trait TraitsPrototype
      */
     public function __call($name, $args) {
         if (isset($this->$name) && is_callable($this->$name)) {
-            return call_user_func_array($this->$name, is_array($args) ? $args : array($args));
+            return call_user_func_array($this->$name, is_array($args) ? $args : [$args]);
         } else {
             Throw new TraitsException(sprintf('Undefined call "%s" in %s',$name,get_class($this)));
         }

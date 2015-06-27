@@ -8,6 +8,13 @@ namespace Cyan\Library;
 class Database
 {
     /**
+     * PDO Statement
+     *
+     * @var \PDOStatement
+     */
+    private $sth;
+
+    /**
      * Connection Name
      *
      * @var string
@@ -22,7 +29,7 @@ class Database
     /**
      * @var array|mixed|null
      */
-    protected $_config = array();
+    protected $_config = [];
 
     /**
      * @param $name
@@ -131,7 +138,7 @@ class Database
      */
     public function getPdo($action = null)
     {
-        return isset($this->pdo[$action]) ? $this->pdo[$action] : $this->_pdo;
+        return isset($this->_pdo[$action]) ? $this->_pdo[$action] : $this->_pdo;
     }
 
     /**
@@ -176,6 +183,30 @@ class Database
     }
 
     /**
+     * @param $field
+     * @param $table
+     * @param string $where
+     * @param array $parameters
+     * @return mixed
+     */
+    public function count($field, $table, $where = '', array $parameters = [])
+    {
+        $pdo = $this->isConnected('read');
+
+        $sql = $this->createQuery()->from($table)->count($field);
+        if (!empty($where)) {
+            $sql->where($where);
+        }
+        $sql->parameters($parameters);
+
+        $this->_config['prefix'] = isset($this->_config['prefix']) ? $this->_config['prefix'] : '' ;
+        $this->sth = $pdo->prepare((string)str_replace('#__',$this->_config['prefix'],$sql));
+        $return = $this->sth->execute($sql->getParameters());
+
+        return $this->sth->fetchColumn();
+    }
+
+    /**
      * execute a query
      *
      * @param $sql
@@ -183,7 +214,7 @@ class Database
      * @param int $pdoFormat
      * @return mixed
      */
-    public function execute($sql, array $parameters = array(), $pdoFormat = \PDO::FETCH_ASSOC)
+    public function execute($sql, array $parameters = [], $pdoFormat = \PDO::FETCH_ASSOC)
     {
         //validate $sql
         if (!is_string($sql) && !($sql instanceof QueryBase)) {
@@ -193,7 +224,7 @@ class Database
         // if empty will get from query object
         if (($sql instanceof QueryBase)) {
             //validate parameters
-            if (!empty($parameters) && count(array_diff($parameters, $sql->getParameters()))) {
+            if (empty($parameters)) {
                 $parameters = $sql->getParameters();
             }
         }
@@ -203,36 +234,58 @@ class Database
         $action =  ($statement == 'select') ? 'read' : 'write' ;
         $pdo = $this->isConnected($action);
 
-        $sth = $pdo->prepare($sql);
+        $this->_config['prefix'] = isset($this->_config['prefix']) ? $this->_config['prefix'] : '' ;
 
-        $return = $sth->execute($parameters);
+        $sqlQuery = (string)str_replace('#__',$this->_config['prefix'],$sql);
+        $this->sth = $pdo->prepare($sqlQuery);
+
+        $return = $this->sth->execute($parameters);
 
         if ($action == 'read') {
-            return $sth->fetchAll($pdoFormat);
+            return $this->sth->fetchAll($pdoFormat);
         } else {
             return $return;
         }
     }
 
     /**
-     * Create
+     * Insert table
      *
      * @param $table
-     * @param array $data
+     * @param array $fields
+     * @param array $parameters
      * @return array
      */
-    public function insert($table, array $data)
+    public function insert($table, array $fields, array $parameters)
     {
-        $this->isConnected('write');
+        $pdo = $this->isConnected('write');
 
-        if (empty($data)) {
-            return $data;
-        }
+        $sql = $this->createQuery()->insert($table)->columns(array_keys($fields))->values(array_values($fields))->parameters($parameters);
 
-        $sql = $this->createQuery()->insertInto($table)->columns(array_keys($data))->values(array_values($data));
-        $return = $sql->execute();
+        $this->_config['prefix'] = isset($this->_config['prefix']) ? $this->_config['prefix'] : '' ;
+
+        $insertSQL = str_replace('#__',$this->_config['prefix'],(string)$sql);
+        $this->sth = $pdo->prepare($insertSQL);
+        $return = $this->sth->execute($sql->getParameters());
 
         return $return;
+    }
+
+    /**
+     * Return last insert id
+     *
+     * @return mixed
+     */
+    public function lastInsertID()
+    {
+        $pdo = $this->isConnected('write');
+
+        $sql = 'SELECT LAST_INSERT_ID()';
+        $this->sth = $pdo->prepare($sql);
+        $this->sth->execute();
+        $lastId = $this->sth->fetch(\PDO::FETCH_NUM);
+
+        return $lastId[0];
     }
 
     /**
@@ -243,20 +296,53 @@ class Database
      * @param string $fields
      * @return array
      */
-    function find($table, array $condition = array(), $fields = '*')
+    function find($table, $where, $fields = '*', array $parameters = [])
     {
-        $this->isConnected('read');
+        $pdo = $this->isConnected('read');
 
-        $sql = $this->createQuery()->from($table)->where($condition)->select($fields);
+        $sql = $this->createQuery()->from($table)->where($where)->select($fields)->parameters($parameters);
 
-        $sth = $this->_pdo['read']->prepare($sql->getQuery());
-        $return = $sth->execute($sql->getParameters());
+        $this->_config['prefix'] = isset($this->_config['prefix']) ? $this->_config['prefix'] : '' ;
+
+        $sqlString = (string)str_replace('#__',$this->_config['prefix'],$sql);
+        $this->sth = $pdo->prepare($sqlString);
+
+        $return = $this->sth->execute($sql->getParameters());
 
         if (!$return) {
-            return array();
+            return [];
         }
 
-        return $sth->fetchAll(\PDO::FETCH_ASSOC);
+        return $this->sth->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Find one item
+     *
+     * @param $table
+     * @param $where
+     * @param string $fields
+     * @param array $parameters
+     * @return array
+     */
+    public function findOne($table, $where, $fields = '*', array $parameters = [])
+    {
+        $pdo = $this->isConnected('read');
+
+        $sql = $this->createQuery()->from($table)->where($where)->select($fields)->parameters($parameters);
+
+        $this->_config['prefix'] = isset($this->_config['prefix']) ? $this->_config['prefix'] : '' ;
+
+        $sqlString = (string)str_replace('#__',$this->_config['prefix'],$sql);
+        $this->sth = $pdo->prepare($sqlString);
+
+        $return = $this->sth->execute($sql->getParameters());
+
+        if (!$return) {
+            return [];
+        }
+
+        return $this->sth->fetch(\PDO::FETCH_ASSOC);
     }
 
     /**
@@ -264,15 +350,18 @@ class Database
      *
      * @param $table
      * @param $condition
-     * @param $primary_key
      * @return bool
      */
-    public function remove($table, $condition, $primary_key = null)
+    public function remove($table, $condition, array $parameters = [])
     {
-        $this->isConnected('write');
+        $pdo = $this->isConnected('write');
 
-        $sql = $this->createQuery()->deleteFrom($table, $primary_key)->where($condition);
-        $return = $sql->execute();
+        $sql = $this->createQuery()->delete($table)->where($condition)->parameters($parameters);
+
+        $this->_config['prefix'] = isset($this->_config['prefix']) ? $this->_config['prefix'] : '' ;
+
+        $this->sth = $pdo->prepare((string)str_replace('#__',$this->_config['prefix'],$sql));
+        $return = $this->sth->execute($sql->getParameters());
 
         return $return;
     }
@@ -281,17 +370,25 @@ class Database
      * Update Table
      *
      * @param $table
+     *
      * @param $fields
+     *
      * @param $condition
-     * @param $primary_key
-     * @return bool
+     *
+     * @param array $parameters
+     *
+     * @return mixed
      */
-    public function update($table, $fields, $condition, $primary_key = null)
+    public function update($table, $fields, $condition, array $parameters = [])
     {
-        $this->isConnected('write');
+        $pdo = $this->isConnected('write');
 
-        $sql = $this->createQuery()->update($table, $fields, $primary_key)->where($condition);
-        $return = $sql->execute();
+        $sql = $this->createQuery()->update($table)->set($fields)->where($condition);
+
+        $this->_config['prefix'] = isset($this->_config['prefix']) ? $this->_config['prefix'] : '' ;
+
+        $this->sth = $pdo->prepare((string)str_replace('#__',$this->_config['prefix'],$sql));
+        $return = $this->sth->execute($sql->getParameters());
 
         return $return;
     }

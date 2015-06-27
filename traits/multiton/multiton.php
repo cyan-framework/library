@@ -11,7 +11,7 @@ trait TraitsMultiton
      *
      * @var array
      */
-    protected static $_instances = array();
+    protected static $_instances = [];
 
     /**
      * Multiton

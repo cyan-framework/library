@@ -38,7 +38,7 @@ trait TraitsSingleton
                     $instance = new self($args[0], $args[1], $args[2]);
                     break;
                 default:
-                    $instance = call_user_func_array(array(new self), $args);
+                    $instance = call_user_func_array([new self], $args);
                     break;
 
             }

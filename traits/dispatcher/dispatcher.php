@@ -18,14 +18,14 @@ trait TraitsDispatcher
      * @param array $config
      * @throws \RuntimeException
      */
-    public function run(array $config = array())
+    public function run(array $config = [])
     {
         $this->trigger('BeforeRun', $this);
         if (empty($config)) {
             throw new TraitsException('Please send a config to dispatcher');
         }
 
-        $errors = array();
+        $errors = [];
 
         $controller = isset($config['controller']) && is_string($config['controller']) ? $config['controller'] : null ;
         $action = isset($config['action']) && is_string($config['action']) ? $config['action'] : null ;
@@ -86,11 +86,11 @@ trait TraitsDispatcher
                 throw new TraitsException(sprintf('Undefined method "%s" in "%s"',$method,get_class($this->$name)));
             }
 
-            return call_user_func_array(array($object, $method), $args[0]);
+            return call_user_func_array([$object, $method], $args[0]);
         } elseif (!class_exists($name, false)) {
             $object = new $name;
             $method = array_shift($args);
-            return call_user_func_array(array($object, $method), $args[0]);
+            return call_user_func_array([$object, $method], $args[0]);
         }
     }
 }

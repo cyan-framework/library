@@ -32,7 +32,7 @@ class FactoryRouter extends Factory
      * @param array $config
      * @return Router
      */
-    public function create($name, array $config = array(), \Closure $closure = null)
+    public function create($name, array $config = [], \Closure $closure = null)
     {
         if (!isset($this->$name)) {
             $this->$name = new Router($config, $closure);

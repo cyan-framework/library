@@ -15,12 +15,12 @@ class Router
     /**
      * @var \Array
      */
-    protected $_route = array();
+    protected $_route = [];
 
     /**
      * @var \Array
      */
-    protected $_route_name = array();
+    protected $_route_name = [];
 
     /**
      * Special routes start with a variable.
@@ -28,14 +28,14 @@ class Router
      *
      * @var array
      */
-    protected $_special_route = array();
+    protected $_special_route = [];
 
     /**
      * Array Request Uri
      *
      * @var array
      */
-    protected $path = array();
+    protected $path = [];
 
     /**
      * Full request uri
@@ -60,7 +60,7 @@ class Router
      * @param array $config
      * @param callable $closure
      */
-    public function __construct(array $config = array(), \Closure $closure = null)
+    public function __construct(array $config = [], \Closure $closure = null)
     {
         if (!empty($closure) && is_callable($closure)) {
             $this->__initialize = $closure;
@@ -73,7 +73,7 @@ class Router
 
         $requestURI = explode('/', $uri['path']);
         $scriptName = explode('/', $_SERVER['SCRIPT_NAME']);
-        $baseUri = array();
+        $baseUri = [];
         for($i= 0;$i < sizeof($scriptName);$i++)
         {
             if ($requestURI[$i] == $scriptName[$i])
@@ -149,29 +149,29 @@ class Router
         if (!empty($parts)) {
             if (strpos($parts[0],':') !== false) {
                 if (!isset($this->_special_route[$method])) {
-                    $this->_special_route[$method] = array();
+                    $this->_special_route[$method] = [];
                 }
 
                 $this->_special_route[$method][$uri] = $data;
             } else {
                 if (!isset($this->_route[$method])) {
-                    $this->_route[$method] = array();
+                    $this->_route[$method] = [];
                 }
 
                 $this->_route[$method][$uri] = $data;
             }
         } else {
             if (!isset($this->_route[$method])) {
-                $this->_route[$method] = array();
+                $this->_route[$method] = [];
             }
 
             $this->_route[$method][$uri] = $data;
         }
 
-        $this->_route_name[$route_name] = array(
+        $this->_route_name[$route_name] = [
             'url' => $uri,
             'config' => $data
-        );
+        ];
 
         return $this;
     }
@@ -267,9 +267,9 @@ class Router
         $uri = isset($config['path']) ? $config['path'] : $name ;
         $config['action'] = isset($config['action']) ? $config['action'] : '' ;
 
-        $routeConfig = array(
+        $routeConfig = [
             'controller' => sprintf('%sController',$uri)
-        );
+        ];
         if (!empty($config['action'])) {
             $routeConfig['action'] = $config['action'];
         }
@@ -294,6 +294,14 @@ class Router
         return $name;
     }
 
+    /**
+     * Create a controller and assign to appication
+     *
+     * @param $name
+     * @param null $config
+     * @param callable $closure
+     * @return $this
+     */
     public function resource($name, $config = null, \Closure $closure = null)
     {
         $name = ucfirst(strtolower($name));
@@ -305,11 +313,11 @@ class Router
             if (!($app instanceof Application)) {
                 throw new RouterException('Current application instance its not an application object');
             }
-            $app->Controller->create($controller_name, array(), function() use($name, $view_name) {
+            $app->Controller->create($controller_name, [], function() use($name, $view_name) {
                 $this->get = function() use ($name, $view_name){
-                    return \Cyan::initialize()->Application->current->View->create($view_name, array(
+                    return \Cyan::initialize()->Application->current->View->create($view_name, [
                         'tpl' => strtolower($name)
-                    ));
+                    ]);
                 };
             });
         } else {
@@ -322,9 +330,9 @@ class Router
                     foreach ($config as $filter => $value) {
                         $uri .= '/'.$filter.':'.$value;
                     }
-                    $this->get($uri, array(
+                    $this->get($uri, [
                         'controller' => $controller_name
-                    ), $this->_createRouteName($uri,[]));
+                    ], $this->_createRouteName($uri,[]));
                 } elseif (is_callable($config)) {
 
                 } else {
@@ -337,9 +345,9 @@ class Router
             }
         } else {
             $uri = strtolower($name);
-            $this->get($uri, array(
+            $this->get($uri, [
                 'controller' => $controller_name
-            ), $this->_createRouteName($uri,[]));
+            ], $this->_createRouteName($uri,[]));
         }
 
         return $this;
@@ -381,7 +389,7 @@ class Router
     private function matchUri($uri, $config)
     {
         $route_any = false;
-        $route = array();
+        $route = [];
         $parts = array_filter(explode('/',$uri));
 
         $special_pos = strpos($uri,'/*');
@@ -398,7 +406,7 @@ class Router
             return $route;
         }
 
-        $arguments = array();
+        $arguments = [];
         $total_arguments = count($parts);
         foreach ($parts as $key => $pattern) {
             if (preg_match('/[a-z0-9-_A-Z]*:[a-z0-9-_A-Z]*/', $pattern)) {
@@ -453,7 +461,7 @@ class Router
      * @param $name
      * @param $arguments
      */
-    public function generate($name, array $arguments = array())
+    public function generate($name, array $arguments = [])
     {
         if (!isset($this->_route_name[$name])) {
             throw new RouterException(sprintf('Router named "%s" not exists!', $name));
@@ -467,13 +475,13 @@ class Router
             unset($match['config']['action']);
 
 
-        $route = array();
+        $route = [];
         $parts = array_filter(explode('/',$match['url']));
 
         $special_pos = strpos($match['url'],'/*');
         $isSpecial = $special_pos === false ? false : true ;
 
-        $arguments = array();
+        $arguments = [];
         $total_arguments = count($parts) - 1;
         foreach ($parts as $key => $pattern) {
             if (preg_match('/[a-z0-9-_A-Z]*:[a-z0-9-_A-Z]*/', $pattern)) {
@@ -481,7 +489,7 @@ class Router
 
                 $type = $argument[0];
                 $name = $argument[1];
-                $value = $match['config'][$name];
+                $value = isset($match['config'][$name]) ? $match['config'][$name] : null ;
                 if ($argument[0] == '*') {
                     $route_any = true;
                     $route[$name] = $value;
@@ -534,7 +542,7 @@ class Router
      * @param array $config
      * @throws \RuntimeException
      */
-    public function run(array $config = array())
+    public function run(array $config = [])
     {
         $this->trigger('BeforeRun', $this);
 
@@ -581,22 +589,27 @@ class Router
             throw new RouterException(sprintf('The URI "%s" did not match any routes.',$this->current));
         }
 
-        $controller = isset($config['controller']) && is_string($config['controller']) ? $config['controller'] : null ;
-        $action = isset($config['action']) && is_string($config['action']) ? $config['action'] : null ;
-        if (isset($config['controller'])) unset($config['controller']);
+        if (isset($config['controller']) && is_string($config['controller']) && !empty($config['controller'])) {
+            $controller = $config['controller'];
+            unset($config['controller']);
+        }
+
+        $action = $config['action'];
         unset($config['action']);
 
-        if (strpos($action,'.') !== false) {
-            $parts = explode('.', $action);
-            $controller = $parts[0];
-            $action = $parts[1];
+        if (isset($config['action']) && is_string($config['action']) && !empty($config['controller'])) {
+            if (strpos($action,'.') !== false) {
+                $parts = explode('.', $action);
+                $controller = $parts[0];
+                $action = $parts[1];
+            }
         }
 
         $action = isset($this->$action) && is_callable($this->$action) ? $action : $requested_method.$action ;
 
         $return = '';
 
-        if (isset($controller) && !empty($controller)) {
+        if (!empty($controller)) {
             $class_name = $controller;
             if (strpos($class_name,'controller') === false) {
                 $class_name .= 'Controller';
@@ -609,7 +622,7 @@ class Router
                 $object = FactoryController::getInstance()->get($controller);
             }
 
-            $return = $object->run(array_merge(array('action' => $action), $config));
+            $return = $object->run(array_merge(['action' => $action], $config));
         } else {
             $return = $this->$action($config);
         }
@@ -640,7 +653,7 @@ class Router
                 throw new \BadMethodCallException(sprintf('Undefined method "%s" in "%s"',$method,get_class($this->$name)));
             }
 
-            return call_user_func_array(array($object, $method), $args[0]);
+            return call_user_func_array([$object, $method], $args[0]);
         } else {
             throw new \BadMethodCallException(sprintf('Undefined "%s" in %s',$name,get_class($this)));
         }
@@ -670,37 +683,6 @@ class Router
         };
 
         return $uri;
-    }
-
-    /**
-     * Return link
-     *
-     * @param $uri
-     * @param array $config
-     * @return string
-     */
-    public function link_to($uri, array $config = array())
-    {
-        $app_config = Finder::getInstance()->getIdentifier('app:config.application');
-        if (!empty($app_config) && isset($app_config['sef']) && $app_config['sef']) {
-            if (isset($app_config['sef_rewrite'])) {
-                $file = basename($this->base);
-                if (strpos($file,'.php') === false) {
-                    return $this->base . '/' . $this->buildUri($uri, $config);
-                } else {
-                    return str_replace($file,'',$this->base) . '/' . $this->buildUri($uri, $config);
-                }
-            } else {
-                return $this->base . '/' . $this->buildUri($uri, $config);
-            }
-        } else {
-            if (strpos($this->base,'.php') === false) {
-                return $this->base . '/' . basename($_SERVER['SCRIPT_NAME']) . '/' . $this->buildUri($uri, $config);
-            } else {
-                return $this->base . '/' . $this->buildUri($uri, $config);
-            }
-            
-        }
     }
 
     /**
