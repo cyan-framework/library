@@ -245,6 +245,11 @@ class ApplicationApi
             unset($output['status']);
         }
 
+        $headers = isset($output['header']) ? $output['header'] : '';
+        if (isset($output['header'])) {
+            unset($output['header']);
+        }
+
         $protocol = (isset($_SERVER['SERVER_PROTOCOL']) ? $_SERVER['SERVER_PROTOCOL'] : 'HTTP/1.0');
         $text = (!isset($output['header_message'])) ? 'OK' : $output['header_message'] ;
         header($protocol . ' ' . $code . ' ' . $text);
@@ -263,6 +268,13 @@ class ApplicationApi
             throw new ApplicationException('JSON encode has failed!');
         }
 
+        if (is_string($headers)) {
+            header($headers);
+        } else if (is_array($headers)) {
+            foreach ($headers as $header) {
+                header($header);
+            }
+        }
         echo sprintf($template,$json_string);
     }
 
