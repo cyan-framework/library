@@ -183,6 +183,7 @@ class Finder
             return $default;
         }
 
+        $Cyan = \Cyan::initialize();
         $return = require $file_path;
 
         $class = ucfirst($parse['scheme']) . implode(array_map('ucfirst', explode('.',$parse['path'])));

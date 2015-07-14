@@ -85,19 +85,19 @@ class Cache
      * @param $label
      * @param $data
      */
-    public function write($label, $data)
+    public function write($label, $data, $path)
     {
-        file_put_contents($this->cache_path . $this->createFilename($label) .'.cache', $data);
+        file_put_contents($this->cache_path . $path . $this->createFilename($label) .'.cache', $data);
     }
 
     /**
      * @param $label
      * @return bool|string
      */
-    public function read($label)
+    public function read($label, $path = '')
     {
-        if($this->exists($label)){
-            $filename = $this->cache_path . $this->createFilename($label) .'.cache';
+        if($this->exists($label, $path)){
+            $filename = $this->cache_path . $path . $this->createFilename($label) .'.cache';
             return file_get_contents($filename);
         }
 
@@ -105,16 +105,60 @@ class Cache
     }
 
     /**
+     * Check if file exists and if its valid
+     *
      * @param $label
      * @return bool
      */
-    public function exists($label)
+    public function exists($label, $path = '')
     {
-        $filename = $this->cache_path . $this->createFilename($label) .'.cache';
+        $filename = $this->cache_path . $path . $this->createFilename($label) .'.cache';
 
         if(file_exists($filename) && (filemtime($filename) + $this->cache_time >= time())) return true;
 
         return false;
+    }
+
+    /**
+     * return filetime
+     *
+     * @param $label
+     * @return int
+     */
+    public function getFiletime($label, $path = '')
+    {
+        $filename = $this->cache_path . $path  . $this->createFilename($label) .'.cache';
+
+        return filemtime($filename);
+    }
+
+    /**
+     * set cache time
+     */
+    public function setCacheTime($cache_time)
+    {
+        $this->cache_time = $cache_time;
+    }
+
+    /**
+     * @return int
+     */
+    public function getCacheTime()
+    {
+        return $this->cache_time;
+    }
+
+    /**
+     * Check if file exists
+     *
+     * @param $label
+     * @return bool
+     */
+    public function fileExists($label, $path = '')
+    {
+        $filename = $this->cache_path . $path  . $this->createFilename($label) .'.cache';
+
+        return (file_exists($filename)) ? true : false ;
     }
 
     /**

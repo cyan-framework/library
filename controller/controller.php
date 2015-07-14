@@ -11,6 +11,27 @@ class Controller
     protected $name;
 
     /**
+     * Array Config
+     *
+     * @var array
+     */
+    public $config = [];
+
+    /**
+     * Application
+     *
+     * @var Application|ApplicationApi
+     */
+    public $Application;
+
+    /**
+     * Core Framework
+     *
+     * @var \Cyan
+     */
+    public $Cyan;
+
+    /**
      * @param $name
      * @param array $config
      * @param callable $closure
@@ -18,11 +39,25 @@ class Controller
     public function __construct($name, array $config = [], \Closure $closure = null)
     {
         $this->name = $name;
+        $this->config = $config;
 
         if (!empty($closure) && is_callable($closure)) {
             $this->__initialize = $closure->bindTo($this, $this);
             call_user_func($this->__initialize);
         }
+
+        $this->Cyan = \Cyan::initialize();
+    }
+
+    /**
+     * Return Config Array
+     *
+     * @param null $key
+     * @return array
+     */
+    public function getConfig($key = null)
+    {
+        return (isset($this->config[$key]) && !is_null($key)) ? $this->config[$key] : $this->config;
     }
 
     /**
@@ -33,6 +68,17 @@ class Controller
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * Load file
+     */
+    public function lazyLoad()
+    {
+        if (isset($this->config['file'])) {
+            $controller = $this;
+            require_once $this->config['file'];
+        }
     }
 
     /**

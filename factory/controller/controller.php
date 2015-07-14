@@ -57,4 +57,20 @@ class FactoryController extends Factory
     {
         return isset($this->$name);
     }
+
+    /**
+     * @param $key
+     * @param null $default
+     * @return null
+     */
+    public function get($key, $default = null)
+    {
+        $controller = isset($this->$key) ? $this->$key : $default;
+
+        if ($controller instanceof Controller) {
+            $controller->lazyLoad();
+        }
+
+        return $controller;
+    }
 }

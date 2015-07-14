@@ -104,6 +104,8 @@ class Cyan
      */
     final public function __construct(array $config = [])
     {
+        define('_CYAN_EXEC', true);
+
         //Initialize the path
         $this->_path = __DIR__;
 
@@ -131,7 +133,8 @@ class Cyan
         \Cyan\Library\Filter::getInstance()->mapFilters([
             'cyan_int' => '/[0-9]*/',
             'cyan_float' => '/^[0-9]*\.?[0-9]+$/',
-            'cyan_string' => '/[A-ZA-za-z\s]*/',
+            'cyan_string' => '/[a-zA-ZãÃáÁàÀêÊéÉèÈíÍìÌôÔõÕóÓòÒúÚùÙûÛçÇ\s\-]*/',
+            'cyan_word' => '/[a-zA-ZãÃáÁàÀêÊéÉèÈíÍìÌôÔõÕóÓòÒúÚùÙûÛçÇ]*/',
             'cyan_search' => '/[A-ZA-za-z0-9\.\s]*/',
             'cyan_username' => '/^[A-ZA-za-z0-9_.]*$/',
             'cyan_password' => '/^[A-ZA-za-z0-9_.]*$/',

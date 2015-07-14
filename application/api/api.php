@@ -63,6 +63,13 @@ class ApplicationApi
     public $Text = false;
 
     /**
+     * Debug response time
+     *
+     * @var bool
+     */
+    private $_debug = false;
+
+    /**
      * Application Constructor
      */
     public function __construct()
@@ -108,6 +115,30 @@ class ApplicationApi
         }
 
         $this->advanceReadiness();
+    }
+
+    /**
+     * Enable debug
+     *
+     * @return $this
+     */
+    public function enableDebug()
+    {
+        $this->_debug = true;
+
+        return $this;
+    }
+
+    /**
+     * Disable debug
+     *
+     * @return $this
+     */
+    public function disableDebug()
+    {
+        $this->_debug = false;
+
+        return $this;
     }
 
     /**
@@ -262,6 +293,18 @@ class ApplicationApi
             $template = '%s';
         }
 
+        if ($this->_debug) {
+            $execution_time = microtime(true) - $_SERVER["REQUEST_TIME_FLOAT"];
+
+            $memory_usage = memory_get_usage(true);
+            $unit=array('b','kb','mb','gb','tb','pb');
+            $memory = @round($memory_usage/pow(1024,($i=floor(log($memory_usage,1024)))),2).' '.$unit[$i];
+
+            $output['_debug'] = [
+                'memory' => $memory,
+                'execution_time' => number_format($execution_time) . ' seconds'
+            ];
+        }
         $json_string = json_encode($output);
 
         if ($json_string === false) {
@@ -275,6 +318,7 @@ class ApplicationApi
                 header($header);
             }
         }
+
         echo sprintf($template,$json_string);
     }
 
@@ -284,7 +328,7 @@ class ApplicationApi
      * @param $code
      * @return array
      */
-    public function error($code)
+    public function error($code, array $message_arguments = [])
     {
         $errors = Finder::getInstance()->getIdentifier('app:config.errors', []);
         //assign error code to response
@@ -294,7 +338,7 @@ class ApplicationApi
         $error = isset($errors[$code]) ? ['error' => $errors[$code]] : [] ;
 
         if (isset($error['error']['message'])) {
-            $error['error']['message'] = $this->Text->translate($error['error']['message']);
+            $error['error']['message'] = !empty($message_arguments) ? call_user_func_array($this->Text->sprintf,array_merge([$error['error']['message']], $message_arguments)) : $this->Text->translate($error['error']['message']);
         }
 
         return $error;

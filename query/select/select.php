@@ -29,7 +29,7 @@ class QuerySelect extends QueryBase
      */
     public function select($columns)
     {
-        $this->statements['select'] = $columns;
+        $this->statements['select'][] = $columns;
 
         return $this;
     }
@@ -56,7 +56,7 @@ class QuerySelect extends QueryBase
     {
         $from = !empty($this->table_alias) ? sprintf('%s AS %s', $this->table, $this->table_alias) : $this->table ;
 
-        $sql = sprintf('SELECT %s FROM %s', $this->statements['select'], $from);
+        $sql = sprintf('SELECT %s FROM %s', is_array($this->statements['select']) ? implode(', ',$this->statements['select']) : $this->statements['select'], $from);
 
         if (isset($this->statements['join'])) {
             foreach ($this->statements['join'] as $joinType => $conditions) {

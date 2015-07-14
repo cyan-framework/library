@@ -168,10 +168,12 @@ class Router
             $this->_route[$method][$uri] = $data;
         }
 
-        $this->_route_name[$route_name] = [
-            'url' => $uri,
-            'config' => $data
-        ];
+        if (!is_null($route_name)) {
+            $this->_route_name[$route_name] = [
+                'url' => $uri,
+                'config' => $data
+            ];
+        }
 
         return $this;
     }
@@ -181,8 +183,15 @@ class Router
      * @param $config
      * @return $this
      */
-    public function get($uri, $config, $route_name)
+    public function get($uri, $config, $route_name = null)
     {
+        if (is_null($route_name) && !isset($config['route_name'])) {
+            throw new RouterException('Router config must have a "route_name"');
+        } else if (is_null($route_name) && !empty($config['route_name'])) {
+            $route_name = $config['route_name'];
+            unset($config['route_name']);
+        }
+
         return $this->mapRequestMethod('get', $uri, $config, $route_name);
     }
 
@@ -191,8 +200,13 @@ class Router
      * @param $config
      * @return $this
      */
-    public function post($uri, $config, $route_name)
+    public function post($uri, $config, $route_name = null)
     {
+        if (is_null($route_name) && !empty($config['route_name'])) {
+            $route_name = $config['route_name'];
+            unset($config['route_name']);
+        }
+
         return $this->mapRequestMethod('post', $uri, $config, $route_name);
     }
 
@@ -202,8 +216,13 @@ class Router
      * @param $route_name
      * @return $this
      */
-    public function put($uri, $config, $route_name)
+    public function put($uri, $config, $route_name = null)
     {
+        if (is_null($route_name) && !empty($config['route_name'])) {
+            $route_name = $config['route_name'];
+            unset($config['route_name']);
+        }
+
         return $this->mapRequestMethod('put', $uri, $config, $route_name);
     }
 
@@ -212,8 +231,13 @@ class Router
      * @param $config
      * @return $this
      */
-    public function delete($uri, $config, $route_name)
+    public function delete($uri, $config, $route_name = null)
     {
+        if (is_null($route_name) && !empty($config['route_name'])) {
+            $route_name = $config['route_name'];
+            unset($config['route_name']);
+        }
+
         return $this->mapRequestMethod('delete', $uri, $config, $route_name);
     }
 
@@ -226,9 +250,9 @@ class Router
     public function rest($uri, $config, $route_name)
     {
         $this->get($uri, $config, $route_name);
-        $this->post($uri, $config, $route_name);
-        $this->put($uri, $config, $route_name);
-        $this->delete($uri, $config, $route_name);
+        $this->post($uri, $config);
+        $this->put($uri, $config);
+        $this->delete($uri, $config);
 
         return $this;
     }
@@ -425,8 +449,7 @@ class Router
                 if (count($this->path) -1 == $key && is_array($config)) {
                     $route = array_merge($route, $config);
                 }
-            }
-            elseif (isset($this->path[$key]) && $pattern == $this->path[$key]) {
+            } elseif (isset($this->path[$key]) && $pattern == $this->path[$key]) {
                 if (count($this->path) -1 == $key) {
                     if (is_array($config)) {
                         $route = array_merge($route, $config);
@@ -436,6 +459,8 @@ class Router
                 } else {
                     unset($parts[$key]);
                 }
+            } else {
+                return $route;
             }
         }
 
@@ -620,6 +645,10 @@ class Router
                 $object = \Cyan::initialize()->Application->current->Controller->get($controller);
             } else {
                 $object = FactoryController::getInstance()->get($controller);
+            }
+
+            if (!is_object($object)) {
+                throw new RouterException(sprintf('%s not found',$controller));
             }
 
             $return = $object->run(array_merge(['action' => $action], $config));

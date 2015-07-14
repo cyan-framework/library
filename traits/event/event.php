@@ -38,7 +38,7 @@ trait TraitsEvent
     /**
      * @return self
      */
-    public function registerPlugin($name, Plugin $plugin)
+    public function registerEventPlugin($name, Plugin $plugin)
     {
         $this->_plugins[$name] = $plugin;
 
@@ -48,7 +48,7 @@ trait TraitsEvent
     /**
      * @return self
      */
-    public function removePlugin($name)
+    public function removeEventPlugin($name)
     {
         unset($this->_plugins[$name]);
 
@@ -60,7 +60,7 @@ trait TraitsEvent
      *
      * @return \ArrayObject
      */
-    public function getPlugins()
+    public function getEventPlugins()
     {
         return $this->_plugins;
     }
@@ -70,7 +70,7 @@ trait TraitsEvent
      *
      * @param $name
      */
-    public function getPlugin($name)
+    public function getEventPlugin($name)
     {
         return $this->_plugins[$name];
     }
