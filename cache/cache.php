@@ -133,6 +133,19 @@ class Cache
     }
 
     /**
+     * Set cache path
+     *
+     * @param $cache_path
+     * @return $this
+     */
+    public function setCachePath($cache_path)
+    {
+        return $this->cache_path = $cache_path;
+
+        return $this;
+    }
+
+    /**
      * set cache time
      */
     public function setCacheTime($cache_time)

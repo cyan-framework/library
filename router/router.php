@@ -10,7 +10,7 @@ class Router
     /**
      * Traits
      */
-    use TraitsSingleton, TraitsEvent;
+    use TraitsSingleton, TraitsEvent, TraitsContainer;
 
     /**
      * @var \Array
@@ -88,6 +88,9 @@ class Router
         $this->path = array_values(array_filter($requestURI));
         $this->base = empty($baseUri) ? $protocol.$_SERVER['HTTP_HOST'] : $protocol.$_SERVER['HTTP_HOST'].'/'.implode('/',array_values($baseUri));
         $this->current = implode('/', $this->path);
+
+        //import application plugins
+        FactoryPlugin::getInstance()->assign('router', $this);
 
         $this->trigger('Initialize', $this);
     }
@@ -332,14 +335,14 @@ class Router
         $controller_name = sprintf('%sController',$name);
         $view_name = sprintf('%sView',$name);
 
-        $app = \Cyan::initialize()->Application->current;
+        $app = $this->getContainer('application');
         if (!empty($app)) {
             if (!($app instanceof Application)) {
                 throw new RouterException('Current application instance its not an application object');
             }
-            $app->Controller->create($controller_name, [], function() use($name, $view_name) {
-                $this->get = function() use ($name, $view_name){
-                    return \Cyan::initialize()->Application->current->View->create($view_name, [
+            $app->Controller->create($controller_name, [], function() use($app, $name, $view_name) {
+                $this->get = function() use ($app, $name, $view_name){
+                    return $app->View->create($view_name, [
                         'tpl' => strtolower($name)
                     ]);
                 };
@@ -634,6 +637,8 @@ class Router
 
         $return = '';
 
+        $app = $this->getContainer('application');
+
         if (!empty($controller)) {
             $class_name = $controller;
             if (strpos($class_name,'controller') === false) {
@@ -641,8 +646,8 @@ class Router
             }
             if (class_exists($class_name, false)) {
                 $object = new $class_name($controller);
-            } else if (!empty(\Cyan::initialize()->Application->current)) {
-                $object = \Cyan::initialize()->Application->current->Controller->get($controller);
+            } else if ($app instanceof Application) {
+                $object = $app->Controller->get($controller);
             } else {
                 $object = FactoryController::getInstance()->get($controller);
             }

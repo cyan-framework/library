@@ -4,118 +4,21 @@ namespace Cyan\Library;
 /**
  * Class ApplicationApi
  * @package Cyan\Library
+ *
+ * @var \Cyan\Library\Text $Text
+ * @var \Cyan\Library\Cache $Cache
+ * @var \Cyan\Library\FactoryDatabase $Database
+ * @var \Cyan\Library\Router $Router
+ * @var \Cyan\Library\FactoryController $Controller
  */
-class ApplicationApi
+class ApplicationApi extends Application implements ApplicationInterface
 {
-    use TraitsPrototype, TraitsEvent;
-
-    /**
-     * Api Name
-     *
-     * @var string
-     */
-    protected $_name;
-
-    /**
-     * Start off the number of deferrals at 1. This will be
-     * decremented by the Application's own `initialize` method.
-     *
-     * @var int
-     */
-    protected $_readinessDeferrals = 1;
-
-    /**
-     * List of registries for application
-     *
-     * @var \ArrayObject
-     */
-    protected $_registry;
-
-    /**
-     * List set Data
-     *
-     * @var \ArrayObject
-     */
-    protected $_data;
-
-    /**
-     * Application Router
-     *
-     * @var Router
-     */
-    public $Router = false;
-
-    /**
-     * @var FactoryDatabase
-     */
-    public $Database = false;
-
-    /**
-     * Cache
-     *
-     * @var Cache
-     */
-    public $Cache = false;
-
-    /**
-     * @var Text
-     */
-    public $Text = false;
-
     /**
      * Debug response time
      *
      * @var bool
      */
     private $_debug = false;
-
-    /**
-     * Application Constructor
-     */
-    public function __construct()
-    {
-        $args = func_get_args();
-
-        switch (count($args)) {
-            case 2:
-                if (!is_string($args[0]) && !is_callable($args[1])) {
-                    throw new ApplicationException('Invalid argument orders. Spected (String, Closure) given (%s,%s).',gettype($args[0]),gettype($args[1]));
-                }
-                $name = $args[0];
-                $initialize = $args[1];
-                break;
-            case 1:
-                if (is_string($args[0])) {
-                    $name = $args[0];
-                } elseif (is_callable($args[0])) {
-                    $initialize = $args[0];
-                } else {
-                    throw new ApplicationException('Invalid argument type! Spected String/Closure, "%s" given.',gettype($args[0]));
-                }
-                break;
-            case 0:
-                break;
-            default:
-                throw new ApplicationException('Invalid arguments. Spected (String, Closure).');
-                break;
-        }
-
-        //create default name
-        if (!isset($name)) {
-            throw new ApplicationException('You must send a name');
-        }
-
-        $this->_name = $name;
-        $this->_registry = new \ArrayObject();
-        $this->_data = new \ArrayObject();
-
-        if (isset($initialize) && is_callable($initialize)) {
-            $this->__initializer = $initialize->bindTo($this, $this);
-            $this->__initializer();
-        }
-
-        $this->advanceReadiness();
-    }
 
     /**
      * Enable debug
@@ -146,118 +49,15 @@ class ApplicationApi
      */
     public function initialize()
     {
-        if ($this->Database == false) {
-            $db_configs = Finder::getInstance()->getIdentifier('app:config.database', []);
-            $db_factory = FactoryDatabase::getInstance();
-            foreach ($db_configs as $db_name => $db_config) {
-                $db_factory->create($db_name, $db_config);
-            }
-            $this->Database = $db_factory;
-        }
-
-        if ($this->Cache == false) {
-            $defaultCacheConfig = ['cache_path' => Finder::getInstance()->getPath('app:cache').DIRECTORY_SEPARATOR, 'cache_time' => 172800]; //48 hours cache
-            $cacheConfig = Finder::getInstance()->getIdentifier('app:config.application', $defaultCacheConfig);
-            if (!isset($cacheConfig['cache_path'])) {
-                $cacheConfig = array_merge($cacheConfig, $defaultCacheConfig);
-            }
-            $this->Cache = new Cache($cacheConfig['cache_path'], $cacheConfig['cache_time']);
-        }
-
-        if ($this->Router == false) {
-            $router_config = Finder::getInstance()->getIdentifier('app:config.router', []);
-            $router_name = sprintf('%sApiRoute', $this->getName());
-            $router_factory = FactoryRouter::getInstance();
-            $this->Router = $router_factory->get($router_name, $router_factory->create($router_name, $router_config));
-        }
-
         $filters = Finder::getInstance()->getIdentifier('app:config.filters', []);
         if (!empty($filters)) {
             Filter::getInstance()->mapFilters($filters);
-        }
-
-        if ($this->Text == false) {
-            $language = !empty($this->getConfig()['language']) ? $this->getConfig()['language'] : '' ;
-            $this->Text = Text::getInstance();
-            if (!empty($language)) {
-                $this->Text->loadLanguage($language);
-            }
         }
 
         //import application plugins
         FactoryPlugin::getInstance()->assign('api', $this);
 
         $this->trigger('Initialize', $this);
-    }
-
-    /**
-     * Read a register
-     *
-     * @param $name
-     * @return mixed
-     */
-    public function getRegister($name)
-    {
-        return $this->_registry[$name];
-    }
-
-    /**
-     * Read Application Name
-     *
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->_name;
-    }
-
-    /**
-     * Define Application Name
-     *
-     * @param $name
-     */
-    public function setName($name)
-    {
-        $this->_name = $name;
-    }
-
-    /**
-     * @param $name
-     * @param $value
-     */
-    public function register($name, $value)
-    {
-        $this->_registry[$name] = $value;
-    }
-
-    /**
-     * Increase readiness state
-     */
-    public function deferReadiness()
-    {
-        $this->_readinessDeferrals++;
-    }
-
-    /**
-     * Decrease readiness state
-     */
-    public function advanceReadiness()
-    {
-        if ($this->_readinessDeferrals) {
-            $this->_readinessDeferrals--;
-        }
-
-        $this->trigger('Ready', $this);
-    }
-
-    /**
-     * Read Application Config
-     *
-     * @return Array
-     */
-    public function getConfig()
-    {
-        return Finder::getInstance()->getIdentifier('app:config.application', []);
     }
 
     /**
@@ -344,15 +144,5 @@ class ApplicationApi
         return $error;
     }
 
-    /**
-     * Listen PHP Built in Server
-     */
-    public function listen()
-    {
-        if (php_sapi_name() == 'cli-server') {
-            $this->run();
-        }
 
-        return $this;
-    }
 }

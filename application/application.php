@@ -5,9 +5,9 @@ namespace Cyan\Library;
  * Class Application
  * @package Cyan\Library
  */
-class Application
+abstract class Application
 {
-    use TraitsPrototype, TraitsEvent;
+    use TraitsPrototype, TraitsEvent, TraitsContainer;
 
     /**
      * Application Name
@@ -17,21 +17,6 @@ class Application
     protected $_name;
 
     /**
-     * Start off the number of deferrals at 1. This will be
-     * decremented by the Application's own `initialize` method.
-     *
-     * @var int
-     */
-    protected $_readinessDeferrals = 1;
-
-    /**
-     * List of registries for application
-     *
-     * @var \ArrayObject
-     */
-    protected $_registry;
-
-    /**
      * List set Data
      *
      * @var \ArrayObject
@@ -39,38 +24,12 @@ class Application
     protected $_data;
 
     /**
-     * Application Router
+     * Start off the number of deferrals at 1. This will be
+     * decremented by the Application's own `initialize` method.
      *
-     * @var Router
+     * @var int
      */
-    public $Router = false;
-
-    /**
-     * @var FactoryController
-     */
-    public $Controller = false;
-
-    /**
-     * @var FactoryView
-     */
-    public $View = false;
-
-    /**
-     * @var FactoryDatabase
-     */
-    public $Database = false;
-
-    /**
-     * @var Text
-     */
-    public $Text = false;
-
-    /**
-     * Application Theme
-     *
-     * @var Theme
-     */
-    public $Theme = false;
+    protected $_readinessDeferrals = 1;
 
     /**
      * Application Constructor
@@ -112,81 +71,12 @@ class Application
         $this->_registry = new \ArrayObject();
         $this->_data = new \ArrayObject();
 
-
-        if (!isset($this->_data['build_index'])) {
-            $this->_data['build_index'] = true;
-        }
-
         if (isset($initialize) && is_callable($initialize)) {
             $this->__initializer = $initialize->bindTo($this, $this);
             $this->__initializer();
         }
 
         $this->advanceReadiness();
-    }
-
-    /**
-     * Default Application
-     */
-    public function initialize()
-    {
-        if ($this->Controller == false) {
-            $this->Controller = new FactoryController;
-        }
-
-        if ($this->View == false) {
-            $this->View = new FactoryView;
-        }
-
-        if ($this->Database == false) {
-            $db_configs = Finder::getInstance()->getIdentifier('app:config.database', []);
-            $db_factory = FactoryDatabase::getInstance();
-            foreach ($db_configs as $db_name => $db_config) {
-                $db_factory->create($db_name, $db_config);
-            }
-            $this->Database = $db_factory;
-        }
-
-        if ($this->Router == false) {
-            $router_config = Finder::getInstance()->getIdentifier('app:config.router', []);
-            $router_name = sprintf('%sApplicationRoute', $this->getName());
-            $router_factory = FactoryRouter::getInstance();
-            $this->Router = $router_factory->get($router_name, $router_factory->create($router_name, $router_config));
-        }
-
-        $filters = Finder::getInstance()->getIdentifier('app:config.filters', []);
-        if (!empty($filters)) {
-            Filter::getInstance()->mapFilters($filters);
-        }
-
-        if ($this->Text == false) {
-            $language = !empty($this->getConfig()['language']) ? $this->getConfig()['language'] : '' ;
-            $this->Text = Text::getInstance();
-            if (!empty($language)) {
-                $this->Text->loadLanguage($language);
-            }
-        }
-
-        if ($this->_data['build_index']) {
-            $this->Router->resource('index');
-            $this->Router->setDefault('index');
-        }
-
-        //import application plugins
-        FactoryPlugin::getInstance()->assign('application', $this);
-
-        $this->trigger('Initialize', $this);
-    }
-
-    /**
-     * Read a register
-     *
-     * @param $name
-     * @return mixed
-     */
-    public function getRegister($name)
-    {
-        return $this->_registry[$name];
     }
 
     /**
@@ -207,15 +97,6 @@ class Application
     public function setName($name)
     {
         $this->_name = $name;
-    }
-
-    /**
-     * @param $name
-     * @param $value
-     */
-    public function register($name, $value)
-    {
-        $this->_registry[$name] = $value;
     }
 
     /**
@@ -249,67 +130,6 @@ class Application
     }
 
     /**
-     * Run a application
-     */
-    public function run()
-    {
-        //import application plugins
-        FactoryPlugin::getInstance()->assign('application', $this);
-
-        $finder = Finder::getInstance();
-
-        if ($this->_readinessDeferrals) {
-            throw new ApplicationException(sprintf('%s Application its not ready to run!',$this->_name));
-        }
-
-        if ($this->Router === false) {
-            throw new ApplicationException(sprintf('%s Application Router its not defined!',$this->_name));
-        }
-
-        if ($this->Router->countRoutes() == 0) {
-            throw new ApplicationException(sprintf('%s Application Router not have any route.',$this->_name));
-        }
-
-        if ($this->Theme == false) {
-            $theme_config = Finder::getInstance()->getIdentifier('app:config.theme', $this->getConfig());
-            $this->Theme = new Theme($theme_config);
-        }
-
-        if ($this->Text == false) {
-            $this->Text = new Text;
-            $config = $this->getConfig();
-            if (isset($config['language']))
-                $this->Text->loadLanguage($config['language']);
-        }
-
-        $this->trigger('BeforeRun', $this);
-
-        $response = $this->Router->run();
-
-        $this->trigger('AfterRun', $this);
-
-        $this->Theme->set('outlet', $response);
-
-        echo $this->Theme;
-    }
-
-    /**
-     * Create a Controller if not exists
-     *
-     * @param $name
-     */
-    public function __get($name)
-    {
-        if (strpos($name,'Controller')) {
-            $controller_name = str_replace('Controller','',$name);
-            if (!$this->Controller->exists($controller_name)) {
-                $this->Controller->create($controller_name);
-            }
-            return $this->Controller->get($controller_name);
-        }
-    }
-
-    /**
      * Listen PHP Built in Server
      */
     public function listen()
@@ -319,5 +139,66 @@ class Application
         }
 
         return $this;
+    }
+
+    /**
+     * Create instance according with docblock class var
+     *
+     * @param $key
+     * @return null
+     */
+    public function __get($key)
+    {
+        if (!isset($this->$key)) {
+            $rc = new \ReflectionClass($this);
+            $result = [];
+            preg_match_all('/@(\w+)\s+(.*)\r?\n/m', $rc->getDocComment(), $matches);
+
+            $doc_block = [];
+            foreach ($matches[1] as $index => $value) {
+                $doc_block[$value][] = $matches[2][$index];
+            }
+
+            foreach ($doc_block['var'] as $var) {
+                list($class, $variable) = explode(' ',$var);
+                $variable = substr($variable,1);
+                if ($variable === $key) {
+                    $this->$key = $class::getInstance();
+                    //custom behaviors
+                    switch ($key) {
+                        case 'Cache':
+                            $defaultCacheConfig = [
+                                'cache_path' => Finder::getInstance()->getPath('app:cache').DIRECTORY_SEPARATOR,
+                                'cache_time' => 172800  //48 hours cache
+                            ];
+                            $cacheConfig = Finder::getInstance()->getIdentifier('app:config.application', $defaultCacheConfig);
+                            if (!isset($cacheConfig['cache_path'])) {
+                                $cacheConfig = array_merge($cacheConfig, $defaultCacheConfig);
+                            }
+
+                            $this->Cache->setCachePath($cacheConfig['cache_path']);
+                            $this->Cache->setCacheTime($cacheConfig['cache_time']);
+                            break;
+                        case 'Database':
+                            $db_configs = Finder::getInstance()->getIdentifier('app:config.database', []);
+                            foreach ($db_configs as $db_name => $db_config) {
+                                $this->Database->create($db_name, $db_config);
+                            }
+                            break;
+                        case 'Router':
+                            $this->Router->setContainer('application', $this);
+                            break;
+                        case 'Text':
+                            $language = !empty($this->getConfig()['language']) ? $this->getConfig()['language'] : '' ;
+                            if (!empty($language)) {
+                                $this->Text->loadLanguage($language);
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
+        return isset($this->$key) ? $this->$key : null ;
     }
 }

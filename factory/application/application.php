@@ -15,7 +15,7 @@ class FactoryApplication extends Factory
     private static $instance;
 
     /**
-     * @var Application
+     * @var ApplicationWeb
      */
     public $current;
 
@@ -33,10 +33,10 @@ class FactoryApplication extends Factory
     }
 
     /**
-     * Create new Application if not exists
+     * Create new ApplicationWeb if not exists
      *
      * @param $name
-     * @return Application
+     * @return ApplicationWeb
      */
     public function create()
     {
@@ -71,20 +71,20 @@ class FactoryApplication extends Factory
                     }
                     $name = $args[0];
                     $initialize = $args[1];
-                    $this->current = new Application($name, $initialize);
+                    $this->current = new ApplicationWeb($name, $initialize);
                     break;
                 case 1:
 
                     if (is_callable($args[0])) {
-                        $this->current = new Application($name,$args[0]);
+                        $this->current = new ApplicationWeb($name,$args[0]);
                     } elseif (is_string($args[0])) {
-                        $this->current = new Application($args[0]);
+                        $this->current = new ApplicationWeb($args[0]);
                     } else {
                         throw new ApplicationException('Invalid argument type! Spected String or Closure, "%s" given.',gettype($args[0]));
                     }
                     break;
                 case 0:
-                    $this->current = new Application($name);
+                    $this->current = new ApplicationWeb($name);
                     break;
                 default:
                     throw new ApplicationException('Invalid arguments. Spected (String, Closure).');

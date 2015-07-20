@@ -207,16 +207,20 @@ class Autoload
             //Get the path
             $path = $this->findPath( $class );
             if ($path !== false) {
-                $tmp = preg_replace("/(([a-z])([A-Z])|([A-Z])([A-Z][a-z]))/","\\2\\4 \\3\\5",$this->_file);
-                if (str_word_count($tmp) == 1) {
-                    $tmp .= DIRECTORY_SEPARATOR . $tmp;
+                if (substr($path,-4) == '.php') {
+                    $result = $this->loadFile($path);
                 } else {
-                    $parts = explode(' ',$tmp);
-                    $parts[] = end($parts);
-                    $tmp = implode(DIRECTORY_SEPARATOR,$parts);
+                    $tmp = preg_replace("/(([a-z])([A-Z])|([A-Z])([A-Z][a-z]))/","\\2\\4 \\3\\5",$this->_file);
+                    if (str_word_count($tmp) == 1) {
+                        $tmp .= DIRECTORY_SEPARATOR . $tmp;
+                    } else {
+                        $parts = explode(' ',$tmp);
+                        $parts[] = end($parts);
+                        $tmp = implode(DIRECTORY_SEPARATOR,$parts);
+                    }
+                    $file_path = $path . '/' . strtolower($tmp) . '.php';
+                    $result = $this->loadFile($file_path);
                 }
-                $file_path = $path . '/' . strtolower($tmp) . '.php';
-                $result = $this->loadFile($file_path);
             } else {
                 $result = false;
             }

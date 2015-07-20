@@ -7,6 +7,16 @@ namespace Cyan\Library;
  */
 class Theme extends View
 {
+    use TraitsSingleton;
+    /**
+     * Static global Data
+     *
+     * @var array
+     */
+    protected static $share = [
+        'header' => []
+    ];
+
     /**
      * View Constructor
      *
@@ -118,7 +128,14 @@ class Theme extends View
      */
     public function addHeader($content)
     {
-        $this->share['header'][] = $content;
-        $this->set('head', implode(chr(13).chr(9),$this->share['header']));
+        self::$share['header'][] = $content;
+    }
+
+    /**
+     * get Header
+     */
+    public function getHeader()
+    {
+        return !empty(self::$share['header']) ? chr(13).chr(9).implode(chr(13).chr(9),self::$share['header']) : null ;
     }
 }

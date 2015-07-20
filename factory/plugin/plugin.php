@@ -1,6 +1,10 @@
 <?php
 namespace Cyan\Library;
 
+/**
+ * Class FactoryPlugin
+ * @package Cyan\Library
+ */
 class FactoryPlugin extends Factory
 {
     /**
@@ -63,14 +67,21 @@ class FactoryPlugin extends Factory
      */
     public function assign($type, $target_object)
     {
+        $type = strtolower($type);
         $required = __NAMESPACE__.'\TraitsEvent';
-        $use = class_uses($target_object);
-        if (!isset($use[$required])) {
-            throw new FactoryException(sprintf('Cant assign %s Plugins to %s %s, because they are not use TraitsEvent.',$type,$target_object,gettype($target_object)));
+        $rf = new \ReflectionClass($target_object);
+        $parent = $rf->getParentClass();
+
+        $use = $rf->getTraitNames();
+        if ($parent) {
+            $use = array_merge($use, $parent->getTraitNames());
+        }
+        if (!in_array($required,$use)) {
+            throw new FactoryException(sprintf('Cant assign %s Plugins to %s %s, because they are not use TraitsEvent.',$type,get_class($target_object),gettype($target_object)));
         }
         if (empty($this->_registry[$type])) return;
         foreach ($this->_registry[$type] as $plugin_name => $plugin) {
-            $target_object->registerPlugin($plugin_name, $plugin);
+            $target_object->registerEventPlugin($plugin_name, $plugin);
         }
     }
 }

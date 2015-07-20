@@ -41,7 +41,7 @@ class View
      *
      * @var array
      */
-    private static $share = [];
+    protected static $share = [];
 
     /**
      * View Constructor
@@ -145,6 +145,15 @@ class View
     }
 
     /**
+     * @param $key
+     * @return mixed
+     */
+    public static function getShared($key)
+    {
+        return isset(self::$share[$key]) ? self::$share[$key] : null ;
+    }
+
+    /**
      * @param array $data
      */
     public static function shareData(array $data)
@@ -210,10 +219,7 @@ class View
      */
     public function render()
     {
-        global $Cyan;
-        $App = $Cyan->Application->current;
-        $Router = $App->Router;
-        $Text = $App->Text;
+        $Cyan = \Cyan::initialize();
 
         ob_start();
         include $this->layout_path;

@@ -1,6 +1,19 @@
 <?php
+
 /**
  * Class Cyan
+ *
+ * @var \Cyan\Library\Finder $Finder
+ * @var \Cyan\Library\FactoryApi $Api
+ * @var \Cyan\Library\FactoryApplication $Application
+ * @var \Cyan\Library\FactoryRouter $Router
+ * @var \Cyan\Library\FactoryView $View
+ * @var \Cyan\Library\Data $Data
+ * @var \Cyan\Library\FactoryController $Controller
+ * @var \Cyan\Library\FactoryPlugin $Plugin
+ * @var \Cyan\Library\FactoryDatabase $Database
+ * @var \Cyan\Library\Filter $Filter
+ * @var \Cyan\Library\Csrf $CSRF
  */
 class Cyan
 {
@@ -36,61 +49,6 @@ class Cyan
      * @var Closure
      */
     protected $__initialize;
-
-    /**
-     * @var Cyan\Library\FactoryApi
-     */
-    public $Api;
-
-    /**
-     * @var \Cyan\Library\FactoryApplication
-     */
-    public $Application;
-
-    /**
-     * @var Cyan\Library\FactoryRouter
-     */
-    public $Router;
-
-    /**
-     * @var \Cyan\Library\FactoryView
-     */
-    public $View;
-
-    /**
-     * @var \Cyan\Library\Data
-     */
-    public $Data;
-
-    /**
-     * @var \Cyan\Library\FactoryController
-     */
-    public $Controller;
-
-    /**
-     * @var Cyan\Library\FactoryPlugin
-     */
-    public $Plugin;
-
-    /**
-     * @var \Cyan\Library\FactoryDatabase
-     */
-    public $Database;
-
-    /**
-     * @var Cyan\Library\Finder
-     */
-    public $Finder;
-
-    /**
-     * @var Cyan\Library\Filter
-     */
-    public $Filter;
-
-    /**
-     * @var Cyan\Library\Csrf
-     */
-    public $CSRF;
 
     /**
      * @var Cyan\Library\Autoload
@@ -134,7 +92,7 @@ class Cyan
             'cyan_int' => '/[0-9]*/',
             'cyan_float' => '/^[0-9]*\.?[0-9]+$/',
             'cyan_string' => '/[a-zA-ZãÃáÁàÀêÊéÉèÈíÍìÌôÔõÕóÓòÒúÚùÙûÛçÇ\s\-]*/',
-            'cyan_word' => '/[a-zA-ZãÃáÁàÀêÊéÉèÈíÍìÌôÔõÕóÓòÒúÚùÙûÛçÇ]*/',
+            'cyan_word' => '/[a-zA-ZãÃáÁàÀêÊéÉèÈíÍìÌôÔõÕóÓòÒúÚùÙûÛçÇ_\-]*/',
             'cyan_search' => '/[A-ZA-za-z0-9\.\s]*/',
             'cyan_username' => '/^[A-ZA-za-z0-9_.]*$/',
             'cyan_password' => '/^[A-ZA-za-z0-9_.]*$/',
@@ -150,18 +108,7 @@ class Cyan
         ]);
 
         //Assign Factories
-        $this->Database = \Cyan\Library\FactoryDatabase::getInstance();
-        $this->Router = \Cyan\Library\FactoryRouter::getInstance();
-        $this->Api = \Cyan\Library\FactoryApi::getInstance();
-        $this->Application = \Cyan\Library\FactoryApplication::getInstance();
-        $this->View = \Cyan\Library\FactoryView::getInstance();
-        $this->Controller = \Cyan\Library\FactoryController::getInstance();
-        $this->Plugin = \Cyan\Library\FactoryPlugin::getInstance();
         $this->Finder = \Cyan\Library\Finder::getInstance();
-        $this->Data = \Cyan\Library\Data::getInstance();
-        $this->Filter = Cyan\Library\Filter::getInstance();
-        $this->CSRF = \Cyan\Library\Csrf::getInstance();
-        $this->Text = \Cyan\Library\Text::getInstance();
         $this->Loader = $loader;
 
         //register root application path as resource
@@ -237,6 +184,36 @@ class Cyan
         $this->_rootPath = $root_path;
 
         return $this;
+    }
+
+    /**
+     * Create instance according with docblock class var
+     *
+     * @param $key
+     * @return null
+     */
+    public function __get($key)
+    {
+        if (!isset($this->$key)) {
+            $rc = new \ReflectionClass($this);
+            $result = [];
+            preg_match_all('/@(\w+)\s+(.*)\r?\n/m', $rc->getDocComment(), $matches);
+
+            $doc_block = [];
+            foreach ($matches[1] as $index => $value) {
+                $doc_block[$value][] = $matches[2][$index];
+            }
+
+            foreach ($doc_block['var'] as $var) {
+                list($class, $variable) = explode(' ',$var);
+                $variable = substr($variable,1);
+                if ($variable === $key) {
+                    $this->$key = $class::getInstance();
+                }
+            }
+        }
+
+        return isset($this->$key) ? $this->$key : null ;
     }
 
     /**
