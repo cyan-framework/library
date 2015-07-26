@@ -11,7 +11,7 @@ namespace Cyan\Library;
  * @var \Cyan\Library\Router $Router
  * @var \Cyan\Library\FactoryController $Controller
  */
-class ApplicationApi extends Application implements ApplicationInterface
+class ApplicationApi extends Application
 {
     /**
      * Debug response time

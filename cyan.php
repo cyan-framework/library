@@ -32,7 +32,23 @@ class Cyan
     protected $_path;
 
     /**
-     * @var
+     * Array resources
+     *
+     * @var array
+     */
+    protected $_alias;
+
+    /**
+     * App path
+     *
+     * @var string
+     */
+    protected $_app_path;
+
+    /**
+     * Root path
+     *
+     * @var string
      */
     protected $_rootPath;
 
@@ -78,6 +94,8 @@ class Cyan
             $config['autoregister_apps'] = true;
         }
 
+        $this->_app_path = (isset($config['app_path']) && is_dir($config['app_path'])) ? $config['app_path'] : $this->_rootPath ;
+
         //Create loader
         require_once $this->_path . '/autoload/autoload.php';
 
@@ -116,17 +134,34 @@ class Cyan
 
         //auto assign apps under root
         if ($config['autoregister_apps']) {
-            $app_path = $this->_rootPath . DIRECTORY_SEPARATOR . 'app';
-            $app_paths = glob($app_path.'/*', GLOB_ONLYDIR);
-            foreach ($app_paths as $path) {
-                if (file_exists($path . DIRECTORY_SEPARATOR . 'application.php')){
-                    $prefix = basename($path);
-                    $this->Finder->registerResource($prefix, $path);
-                    //register Autoload based on app folder
-                    $prefix = ucfirst($prefix);
-                    $loader->registerPrefix($prefix, $path);
+            $app_path = $this->_app_path . DIRECTORY_SEPARATOR . 'app';
+            if (is_dir($app_path) && file_exists($app_path)) {
+                $app_paths = glob($app_path.'/*', GLOB_ONLYDIR);
+                foreach ($app_paths as $path) {
+                    if (file_exists($path . DIRECTORY_SEPARATOR . 'application.php')){
+                        $prefix = basename($path);
+                        $this->Finder->registerResource($prefix, $path);
+                        //register Autoload based on app folder
+                        $prefix = ucfirst($prefix);
+                        $loader->registerPrefix($prefix, $path);
+                    }
                 }
             }
+        }
+
+        $rc = new \ReflectionClass($this);
+        $result = [];
+        preg_match_all('/@(\w+)\s+(.*)\r?\n/m', $rc->getDocComment(), $matches);
+
+        $doc_block = [];
+        foreach ($matches[1] as $index => $value) {
+            $doc_block[$value][] = $matches[2][$index];
+        }
+
+        foreach ($doc_block['var'] as $var) {
+            list($class, $variable) = explode(' ', $var);
+            $variable = trim(substr($variable,1));
+            $this->_alias[$variable] = $class;
         }
     }
 
@@ -194,23 +229,9 @@ class Cyan
      */
     public function __get($key)
     {
-        if (!isset($this->$key)) {
-            $rc = new \ReflectionClass($this);
-            $result = [];
-            preg_match_all('/@(\w+)\s+(.*)\r?\n/m', $rc->getDocComment(), $matches);
-
-            $doc_block = [];
-            foreach ($matches[1] as $index => $value) {
-                $doc_block[$value][] = $matches[2][$index];
-            }
-
-            foreach ($doc_block['var'] as $var) {
-                list($class, $variable) = explode(' ',$var);
-                $variable = substr($variable,1);
-                if ($variable === $key) {
-                    $this->$key = $class::getInstance();
-                }
-            }
+        if (!isset($this->$key) && in_array($key, array_keys($this->_alias))) {
+            $class = $this->_alias[$key];
+            $this->$key = $class::getInstance();
         }
 
         return isset($this->$key) ? $this->$key : null ;

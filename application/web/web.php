@@ -13,7 +13,7 @@ namespace Cyan\Library;
  * @var \Cyan\Library\FactoryView $View
  * @var \Cyan\Library\Theme
  */
-class ApplicationWeb extends Application implements ApplicationInterface
+class ApplicationWeb extends Application
 {
     /**
      * Default Application

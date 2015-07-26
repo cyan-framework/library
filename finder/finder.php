@@ -195,7 +195,9 @@ class Finder
             $this->_cache[$identifier] = $return;
         } else {
             if ($parse['path'] == 'application') {
-                $this->registerResource('app', $this->_resources[$parse['scheme']]);
+                if (!$this->hasResource('app')) {
+                    $this->registerResource('app', $this->_resources[$parse['scheme']]);
+                }
                 if ($return instanceof Application || $return instanceof ApplicationApi) {
                     return $return;
                 } else {

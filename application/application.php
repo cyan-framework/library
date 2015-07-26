@@ -23,6 +23,9 @@ abstract class Application
      */
     protected $_data;
 
+
+    protected $_alias;
+
     /**
      * Start off the number of deferrals at 1. This will be
      * decremented by the Application's own `initialize` method.
@@ -74,6 +77,22 @@ abstract class Application
         if (isset($initialize) && is_callable($initialize)) {
             $this->__initializer = $initialize->bindTo($this, $this);
             $this->__initializer();
+        }
+
+        //
+        $rc = new \ReflectionClass($this);
+        $result = [];
+        preg_match_all('/@(\w+)\s+(.*)\r?\n/m', $rc->getDocComment(), $matches);
+
+        $doc_block = [];
+        foreach ($matches[1] as $index => $value) {
+            $doc_block[$value][] = $matches[2][$index];
+        }
+        $this->_alias = [];
+        foreach ($doc_block['var'] as $var) {
+            list($class, $variable) = explode(' ', $var);
+            $variable = trim(substr($variable,1));
+            $this->_alias[$variable] = $class;
         }
 
         $this->advanceReadiness();
@@ -149,53 +168,39 @@ abstract class Application
      */
     public function __get($key)
     {
-        if (!isset($this->$key)) {
-            $rc = new \ReflectionClass($this);
-            $result = [];
-            preg_match_all('/@(\w+)\s+(.*)\r?\n/m', $rc->getDocComment(), $matches);
-
-            $doc_block = [];
-            foreach ($matches[1] as $index => $value) {
-                $doc_block[$value][] = $matches[2][$index];
-            }
-
-            foreach ($doc_block['var'] as $var) {
-                list($class, $variable) = explode(' ',$var);
-                $variable = substr($variable,1);
-                if ($variable === $key) {
-                    $this->$key = $class::getInstance();
-                    //custom behaviors
-                    switch ($key) {
-                        case 'Cache':
-                            $defaultCacheConfig = [
-                                'cache_path' => Finder::getInstance()->getPath('app:cache').DIRECTORY_SEPARATOR,
-                                'cache_time' => 172800  //48 hours cache
-                            ];
-                            $cacheConfig = Finder::getInstance()->getIdentifier('app:config.application', $defaultCacheConfig);
-                            if (!isset($cacheConfig['cache_path'])) {
-                                $cacheConfig = array_merge($cacheConfig, $defaultCacheConfig);
-                            }
-
-                            $this->Cache->setCachePath($cacheConfig['cache_path']);
-                            $this->Cache->setCacheTime($cacheConfig['cache_time']);
-                            break;
-                        case 'Database':
-                            $db_configs = Finder::getInstance()->getIdentifier('app:config.database', []);
-                            foreach ($db_configs as $db_name => $db_config) {
-                                $this->Database->create($db_name, $db_config);
-                            }
-                            break;
-                        case 'Router':
-                            $this->Router->setContainer('application', $this);
-                            break;
-                        case 'Text':
-                            $language = !empty($this->getConfig()['language']) ? $this->getConfig()['language'] : '' ;
-                            if (!empty($language)) {
-                                $this->Text->loadLanguage($language);
-                            }
-                            break;
+        if (!isset($this->$key) && in_array($key, array_keys($this->_alias))) {
+            $class = $this->_alias[$key];
+            $this->$key = $class::getInstance();
+            //custom behaviors
+            switch ($key) {
+                case 'Cache':
+                    $defaultCacheConfig = [
+                        'cache_path' => Finder::getInstance()->getPath('app:cache').DIRECTORY_SEPARATOR,
+                        'cache_time' => 172800  //48 hours cache
+                    ];
+                    $cacheConfig = Finder::getInstance()->getIdentifier('app:config.application', $defaultCacheConfig);
+                    if (!isset($cacheConfig['cache_path'])) {
+                        $cacheConfig = array_merge($cacheConfig, $defaultCacheConfig);
                     }
-                }
+
+                    $this->Cache->setCachePath($cacheConfig['cache_path']);
+                    $this->Cache->setCacheTime($cacheConfig['cache_time']);
+                    break;
+                case 'Database':
+                    $db_configs = Finder::getInstance()->getIdentifier('app:config.database', []);
+                    foreach ($db_configs as $db_name => $db_config) {
+                        $this->Database->create($db_name, $db_config);
+                    }
+                    break;
+                case 'Router':
+                    $this->Router->setContainer('application', $this);
+                    break;
+                case 'Text':
+                    $language = !empty($this->getConfig()['language']) ? $this->getConfig()['language'] : '' ;
+                    if (!empty($language)) {
+                        $this->Text->loadLanguage($language);
+                    }
+                    break;
             }
         }
 

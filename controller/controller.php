@@ -3,7 +3,7 @@ namespace Cyan\Library;
 
 class Controller
 {
-    use TraitsDispatcher;
+    use TraitsDispatcher, TraitsContainer;
 
     /**
      * @var string
