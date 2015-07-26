@@ -18,20 +18,6 @@ class Controller
     public $config = [];
 
     /**
-     * Application
-     *
-     * @var Application|ApplicationApi
-     */
-    public $Application;
-
-    /**
-     * Core Framework
-     *
-     * @var \Cyan
-     */
-    public $Cyan;
-
-    /**
      * @param $name
      * @param array $config
      * @param callable $closure
@@ -45,8 +31,6 @@ class Controller
             $this->__initialize = $closure->bindTo($this, $this);
             call_user_func($this->__initialize);
         }
-
-        $this->Cyan = \Cyan::initialize();
     }
 
     /**
@@ -76,6 +60,7 @@ class Controller
     public function lazyLoad()
     {
         if (isset($this->config['file'])) {
+            $Cyan = \Cyan::initialize();
             $controller = $this;
             require_once $this->config['file'];
         }
