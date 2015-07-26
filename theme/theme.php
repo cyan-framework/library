@@ -8,6 +8,14 @@ namespace Cyan\Library;
 class Theme extends View
 {
     use TraitsSingleton;
+
+    /**
+     * Theme Folder
+     *
+     * @var string
+     */
+    protected $folder;
+
     /**
      * Static global Data
      *
@@ -64,6 +72,16 @@ class Theme extends View
     }
 
     /**
+     * Return folder
+     *
+     * @return string
+     */
+    public function getFolder()
+    {
+        return $this->folder;
+    }
+
+    /**
      * Render Layout
      *
      * @param $folder
@@ -76,6 +94,10 @@ class Theme extends View
     {
         if (is_null($folder)) {
             throw new ThemeException('Folder cant be null');
+        }
+
+        if (!isset($this->folder)) {
+            $this->folder = $folder;
         }
 
         $layout = is_null($layout) ? 'index' : $layout ;
@@ -101,10 +123,7 @@ class Theme extends View
      */
     final public function render()
     {
-        global $Cyan;
-        $App = $Cyan->Application->current;
-        $Router = $App->Router;
-        $Text = $App->Text;
+        $Cyan = \Cyan::initialize();
 
         if (!empty($this->layout_path) && is_readable($this->layout_path) & file_exists($this->layout_path)) {
             ob_start();

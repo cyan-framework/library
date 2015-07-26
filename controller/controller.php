@@ -60,7 +60,9 @@ class Controller
     public function lazyLoad()
     {
         if (isset($this->config['file'])) {
+            /** @var \Cyan $Cyan */
             $Cyan = \Cyan::initialize();
+            /** @var self $controller */
             $controller = $this;
             require_once $this->config['file'];
         }

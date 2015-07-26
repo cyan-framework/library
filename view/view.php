@@ -8,7 +8,7 @@ namespace Cyan\Library;
  */
 class View
 {
-    use TraitsEvent;
+    use TraitsEvent, TraitsContainer;
 
     /**
      * Base path to views

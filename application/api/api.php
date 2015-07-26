@@ -132,10 +132,14 @@ class ApplicationApi extends Application
     {
         $errors = Finder::getInstance()->getIdentifier('app:config.errors', []);
         //assign error code to response
-        if (isset($errors[$code])) {
-            $errors[$code]['code'] = $code;
+        if (!isset($errors[$code])) {
+            $errors[$code] = $message_arguments;
         }
         $error = isset($errors[$code]) ? ['error' => $errors[$code]] : [] ;
+
+        if (empty($error)) {
+            throw new ApplicationException('Error code not found', $code);
+        }
 
         if (isset($error['error']['message'])) {
             $error['error']['message'] = !empty($message_arguments) ? call_user_func_array($this->Text->sprintf,array_merge([$error['error']['message']], $message_arguments)) : $this->Text->translate($error['error']['message']);

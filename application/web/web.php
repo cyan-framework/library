@@ -11,7 +11,7 @@ namespace Cyan\Library;
  * @var \Cyan\Library\Router $Router
  * @var \Cyan\Library\FactoryController $Controller
  * @var \Cyan\Library\FactoryView $View
- * @var \Cyan\Library\Theme
+ * @var \Cyan\Library\Theme $Theme
  */
 class ApplicationWeb extends Application
 {
@@ -54,7 +54,15 @@ class ApplicationWeb extends Application
 
         $this->trigger('AfterRun', $this);
 
+        $theme = $this->getConfig()['theme'];
+        $view = new View([
+            'path' => $this->Theme->getPath().'/',$theme
+        ]);
+        $view->set('messages', $this->getMessageQueue())
+            ->tpl($theme,'messages');
+        $this->Theme->setContainer('application', $this);
         $this->Theme->set('outlet', (string)$response);
+        $this->Theme->set('system_messages', (string)$view);
 
         echo $this->Theme;
     }

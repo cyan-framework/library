@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Class Cyan
  *
@@ -131,6 +130,7 @@ class Cyan
 
         //register root application path as resource
         $this->Finder->registerResource('root', $this->_rootPath);
+        $this->Finder->registerResource('cyan', $this->_path);
 
         //auto assign apps under root
         if ($config['autoregister_apps']) {

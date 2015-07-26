@@ -23,8 +23,19 @@ abstract class Application
      */
     protected $_data;
 
-
+    /**
+     * Array alias resources
+     *
+     * @var array
+     */
     protected $_alias;
+
+    /**
+     * The application message queue.
+     *
+     * @var    array
+     */
+    protected $messageQueue = array();
 
     /**
      * Start off the number of deferrals at 1. This will be
@@ -148,6 +159,55 @@ abstract class Application
         return Finder::getInstance()->getIdentifier('app:config.application', []);
     }
 
+
+
+    /**
+     * Enqueue a system message.
+     *
+     * @param   string  $msg   The message to enqueue.
+     * @param   string  $type  The message type. Default is message.
+     * @param   array   $attributes  Array attributes
+     *
+     * @return  void
+     */
+    public function enqueueMessage($msg, $type = 'message', $attributes = [])
+    {
+        // Don't add empty messages.
+        if (!strlen($msg))
+        {
+            return;
+        }
+
+        // For empty queue, if messages exists in the session, enqueue them first.
+        $this->getMessageQueue();
+
+        // Enqueue the message.
+        $this->messageQueue[] = array('message' => $msg, 'type' => strtolower($type), 'attributes' => $attributes);
+    }
+
+    /**
+     * Get the system message queue.
+     *
+     * @return  array  The system message queue.
+     */
+    public function getMessageQueue()
+    {
+        // For empty queue, if messages exists in the session, enqueue them.
+        if (!count($this->messageQueue))
+        {
+            $session = Session::getInstance();
+            $sessionQueue = $session->get('application.queue');
+
+            if (count($sessionQueue))
+            {
+                $this->messageQueue = $sessionQueue;
+                $session->set('application.queue', null);
+            }
+        }
+
+        return $this->messageQueue;
+    }
+
     /**
      * Listen PHP Built in Server
      */
@@ -182,7 +242,6 @@ abstract class Application
                     if (!isset($cacheConfig['cache_path'])) {
                         $cacheConfig = array_merge($cacheConfig, $defaultCacheConfig);
                     }
-
                     $this->Cache->setCachePath($cacheConfig['cache_path']);
                     $this->Cache->setCacheTime($cacheConfig['cache_time']);
                     break;

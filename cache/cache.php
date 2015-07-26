@@ -29,12 +29,10 @@ class Cache
      * @param $path
      * @param null $time
      */
-    public function __construct($path, $time = null)
+    public function __construct()
     {
-        $time = intval($time);
-
-        $this->cache_path = $path;
-        $this->cache_time = $time ? $time : 3600 ;
+        $this->cache_path = null;
+        $this->cache_time = 3600 ;
     }
 
     /**
