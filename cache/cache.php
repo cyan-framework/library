@@ -173,6 +173,19 @@ class Cache
     }
 
     /**
+     * Read File bypass cache check
+     *
+     * @param $label
+     * @return bool
+     */
+    public function filePath($label, $path = '')
+    {
+        $filename = $this->cache_path . $path  . $this->createFilename($label) .'.cache';
+
+        return $filename;
+    }
+
+    /**
      * Helper function to validate filenames
      *
      * @param $filename

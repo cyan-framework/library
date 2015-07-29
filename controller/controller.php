@@ -1,6 +1,10 @@
 <?php
 namespace Cyan\Library;
 
+/**
+ * Class Controller
+ * @package Cyan\Library
+ */
 class Controller
 {
     use TraitsDispatcher, TraitsContainer;

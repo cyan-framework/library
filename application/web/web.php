@@ -64,6 +64,6 @@ class ApplicationWeb extends Application
         $this->Theme->set('outlet', (string)$response);
         $this->Theme->set('system_messages', (string)$view);
 
-        echo $this->Theme;
+        echo $this->Theme->tpl($theme);
     }
 }

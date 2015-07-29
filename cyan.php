@@ -42,7 +42,7 @@ class Cyan
      *
      * @var string
      */
-    protected $_app_path;
+    protected $_appPath;
 
     /**
      * Root path
@@ -93,7 +93,7 @@ class Cyan
             $config['autoregister_apps'] = true;
         }
 
-        $this->_app_path = (isset($config['app_path']) && is_dir($config['app_path'])) ? $config['app_path'] : $this->_rootPath ;
+        $this->_appPath = (isset($config['app_path']) && is_dir($config['app_path'])) ? $config['app_path'] : $this->_rootPath ;
 
         //Create loader
         require_once $this->_path . '/autoload/autoload.php';
@@ -134,7 +134,7 @@ class Cyan
 
         //auto assign apps under root
         if ($config['autoregister_apps']) {
-            $app_path = $this->_app_path . DIRECTORY_SEPARATOR . 'app';
+            $app_path = $this->_appPath . DIRECTORY_SEPARATOR . 'app';
             if (is_dir($app_path) && file_exists($app_path)) {
                 $app_paths = glob($app_path.'/*', GLOB_ONLYDIR);
                 foreach ($app_paths as $path) {
@@ -222,6 +222,24 @@ class Cyan
     }
 
     /**
+     * Define Root Path
+     *
+     * @param $root_path
+     * @return $this
+     * @throws RuntimeException
+     */
+    public function setAppPath($app_path)
+    {
+        if (!is_dir($app_path)) {
+            throw new \RuntimeException(sprintf('You must set a directory path in $cyan->setRootPath(), "%s" given.',gettype($root_path)));
+        }
+
+        $this->_appPath = $app_path;
+
+        return $this;
+    }
+
+    /**
      * Create instance according with docblock class var
      *
      * @param $key
@@ -243,5 +261,13 @@ class Cyan
     public function getRootPath()
     {
         return $this->_rootPath;
+    }
+
+    /**
+     * Return Root Directory Path
+     */
+    public function getAppPath()
+    {
+        return $this->_appPath;
     }
 }
