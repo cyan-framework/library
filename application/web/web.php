@@ -48,21 +48,22 @@ class ApplicationWeb extends Application
             throw new ApplicationException(sprintf('%s Application Router not have any route.',$this->_name));
         }
 
+        $theme = $this->getConfig()['theme'];
+        $view = new View([
+            'path' => $this->Theme->getPath().'/',$theme
+        ]);
+        $view->set('messages', $this->getMessageQueue())->tpl($theme,'messages');
+        $this->Theme->set('system_messages', (string)$view);
+
         $this->trigger('BeforeRun', $this);
 
         $response = $this->Router->run();
 
         $this->trigger('AfterRun', $this);
 
-        $theme = $this->getConfig()['theme'];
-        $view = new View([
-            'path' => $this->Theme->getPath().'/',$theme
-        ]);
-        $view->set('messages', $this->getMessageQueue())
-            ->tpl($theme,'messages');
+
         $this->Theme->setContainer('application', $this);
         $this->Theme->set('outlet', (string)$response);
-        $this->Theme->set('system_messages', (string)$view);
 
         echo $this->Theme->tpl($theme);
     }

@@ -35,7 +35,7 @@ abstract class Application
      *
      * @var    array
      */
-    protected $messageQueue = array();
+    protected $messageQueue = [];
 
     /**
      * Start off the number of deferrals at 1. This will be
@@ -168,21 +168,26 @@ abstract class Application
      * @param   string  $type  The message type. Default is message.
      * @param   array   $attributes  Array attributes
      *
-     * @return  void
+     * @return  self
      */
     public function enqueueMessage($msg, $type = 'message', $attributes = [])
     {
         // Don't add empty messages.
         if (!strlen($msg))
         {
-            return;
+            return $this;
         }
 
         // For empty queue, if messages exists in the session, enqueue them first.
         $this->getMessageQueue();
 
-        // Enqueue the message.
-        $this->messageQueue[] = array('message' => $msg, 'type' => strtolower($type), 'attributes' => $attributes);
+        $this->messageQueue[] = ['message' => $msg, 'type' => strtolower($type), 'attributes' => $attributes];
+
+        // For empty queue, if messages exists in the session, enqueue them.
+        $session = Session::getInstance();
+        $session->set('application.queue', $this->messageQueue);
+
+        return $this;
     }
 
     /**
@@ -195,8 +200,9 @@ abstract class Application
         // For empty queue, if messages exists in the session, enqueue them.
         if (!count($this->messageQueue))
         {
+            // For empty queue, if messages exists in the session, enqueue them.
             $session = Session::getInstance();
-            $sessionQueue = $session->get('application.queue');
+            $sessionQueue = $session->get('application.queue', []);
 
             if (count($sessionQueue))
             {
