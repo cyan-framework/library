@@ -28,8 +28,10 @@ trait TraitsPrototype
      * @param $value
      */
     public function __set($name, $value) {
-        $this->$name = is_callable($value)?
-            $value->bindTo($this, $this):
-            $value;
+        if (method_exists($this, $name) && is_callable($value)) {
+            Throw new TraitsException(sprintf('Method "%s" already defined in %s',$name,get_class($this)));
+        }
+
+        $this->$name = is_callable($value) ? $value->bindTo($this, $this) : $value;
     }
 }

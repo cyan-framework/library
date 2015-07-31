@@ -141,6 +141,8 @@ class ApplicationApi extends Application
             throw new ApplicationException('Error code not found', $code);
         }
 
+        $error['error']['code'] = $code;
+
         if (isset($error['error']['message'])) {
             $error['error']['message'] = !empty($message_arguments) ? call_user_func_array($this->Text->sprintf,array_merge([$error['error']['message']], $message_arguments)) : $this->Text->translate($error['error']['message']);
         }

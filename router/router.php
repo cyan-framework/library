@@ -633,7 +633,8 @@ class Router
             }
         }
 
-        $action = isset($this->$action) && is_callable($this->$action) ? $action : $requested_method.$action ;
+        $sufix = !empty($action) ? $action : 'Index' ;
+        $action = isset($this->$action) && is_callable($this->$action) ? $action : $requested_method.'Action'.$sufix ;
 
         $return = '';
 
@@ -727,5 +728,6 @@ class Router
     public function redirect($uri)
     {
         header('location: '.$uri);
+        die();
     }
 }
