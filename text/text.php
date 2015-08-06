@@ -39,9 +39,9 @@ class Text
     public function sprintf()
     {
         $args = func_get_args();
-        $string = $args[0];
-        $string = isset($this->strings[$string]) ? $this->strings[$string] : $string ;
-        $args[0] = $string;
+        foreach ($args as &$string) {
+            $string = isset($this->strings[$string]) ? $this->strings[$string] : $string ;
+        }
 
         return call_user_func_array('sprintf', $args);
     }

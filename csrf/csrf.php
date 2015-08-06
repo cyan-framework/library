@@ -38,6 +38,27 @@ class Csrf
     }
 
     /**
+     * Create a INPUT
+     *
+     * @return string
+     */
+    public function getInput(array $customAttributes = [])
+    {
+        $defaultAttributes = [
+            'type' => 'hidden',
+            'name' => $this->getTokenID(),
+            'value' => $this->getToken()
+        ];
+        $fieldAttributes = array_merge($customAttributes,$defaultAttributes);
+        $html = '<input';
+        foreach ($fieldAttributes as $attr => $value) {
+            $html .= sprintf(' %s="%s"', $attr, $value);
+        }
+        $html .= '/>';
+        return $html;
+    }
+
+    /**
      * @return mixed
      */
     public function getTokenID()
@@ -64,6 +85,8 @@ class Csrf
     }
 
     /**
+     * Validate CSRF
+     *
      * @param $method
      * @return bool
      */

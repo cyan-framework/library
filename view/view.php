@@ -108,6 +108,8 @@ class View
     }
 
     /**
+     * Set Data
+     *
      * @param $key
      * @param $value
      * @return $this
@@ -117,6 +119,17 @@ class View
         $this->data[$key] = $value;
 
         return $this;
+    }
+
+    /**
+     * Get Data
+     *
+     * @param $key
+     * @return null
+     */
+    public function get($key)
+    {
+        return $this->data[$key] ? $this->data[$key] : null ;
     }
 
     /**
