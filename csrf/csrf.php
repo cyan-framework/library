@@ -103,9 +103,13 @@ class Csrf
         }
 
         if(isset($handle) && isset($handle[$this->getTokenID()]) && ($handle[$this->getTokenID()] == $this->getToken())) {
+            unset($_SESSION['token_value']);
+            unset($_SESSION['token_id']);
             return true;
         }
 
+        unset($_SESSION['token_value']);
+        unset($_SESSION['token_id']);
         return false;
     }
 
