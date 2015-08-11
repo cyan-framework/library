@@ -159,7 +159,15 @@ abstract class Application
         return Finder::getInstance()->getIdentifier('app:config.application', []);
     }
 
-
+    /**
+     * Get Theme
+     *
+     * @return string
+     */
+    public function getTheme()
+    {
+        return !empty($this->getConfig()['theme']) ? $this->getConfig()['theme'] : 'application' ;
+    }
 
     /**
      * Enqueue a system message.

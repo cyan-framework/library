@@ -48,11 +48,10 @@ class ApplicationWeb extends Application
             throw new ApplicationException(sprintf('%s Application Router not have any route.',$this->_name));
         }
 
-        $theme = $this->getConfig()['theme'];
         $view = new View([
-            'path' => $this->Theme->getPath().'/',$theme
+            'path' => $this->Theme->getPath().'/',$this->getTheme()
         ]);
-        $view->set('messages', $this->getMessageQueue())->tpl($theme,'messages');
+        $view->set('messages', $this->getMessageQueue())->tpl($this->getTheme(),'messages');
         $this->Theme->set('system_messages', (string)$view);
 
         $this->trigger('BeforeRun', $this);
@@ -65,6 +64,6 @@ class ApplicationWeb extends Application
         $this->Theme->setContainer('application', $this);
         $this->Theme->set('outlet', (string)$response);
 
-        echo $this->Theme->tpl($theme);
+        echo $this->Theme->tpl($this->getTheme());
     }
 }

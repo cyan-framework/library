@@ -198,7 +198,7 @@ class Finder
                 if (!$this->hasResource('app')) {
                     $this->registerResource('app', $this->_resources[$parse['scheme']]);
                 }
-                if ($return instanceof Application || $return instanceof ApplicationApi) {
+                if ($return instanceof ApplicationWeb || $return instanceof ApplicationApi) {
                     return $return;
                 } else {
                     $app = FactoryApplication::getInstance();

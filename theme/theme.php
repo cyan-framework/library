@@ -44,8 +44,8 @@ class Theme extends View
         if (isset($config['theme'])) {
             $this->tpl($config['theme']);
         } else {
-            $default_app_template = $default_path.'/application/application.php';
-            $app_template = $this->_path.'/application/application.php';
+            $default_app_template = $default_path.DIRECTORY_SEPARATOR.'application'.DIRECTORY_SEPARATOR.'application.php';
+            $app_template = $this->_path.DIRECTORY_SEPARATOR.'application'.DIRECTORY_SEPARATOR.'application.php';
             if (file_exists($default_app_template)) {
                 $this->tpl('application','application');
             } elseif (file_exists($app_template)) {
@@ -102,8 +102,8 @@ class Theme extends View
 
         $layout = is_null($layout) ? 'index' : $layout ;
         $base_path = !is_null($path) ? $path : $this->_path ;
-        $view_path = sprintf('%s/%s', $base_path, $folder);
-        $layout_path = sprintf('%s/%s.php', $view_path, $layout);
+        $view_path = sprintf('%s'.DIRECTORY_SEPARATOR.'%s', $base_path, $folder);
+        $layout_path = sprintf('%s'.DIRECTORY_SEPARATOR.'%s.php', $view_path, $layout);
 
         if (empty($folder) || !is_dir($view_path)) {
             throw new ThemeException(sprintf('Layout folder path "%s" not found',$view_path));
