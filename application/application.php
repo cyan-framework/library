@@ -115,21 +115,14 @@ abstract class Application
             $this->__initializer();
         }
 
-        //
-        $rc = new \ReflectionClass($this);
-        $result = [];
-        preg_match_all('/@(\w+)\s+(.*)\r?\n/m', $rc->getDocComment(), $matches);
+        $this->Router = Router::getInstance();
+        $this->Controller = FactoryController::getInstance();
+        $this->Database = FactoryDatabase::getInstance();
+        $this->Text = Text::getInstance();
+        $this->Cache = Cache::getInstance();
 
-        $doc_block = [];
-        foreach ($matches[1] as $index => $value) {
-            $doc_block[$value][] = $matches[2][$index];
-        }
-        $this->_alias = [];
-        foreach ($doc_block['var'] as $var) {
-            list($class, $variable) = explode(' ', $var);
-            $variable = trim(substr($variable,1));
-            $this->_alias[$variable] = $class;
-        }
+        //setup router
+        $this->Router->setContainer('application', $this);
 
         $this->advanceReadiness();
     }
@@ -280,51 +273,5 @@ abstract class Application
         }
 
         return $this;
-    }
-
-    /**
-     * Create instance according with docblock class var
-     *
-     * @param $key
-     * @return null
-     */
-    public function __get($key)
-    {
-        if (!isset($this->$key) && in_array($key, array_keys($this->_alias))) {
-            $class = $this->_alias[$key];
-            $this->$key = $class::getInstance();
-            //custom behaviors
-            switch ($key) {
-                case 'Cache':
-                    $defaultCacheConfig = [
-                        'cache_path' => Finder::getInstance()->getPath('app:cache').DIRECTORY_SEPARATOR,
-                        'cache_time' => 172800  //48 hours cache
-                    ];
-                    $cacheConfig = Finder::getInstance()->getIdentifier('app:config.application', $defaultCacheConfig);
-                    if (!isset($cacheConfig['cache_path'])) {
-                        $cacheConfig = array_merge($cacheConfig, $defaultCacheConfig);
-                    }
-                    $this->Cache->setCachePath($cacheConfig['cache_path']);
-                    $this->Cache->setCacheTime($cacheConfig['cache_time']);
-                    break;
-                case 'Database':
-                    $db_configs = Finder::getInstance()->getIdentifier('app:config.database', []);
-                    foreach ($db_configs as $db_name => $db_config) {
-                        $this->Database->create($db_name, $db_config);
-                    }
-                    break;
-                case 'Router':
-                    $this->Router->setContainer('application', $this);
-                    break;
-                case 'Text':
-                    $language = $this->getLanguage();
-                    if (!empty($language)) {
-                        $this->Text->loadLanguage($language);
-                    }
-                    break;
-            }
-        }
-
-        return isset($this->$key) ? $this->$key : null ;
     }
 }

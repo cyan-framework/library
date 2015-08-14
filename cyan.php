@@ -4,26 +4,16 @@ use Cyan\Library\Csrf;
 use Cyan\Library\Data;
 use Cyan\Library\FactoryApi;
 use Cyan\Library\FactoryApplication;
+use Cyan\Library\FactoryController;
 use Cyan\Library\FactoryDatabase;
 use Cyan\Library\FactoryPlugin;
 use Cyan\Library\FactoryRouter;
 use Cyan\Library\FactoryView;
 use Cyan\Library\Filter;
+use Cyan\Library\Finder;
 
 /**
  * Class Cyan
- *
- * @var \Cyan\Library\Finder $Finder
- * @var \Cyan\Library\FactoryApi $Api
- * @var \Cyan\Library\FactoryApplication $Application
- * @var \Cyan\Library\FactoryRouter $Router
- * @var \Cyan\Library\FactoryView $View
- * @var \Cyan\Library\Data $Data
- * @var \Cyan\Library\FactoryController $Controller
- * @var \Cyan\Library\FactoryPlugin $Plugin
- * @var \Cyan\Library\FactoryDatabase $Database
- * @var \Cyan\Library\Filter $Filter
- * @var \Cyan\Library\Csrf $CSRF
  */
 class Cyan
 {
@@ -192,7 +182,16 @@ class Cyan
         ]);
 
         //Assign Factories
-        $this->Finder = \Cyan\Library\Finder::getInstance();
+        $this->Api = FactoryApi::getInstance();
+        $this->Application = FactoryApplication::getInstance();
+        $this->Controller = FactoryController::getInstance();
+        $this->View = FactoryView::getInstance();
+        $this->Router = FactoryRouter::getInstance();
+        $this->Plugin = FactoryPlugin::getInstance();
+        $this->CSRF = Csrf::getInstance();
+        $this->Filter = Filter::getInstance();
+        $this->Finder = Finder::getInstance();
+        $this->Data = Data::getInstance();
         $this->Loader = $loader;
 
         //register root application path as resource
@@ -214,21 +213,6 @@ class Cyan
                     }
                 }
             }
-        }
-
-        $rc = new \ReflectionClass($this);
-        $result = [];
-        preg_match_all('/@(\w+)\s+(.*)\r?\n/m', $rc->getDocComment(), $matches);
-
-        $doc_block = [];
-        foreach ($matches[1] as $index => $value) {
-            $doc_block[$value][] = $matches[2][$index];
-        }
-
-        foreach ($doc_block['var'] as $var) {
-            list($class, $variable) = explode(' ', $var);
-            $variable = trim(substr($variable,1));
-            $this->_alias[$variable] = $class;
         }
     }
 
@@ -336,13 +320,5 @@ class Cyan
     public function getAppPath()
     {
         return $this->_appPath;
-    }
-
-    public function __call($name, $arguments)
-    {
-        die();
-        // Note: value of $name is case sensitive.
-        echo "Calling object method '$name' "
-            . implode(', ', $arguments). "\n";
     }
 }

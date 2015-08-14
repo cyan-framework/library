@@ -4,14 +4,6 @@ namespace Cyan\Library;
 /**
  * Class ApplicationWeb
  * @package Cyan\Library
- *
- * @var \Cyan\Library\Text $Text
- * @var \Cyan\Library\Cache $Cache
- * @var \Cyan\Library\FactoryDatabase $Database
- * @var \Cyan\Library\Router $Router
- * @var \Cyan\Library\FactoryController $Controller
- * @var \Cyan\Library\FactoryView $View
- * @var \Cyan\Library\Theme $Theme
  */
 class ApplicationWeb extends Application
 {
@@ -35,6 +27,9 @@ class ApplicationWeb extends Application
             Filter::getInstance()->mapFilters($filters);
         }
 
+        $this->View = FactoryView::getInstance();
+        $this->Theme = Theme::getInstance();
+
         //import application plugins
         FactoryPlugin::getInstance()->assign('application', $this);
 
@@ -57,6 +52,27 @@ class ApplicationWeb extends Application
         if ($this->Router->countRoutes() == 0) {
             throw new ApplicationException(sprintf('%s Application Router not have any route.',$this->_name));
         }
+
+        //setup cache
+        $defaultCacheConfig = [
+            'cache_path' => Finder::getInstance()->getPath('app:cache').DIRECTORY_SEPARATOR,
+            'cache_time' => 172800  //48 hours cache
+        ];
+        $cacheConfig = Finder::getInstance()->getIdentifier('app:config.application', $defaultCacheConfig);
+        if (!isset($cacheConfig['cache_path'])) {
+            $cacheConfig = array_merge($cacheConfig, $defaultCacheConfig);
+        }
+        $this->Cache->setCachePath($cacheConfig['cache_path']);
+        $this->Cache->setCacheTime($cacheConfig['cache_time']);
+
+        //setup database
+        $db_configs = Finder::getInstance()->getIdentifier('app:config.database', []);
+        foreach ($db_configs as $db_name => $db_config) {
+            $this->Database->create($db_name, $db_config);
+        }
+
+        //setup language
+        $this->Text->loadLanguage($this->getLanguage());
 
         $view = new View([
             'path' => $this->Theme->getPath().'/',$this->getTheme()

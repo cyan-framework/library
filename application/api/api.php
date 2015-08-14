@@ -4,12 +4,6 @@ namespace Cyan\Library;
 /**
  * Class ApplicationApi
  * @package Cyan\Library
- *
- * @var \Cyan\Library\Text $Text
- * @var \Cyan\Library\Cache $Cache
- * @var \Cyan\Library\FactoryDatabase $Database
- * @var \Cyan\Library\Router $Router
- * @var \Cyan\Library\FactoryController $Controller
  */
 class ApplicationApi extends Application
 {
@@ -65,6 +59,27 @@ class ApplicationApi extends Application
      */
     public function run()
     {
+        //setup language
+        $this->Text->loadLanguage($this->getLanguage());
+
+        //setup cache
+        $defaultCacheConfig = [
+            'cache_path' => Finder::getInstance()->getPath('app:cache').DIRECTORY_SEPARATOR,
+            'cache_time' => 172800  //48 hours cache
+        ];
+        $cacheConfig = Finder::getInstance()->getIdentifier('app:config.application', $defaultCacheConfig);
+        if (!isset($cacheConfig['cache_path'])) {
+            $cacheConfig = array_merge($cacheConfig, $defaultCacheConfig);
+        }
+        $this->Cache->setCachePath($cacheConfig['cache_path']);
+        $this->Cache->setCacheTime($cacheConfig['cache_time']);
+
+        //setup database
+        $db_configs = Finder::getInstance()->getIdentifier('app:config.database', []);
+        foreach ($db_configs as $db_name => $db_config) {
+            $this->Database->create($db_name, $db_config);
+        }
+
         $output = $this->Router->run();
 
         $supress_response_codes = (isset($_GET['supress_response_codes'])) ? true : false ;
