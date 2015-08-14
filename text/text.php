@@ -50,16 +50,17 @@ class Text
      * Load a language
      *
      * @param $lang_code
-     * @param $identifier_base
-     *
+     * @param string $identifier_base
+     * @return bool
      */
     public function loadLanguage($lang_code, $identifier_base = 'app:language')
     {
         $lang_path = Finder::getInstance()->getPath($identifier_base.'.'.$lang_code.'.'.$lang_code,'.ini');
-        if (!file_exists($lang_path)) {
-            throw new TextException(sprintf('The language "%s" was not found in your app language path: %s.',$lang_code, $lang_path));
+        if (file_exists($lang_path)) {
+            $this->strings = empty($this->strings) ? parse_ini_file($lang_path) : array_merge($this->strings, parse_ini_file($lang_path));
+            return true;
         }
 
-        $this->strings = empty($this->strings) ? parse_ini_file($lang_path, true) : array_merge($this->strings, parse_ini_file($lang_path, true));
+        return false;
     }
 }

@@ -46,6 +46,31 @@ abstract class Application
     protected $_readinessDeferrals = 1;
 
     /**
+     * @var Text
+     */
+    public $Text;
+
+    /**
+     * @var Cache
+     */
+    public $Cache;
+
+    /**
+     * @var FactoryDatabase
+     */
+    public $Database;
+
+    /**
+     * @var Router
+     */
+    public $Router;
+
+    /**
+     * @var FactoryController
+     */
+    public $Controller;
+
+    /**
      * Application Constructor
      */
     public function __construct()
@@ -170,6 +195,29 @@ abstract class Application
     }
 
     /**
+     * Get Language Default
+     *
+     * @return string
+     */
+    public function getLanguage()
+    {
+        $session = Session::getInstance();
+        $app_lang = !empty($this->getConfig()['language']) ? $this->getConfig()['language'] : null ;
+        return $session->get('app.lang', $app_lang);
+    }
+
+    /**
+     * Set a Language
+     *
+     * @param $lang
+     */
+    public function setLanguage($lang)
+    {
+        $session = Session::getInstance();
+        $session->set('app.lang', $lang);
+    }
+
+    /**
      * Enqueue a system message.
      *
      * @param   string  $msg   The message to enqueue.
@@ -269,7 +317,7 @@ abstract class Application
                     $this->Router->setContainer('application', $this);
                     break;
                 case 'Text':
-                    $language = !empty($this->getConfig()['language']) ? $this->getConfig()['language'] : '' ;
+                    $language = $this->getLanguage();
                     if (!empty($language)) {
                         $this->Text->loadLanguage($language);
                     }

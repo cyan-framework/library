@@ -1,4 +1,15 @@
 <?php
+use Cyan\Library\Controller;
+use Cyan\Library\Csrf;
+use Cyan\Library\Data;
+use Cyan\Library\FactoryApi;
+use Cyan\Library\FactoryApplication;
+use Cyan\Library\FactoryDatabase;
+use Cyan\Library\FactoryPlugin;
+use Cyan\Library\FactoryRouter;
+use Cyan\Library\FactoryView;
+use Cyan\Library\Filter;
+
 /**
  * Class Cyan
  *
@@ -71,6 +82,61 @@ class Cyan
     public $Loader;
 
     /**
+     * @var \Cyan\Library\Finder
+     */
+    public $Finder;
+
+    /**
+     * @var FactoryApi
+     */
+    public $Api;
+
+    /**
+     * @var FactoryApplication
+     */
+    public $Application;
+
+    /**
+     * @var FactoryRouter
+     */
+    public $Router;
+
+    /**
+     * @var FactoryView
+     */
+    public $View;
+
+    /**
+     * @var Data
+     */
+    public $Data;
+
+    /**
+     * @var Controller
+     */
+    public $Controller;
+
+    /**
+     * @var FactoryPlugin
+     */
+    public $Plugin;
+
+    /**
+     * @var FactoryDatabase
+     */
+    public $Database;
+
+    /**
+     * @var Filter
+     */
+    public $Filter;
+
+    /**
+     * @var Csrf
+     */
+    public $CSRF;
+
+    /**
      * Initialize Library
      *
      * @param bool $auto_register_apps True if you want to auto register apps on initialize framework
@@ -108,6 +174,7 @@ class Cyan
         \Cyan\Library\Filter::getInstance()->mapFilters([
             'cyan_int' => '/[0-9]*/',
             'cyan_float' => '/^[0-9]*\.?[0-9]+$/',
+            'cyan_dbhost' => '/^([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])(\.([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]))*$/',
             'cyan_string' => '/[a-zA-ZãÃáÁàÀêÊéÉèÈíÍìÌôÔõÕóÓòÒúÚùÙûÛçÇ\s\-]*/',
             'cyan_word' => '/[a-zA-ZãÃáÁàÀêÊéÉèÈíÍìÌôÔõÕóÓòÒúÚùÙûÛçÇ_\-]*/',
             'cyan_search' => '/[A-ZA-za-z0-9\.\s]*/',
@@ -269,5 +336,13 @@ class Cyan
     public function getAppPath()
     {
         return $this->_appPath;
+    }
+
+    public function __call($name, $arguments)
+    {
+        die();
+        // Note: value of $name is case sensitive.
+        echo "Calling object method '$name' "
+            . implode(', ', $arguments). "\n";
     }
 }

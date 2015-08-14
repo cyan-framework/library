@@ -37,7 +37,8 @@ class Theme extends View
 
         $default_path = \Cyan::initialize()->getRootPath() . DIRECTORY_SEPARATOR . 'theme' ;
         if ($finder->hasResource('app') && !isset($config['path'])) {
-            $config['path'] = $finder->getPath('app:theme');
+            $iniSetup = parse_ini_file($finder->getPath('app:application','.ini'), true);
+            $config['path'] = $finder->getPath('app:'.$iniSetup['folder']['theme']);
         }
         $this->_path = isset($config['path']) ? $config['path'] : $default_path ;
 

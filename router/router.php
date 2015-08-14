@@ -488,8 +488,9 @@ class Router
      *
      * @param $name
      * @param $arguments
+     * @param $base
      */
-    public function generate($name, array $arguments = [])
+    public function generate($name, array $arguments = [], $base = true)
     {
         if (!isset($this->_route_name[$name])) {
             throw new RouterException(sprintf('Router named "%s" not exists!', $name));
@@ -502,6 +503,7 @@ class Router
         if (isset($match['config']['action']))
             unset($match['config']['action']);
 
+        $base_url = $base ? $this->base : implode('/',$this->path) ;
 
         $route = [];
         $parts = array_filter(explode('/',$match['url']));
@@ -537,20 +539,20 @@ class Router
             if (isset($app_config['sef_rewrite'])) {
                 $file = basename($this->base);
                 if (strpos($file,'.php') === false) {
-                    return $this->base . '/' . $uri;
+                    return $base_url . '/' . $uri;
                 } else {
                     return str_replace($file,'',$this->base) . '/' . $uri;
                 }
             }
-        }elseif (strpos($this->base,'.php') === false) {
-            return $this->base . '/' . basename($_SERVER['SCRIPT_NAME']) . '/' . $uri;
+        } elseif (strpos($this->base,'.php') === false) {
+            return $base_url . '/' . basename($_SERVER['SCRIPT_NAME']) . '/' . $uri;
         }
 
         if ($uri == '/') {
             $uri = '';
         }
 
-        return $this->base . '/' . $uri;
+        return $base_url . '/' . $uri;
     }
 
     /**
@@ -634,7 +636,7 @@ class Router
         }
 
         $sufix = !empty($action) ? $action : 'Index' ;
-        $action = isset($this->$action) && is_callable($this->$action) ? $action : $requested_method.'Action'.$sufix ;
+        $action = isset($this->$action) && is_callable($this->$action) ? $action : $requested_method.'Action'.ucfirst($sufix) ;
 
         $return = '';
 

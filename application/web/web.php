@@ -16,6 +16,16 @@ namespace Cyan\Library;
 class ApplicationWeb extends Application
 {
     /**
+     * @var FactoryView
+     */
+    public $View;
+
+    /**
+     * @var Theme
+     */
+    public $Theme;
+
+    /**
      * Default Application
      */
     public function initialize()
