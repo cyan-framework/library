@@ -74,7 +74,7 @@ trait TraitsDispatcher
      */
     public function __call($name, $args) {
         if (isset($this->$name) && is_callable($this->$name)) {
-            return call_user_func_array($this->$name, (is_array($args) && !empty($args)) ? $args[0] : $args);
+            return call_user_func_array($this->$name, (!is_array($args) && !empty($args)) ? [$args] : $args);
         } else if (isset($this->$name) && is_object($this->$name)) {
             if (!is_string($args[0])) {
                 throw new TraitsException(sprintf('Undefined method to request "%s"',get_class($this->$name)));

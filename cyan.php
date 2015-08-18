@@ -32,13 +32,6 @@ class Cyan
     protected $_path;
 
     /**
-     * Array resources
-     *
-     * @var array
-     */
-    protected $_alias;
-
-    /**
      * App path
      *
      * @var string
@@ -154,12 +147,12 @@ class Cyan
         //Create loader
         require_once $this->_path . '/autoload/autoload.php';
 
-        $config_autoloader = [
+        $configAutoloader = [
             'namespaces' => [
                 '\Cyan\Library' => __DIR__
             ]
         ];
-        $loader = \Cyan\Library\Autoload::getInstance($config_autoloader);
+        $loader = \Cyan\Library\Autoload::getInstance($configAutoloader);
 
         \Cyan\Library\Filter::getInstance()->mapFilters([
             'cyan_int' => '/[0-9]*/',
@@ -261,13 +254,13 @@ class Cyan
      * @return $this
      * @throws RuntimeException
      */
-    public function setRootPath($root_path)
+    public function setRootPath($rootPath)
     {
-        if (!is_dir($root_path)) {
-            throw new \RuntimeException(sprintf('You must set a directory path in $cyan->setRootPath(), "%s" given.',gettype($root_path)));
+        if (!is_dir($rootPath) && !file_exists($rootPath)) {
+            throw new \RuntimeException(sprintf('You must set a directory path in $cyan->setRootPath(), "%s" given.',gettype($rootPath)));
         }
 
-        $this->_rootPath = $root_path;
+        $this->_rootPath = $rootPath;
 
         return $this;
     }
@@ -281,29 +274,13 @@ class Cyan
      */
     public function setAppPath($app_path)
     {
-        if (!is_dir($app_path)) {
-            throw new \RuntimeException(sprintf('You must set a directory path in $cyan->setRootPath(), "%s" given.',gettype($root_path)));
+        if (!is_dir($app_path) && !file_exists($app_path)) {
+            throw new \RuntimeException(sprintf('You must set a directory path in $cyan->setAppPath(), "%s" given.',gettype($root_path)));
         }
 
         $this->_appPath = $app_path;
 
         return $this;
-    }
-
-    /**
-     * Create instance according with docblock class var
-     *
-     * @param $key
-     * @return null
-     */
-    public function __get($key)
-    {
-        if (!isset($this->$key) && in_array($key, array_keys($this->_alias))) {
-            $class = $this->_alias[$key];
-            $this->$key = $class::getInstance();
-        }
-
-        return isset($this->$key) ? $this->$key : null ;
     }
 
     /**

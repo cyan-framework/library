@@ -19,7 +19,7 @@ class Controller
      *
      * @var array
      */
-    public $config = [];
+    private $config = [];
 
     /**
      * @param $name

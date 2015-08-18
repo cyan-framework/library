@@ -214,11 +214,11 @@ class Autoload
                     if (str_word_count($tmp) == 1) {
                         $tmp .= DIRECTORY_SEPARATOR . $tmp;
                     } else {
-                        $parts = explode(' ',$tmp);
+                        $parts = explode(' ',str_replace('\\',' ',$tmp));
                         $parts[] = end($parts);
                         $tmp = implode(DIRECTORY_SEPARATOR,$parts);
                     }
-                    $file_path = $path . '/' . strtolower($tmp) . '.php';
+                    $file_path = $path . DIRECTORY_SEPARATOR . strtolower($tmp) . '.php';
                     $result = $this->loadFile($file_path);
                 }
             } else {

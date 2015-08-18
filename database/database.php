@@ -383,7 +383,7 @@ class Database
     {
         $pdo = $this->isConnected('write');
 
-        $sql = $this->createQuery()->update($table)->set($fields)->where($condition);
+        $sql = $this->createQuery()->update($table)->set($fields)->where($condition)->parameters($parameters);
 
         $this->_config['prefix'] = isset($this->_config['prefix']) ? $this->_config['prefix'] : '' ;
 
