@@ -9,26 +9,7 @@ namespace Cyan\Library;
  */
 class Csrf
 {
-    /**
-     * Self Instance
-     *
-     * @var self
-     */
-    protected static $instance;
-
-    /**
-     * Singleton instance
-     *
-     * @return self
-     */
-    public static function getInstance()
-    {
-        if (!self::$instance) {
-            self::$instance = new self;
-        }
-
-        return self::$instance;
-    }
+    use TraitsSingleton;
 
     /**
      * Constructor
@@ -42,12 +23,12 @@ class Csrf
      *
      * @return string
      */
-    public function getInput(array $customAttributes = [])
+    public function getInput(array $customAttributes = [], $forceNew = false)
     {
         $defaultAttributes = [
             'type' => 'hidden',
-            'name' => $this->getTokenID(),
-            'value' => $this->getToken()
+            'name' => $this->getTokenID($forceNew),
+            'value' => $this->getToken($forceNew)
         ];
         $fieldAttributes = array_merge($customAttributes,$defaultAttributes);
         $html = '<input';
@@ -61,9 +42,9 @@ class Csrf
     /**
      * @return mixed
      */
-    public function getTokenID()
+    public function getTokenID($forceNew)
     {
-        if (!isset($_SESSION['token_id'])) {
+        if (!isset($_SESSION['token_id']) || $forceNew) {
             $token_id = $this->random(10);
             $_SESSION['token_id'] = $token_id;
         }
@@ -72,11 +53,24 @@ class Csrf
     }
 
     /**
+     * Clear CSRF session
+     */
+    public function clear()
+    {
+        if (isset($_SESSION['token_id'])) {
+            unset($_SESSION['token_id']);
+        }
+        if (isset($_SESSION['token_value'])) {
+            unset($_SESSION['token_value']);
+        }
+    }
+
+    /**
      * @return string
      */
-    public function getToken()
+    public function getToken($forceNew)
     {
-        if (!isset($_SESSION['token_value'])) {
+        if (!isset($_SESSION['token_value']) || $forceNew) {
             $token = hash('sha256', $this->random(500));
             $_SESSION['token_value'] = $token;
         }
@@ -102,14 +96,15 @@ class Csrf
                 break;
         }
 
-        if(isset($handle) && isset($handle[$this->getTokenID()]) && ($handle[$this->getTokenID()] == $this->getToken())) {
-            unset($_SESSION['token_value']);
-            unset($_SESSION['token_id']);
+        $tokenID = $this->getTokenID(false);
+        $tokenValue = $this->getToken(false);
+
+        if(isset($handle) && isset($handle[$tokenID]) && ($handle[$tokenID] == $tokenValue)) {
+            $this->clear();
             return true;
         }
 
-        unset($_SESSION['token_value']);
-        unset($_SESSION['token_id']);
+        $this->clear();
         return false;
     }
 

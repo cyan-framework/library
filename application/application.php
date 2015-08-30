@@ -230,7 +230,7 @@ abstract class Application
         // For empty queue, if messages exists in the session, enqueue them first.
         $this->getMessageQueue();
 
-        $this->messageQueue[] = ['message' => $msg, 'type' => strtolower($type), 'attributes' => $attributes];
+        $this->messageQueue[] = ['message' => addslashes($msg), 'type' => strtolower($type), 'attributes' => $attributes];
 
         // For empty queue, if messages exists in the session, enqueue them.
         $session = Session::getInstance();

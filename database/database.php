@@ -392,4 +392,14 @@ class Database
 
         return $return;
     }
+
+    /**
+     * Return PDO error
+     *
+     * @return array
+     */
+    public function getError()
+    {
+        return array_filter($this->sth->errorInfo());
+    }
 }

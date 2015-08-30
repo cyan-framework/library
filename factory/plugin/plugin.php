@@ -7,25 +7,7 @@ namespace Cyan\Library;
  */
 class FactoryPlugin extends Factory
 {
-    /**
-     * Singleton Instance
-     *
-     * @var self
-     */
-    private static $instance;
-
-    /**
-     * Singleton Instance
-     *
-     * @param array $config
-     * @return self
-     */
-    public static function getInstance() {
-        if (!(self::$instance instanceof self)) {
-            self::$instance = new self;
-        }
-        return self::$instance;
-    }
+    use TraitsSingleton;
 
     /**
      * Create a Plugin
