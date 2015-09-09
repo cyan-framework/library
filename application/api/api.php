@@ -59,6 +59,9 @@ class ApplicationApi extends Application
      */
     public function run()
     {
+        /** @var \Cyan $Cyan */
+        $Cyan = \Cyan::initialize();
+
         //setup language
         $this->Text->loadLanguage($this->getLanguage());
 
@@ -120,7 +123,7 @@ class ApplicationApi extends Application
                 'execution_time' => number_format($execution_time) . ' seconds'
             ];
         }
-        $json_string = json_encode($output);
+        $json_string = json_encode($Cyan->Data->utf8_converter($output));
 
         if ($json_string === false) {
             throw new ApplicationException('JSON encode has failed!');

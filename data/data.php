@@ -54,6 +54,23 @@ class Data
     }
 
     /**
+     * UTF8 Converter for JSON_ENCODE
+     *
+     * @param array $array
+     * @return array
+     */
+    public function utf8_converter(array $array)
+    {
+        array_walk_recursive($array, function(&$item, $key){
+            if(!mb_detect_encoding($item, 'utf-8', true)){
+                $item = utf8_encode($item);
+            }
+        });
+
+        return $array;
+    }
+
+    /**
      * Return All Data
      *
      * @return \ArrayObject

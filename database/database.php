@@ -230,8 +230,7 @@ class Database
         }
 
         $statement = strtolower(strtok(trim($sql), " "));
-
-        $action =  ($statement == 'select') ? 'read' : 'write' ;
+        $action =  ($statement == 'select' || $statement == 'show') ? 'read' : 'write' ;
         $pdo = $this->isConnected($action);
 
         $this->_config['prefix'] = isset($this->_config['prefix']) ? $this->_config['prefix'] : '' ;
