@@ -40,7 +40,7 @@ class FactoryDatabase extends Factory
     public function create($name, array $config = [])
     {
         if (!isset($this->$name)) {
-            $this->$name = new Database($name);
+            $this->$name = new Database2($name);
             if (!empty($config)) {
                 $this->$name->setConfig($config);
             }
