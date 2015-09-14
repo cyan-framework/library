@@ -15,7 +15,7 @@ class FactoryDatabase extends Factory
     private static $instance;
 
     /**
-     * @var Database
+     * @var Database2
      */
     public $current;
 
