@@ -77,7 +77,7 @@ trait Database2TraitPdo
     private function isConnected($action)
     {
         if (!isset($this->pdo[$action])) {
-            throw new \RuntimeException(sprintf('Pdo not support "%s" only support READ and WRITE action.', $action));
+            throw new Database2Exception(sprintf('Pdo not support "%s" only support READ and WRITE action.', $action));
         }
         $pool = $this->pdo[$action];
 
@@ -95,9 +95,12 @@ trait Database2TraitPdo
      * @param string $action
      * @return \PDOStatement
      */
-    public function prepare($query, $action = self::READ)
+    public function prepare($query)
     {
-        return $this->getPdo()->prepare( $query );
+        $statement = strtolower(strtok(trim($query), " "));
+        $action =  ($statement == 'select' || $statement == 'show') ? 'read' : 'write' ;
+        $pdo = $this->isConnected($action);
+        return $pdo->prepare( $query );
     }
 
     /**

@@ -1,7 +1,7 @@
 <?php
 namespace Cyan\Library;
 
-class Databases2Exception extends \RuntimeException
+class Database2Exception extends \RuntimeException
 {
 
 }

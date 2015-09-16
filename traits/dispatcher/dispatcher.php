@@ -74,12 +74,10 @@ trait TraitsDispatcher
      */
     public function __call($name, $args) {
         if (isset($this->$name) && is_callable($this->$name)) {
-            if (!is_array($args) && !empty($args)) {
+            if (!is_array($args)) {
                 $arguments = [$args];
-            } elseif (count($args) == 1) {
-                $arguments = $args[0];
             } else {
-                $arguments = array_values($args);
+                $arguments = $args;
             }
             return call_user_func_array($this->$name, $arguments);
         } else if (isset($this->$name) && is_object($this->$name)) {

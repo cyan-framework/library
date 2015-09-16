@@ -65,7 +65,7 @@ class Database2Result
      */
     function __construct( $parent, $name ) {
 
-        if ( $parent instanceof Database ) {
+        if ( $parent instanceof Database2 ) {
 
             // basic result
 

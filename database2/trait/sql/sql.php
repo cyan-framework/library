@@ -256,9 +256,7 @@ trait Database2TraitSql
             $values = array();
 
             foreach ( $columns as $column ) {
-
                 $values[] = $this->quote( @$row[ $column ] );
-
             }
 
             $lists[] = "( " . implode( ", ", $values ) . " )";
@@ -486,7 +484,7 @@ trait Database2TraitSql
      * @param mixed $value
      * @return string
      */
-    function quote( $value ) {
+    public function quote( $value ) {
 
         $value = $this->format( $value );
 
@@ -526,7 +524,7 @@ trait Database2TraitSql
 
         }
 
-        return $this->pdo->quote( $value );
+        return $this->pdo['read']->quote( $value );
 
     }
 

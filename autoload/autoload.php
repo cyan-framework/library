@@ -210,7 +210,7 @@ class Autoload
                 if (substr($path,-4) == '.php') {
                     $result = $this->loadFile($path);
                 } else {
-                    $tmp = preg_replace("/(([a-z])([A-Z])|([A-Z])([A-Z][a-z]))/","\\2\\4 \\3\\5",$this->_file);
+                    $tmp = preg_replace('/([a-z0-9])([A-Z])/', "$1 $2",$this->_file);
                     if (str_word_count($tmp) == 1) {
                         $tmp .= DIRECTORY_SEPARATOR . $tmp;
                     } else {

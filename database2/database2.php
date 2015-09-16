@@ -66,10 +66,15 @@ class Database2
             $pdoWriteConnection = $this->createPdo($this->_config['write']);
         }
 
-        $this->_pdo = [
+        $this->pdo = [
             'read' => $pdoReadConnection,
             'write' => $pdoWriteConnection
         ];
+        $config = $this->_config;
+        $this->setRewrite(function( $table ) use ($config) {
+            $tbl_prefix = isset($config['read']['prefix']) ? $config['read']['prefix'] : '' ;
+            return $tbl_prefix.str_replace('#__','',$table);
+        });
 
         return $this;
     }
@@ -111,7 +116,7 @@ class Database2
      *
      * @param $name
      * @param int|null $id
-     * @return Result|Row|null
+     * @return Database2Result|Database2Row|null
      */
     public function table( $name, $id = null )
     {
@@ -158,5 +163,16 @@ class Database2
     public function createResult( $parent, $name )
     {
         return new Database2Result( $parent, $name );
+    }
+
+    /**
+     * @param $name
+     * @param $args
+     * @return mixed
+     */
+    public function __call( $name, $args )
+    {
+        array_unshift( $args, $name );
+        return call_user_func_array( array( $this, 'table' ), $args );
     }
 }

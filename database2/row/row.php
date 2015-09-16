@@ -210,7 +210,7 @@ class Database2Row implements \ArrayAccess, \IteratorAggregate, \JsonSerializabl
 
         foreach ( $this->_properties as $column => $value ) {
 
-            if ( $value instanceof Row || is_array( $value ) ) {
+            if ( $value instanceof Database2Row || is_array( $value ) ) {
 
                 continue;
 
@@ -264,7 +264,7 @@ class Database2Row implements \ArrayAccess, \IteratorAggregate, \JsonSerializabl
 
         foreach ( $this->_modified as $column => $value ) {
 
-            if ( $value instanceof Row || is_array( $value ) ) {
+            if ( $value instanceof Database2Row || is_array( $value ) ) {
 
                 continue;
 
@@ -394,7 +394,7 @@ class Database2Row implements \ArrayAccess, \IteratorAggregate, \JsonSerializabl
 
         foreach ( $this->_properties as $column => $value ) {
 
-            if ( $value instanceof Row ) {
+            if ( $value instanceof Database2Row ) {
 
                 $value->listRows( $list );
 
