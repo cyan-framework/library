@@ -57,7 +57,7 @@ trait TraitsDispatcher
                 throw new TraitsException(sprintf('Undefined "%s" in %s',$action,get_class($this)));
             }
 
-            $return = $this->$action($config);
+            $return = call_user_func_array([$this, $action],$config);
         }
 
         $this->trigger('AfterRun', $this);

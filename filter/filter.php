@@ -46,7 +46,7 @@ class Filter
     public function filter($filter, $value = null, $default_value = null)
     {
         // skip condition
-        if (!is_string($value)) {
+        if (!is_string($value) || $filter == 'cyan_raw') {
             return $value;
         }
 

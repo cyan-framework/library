@@ -145,7 +145,7 @@ class Database2
      * @param string $name
      * @param array $properties
      * @param Result|null $result
-     * @return Row
+     * @return Database2Row
      */
     public function createRow( $name, $properties = array(), $result = null )
     {
@@ -158,7 +158,7 @@ class Database2
      *
      * @param Database|Result|Row $parent
      * @param string $name
-     * @return Result
+     * @return Database2Result
      */
     public function createResult( $parent, $name )
     {
@@ -168,7 +168,7 @@ class Database2
     /**
      * @param $name
      * @param $args
-     * @return mixed
+     * @return Database2Row
      */
     public function __call( $name, $args )
     {

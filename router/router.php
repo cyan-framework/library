@@ -679,6 +679,7 @@ class Router
     public function __call($name, $args) {
         if (isset($this->$name) && is_callable($this->$name)) {
             $arguments = (is_array($args)) ? $args[0] : $args;
+
             return call_user_func_array($this->$name, $arguments);
         } else if (isset($this->$name) && is_object($this->$name)) {
             if (!is_string($args[0])) {
