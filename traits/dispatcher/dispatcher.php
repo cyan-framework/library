@@ -92,10 +92,9 @@ trait TraitsDispatcher
             }
 
             return call_user_func_array([$object, $method], $args[0]);
-        } elseif (!class_exists($name, false)) {
-            $object = new $name;
+        } elseif ($this instanceof Controller) {
             $method = array_shift($args);
-            return call_user_func_array([$object, $method], $args[0]);
+            return call_user_func_array([$this, $method], $args[0]);
         }
     }
 }

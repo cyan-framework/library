@@ -259,6 +259,12 @@ class View
      */
     public function __toString()
     {
-        return $this->render();
+        try {
+            return $this->render();
+        } catch (RouterException $e) {
+            die($e->getMessage());
+        } catch (\Exception $e) {
+            throw new \RuntimeException($e->getMessage());
+        }
     }
 }

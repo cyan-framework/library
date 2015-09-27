@@ -31,6 +31,13 @@ class Router
     protected $_special_route = [];
 
     /**
+     * Map array setup for controller classes
+     *
+     * @var array
+     */
+    protected $_class_setup = [];
+
+    /**
      * Array Request Uri
      *
      * @var array
@@ -96,6 +103,31 @@ class Router
     }
 
     /**
+     * Add setup for a class
+     *
+     * @param $class
+     * @param $setup
+     * @return $this
+     */
+    public function setSetupClass($class, $setup)
+    {
+        $this->_class_setup[$class] = $setup;
+
+        return $this;
+    }
+
+    /**
+     * Return setup from a class
+     *
+     * @param $class
+     * @return array
+     */
+    public function getSetupClass($class)
+    {
+        return isset($this->_class_setup[$class]) ? $this->_class_setup[$class] : [];
+    }
+
+    /**
      * @return array
      */
     public function getPath()
@@ -129,6 +161,19 @@ class Router
     public function setError(\Closure $closure)
     {
         $this->error = $closure;
+    }
+
+    /**
+     * Call error route
+     *
+     * @return mixed
+     */
+    public function callErrorRoute()
+    {
+        if (!is_callable($this->error)) {
+            throw new RouterException('Error Route not defined');
+        }
+        return $this->error();
     }
 
     /**
@@ -636,19 +681,22 @@ class Router
         }
 
         $sufix = !empty($action) ? $action : 'Index' ;
-        $action = isset($this->$action) && is_callable($this->$action) ? $action : $requested_method.'Action'.ucfirst($sufix) ;
+        $action = isset($this->$action) && is_callable($this->$action) ? $action : $requested_method.'action'.ucfirst($sufix) ;
 
         $return = '';
 
         $app = $this->getContainer('application');
 
         if (!empty($controller)) {
-            $class_name = $controller;
+            $class_name = ucfirst($controller);
+            $class_clean_name = $class_name;
             if (strpos($class_name,'controller') === false) {
                 $class_name .= 'Controller';
             }
+
             if (class_exists($class_name, false)) {
-                $object = new $class_name($controller);
+                $object = $class_name::getInstance($class_clean_name, $this->getSetupClass($class_name));
+                $object->setContainer('application', $app);
             } else if ($app instanceof Application) {
                 $object = $app->Controller->get($controller);
             } else {
@@ -656,9 +704,8 @@ class Router
             }
 
             if (!is_object($object)) {
-                throw new RouterException(sprintf('%s not found',$controller));
+                throw new RouterException(sprintf('Controller %s not found',$controller));
             }
-
             $return = $object->run(array_merge(['action' => $action], $config));
         } else {
             $return = $this->$action($config);
@@ -678,8 +725,7 @@ class Router
      */
     public function __call($name, $args) {
         if (isset($this->$name) && is_callable($this->$name)) {
-            $arguments = (is_array($args)) ? $args[0] : $args;
-
+            $arguments = (is_array($args) && !empty($args)) ? $args[0] : $args;
             return call_user_func_array($this->$name, $arguments);
         } else if (isset($this->$name) && is_object($this->$name)) {
             if (!is_string($args[0])) {

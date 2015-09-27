@@ -50,6 +50,26 @@ class FactoryController extends Factory
     }
 
     /**
+     * Return instance of existing class
+     *
+     * @param $class_name
+     * @param Application $App
+     * @return mixed
+     */
+    public function fromClass($class_name, Application $App)
+    {
+        if (strpos(strtolower($class_name),'controller') === false) {
+            $class_name .= 'Controller';
+        }
+
+        if (!class_exists($class_name, false)) {
+            throw new TraitsException(sprintf('Controller Class "%s" not found',$class_name));
+        }
+
+        return $class_name::getInstance($class_name, $App->Router->getSetupClass($class_name))->setContainer('application', $App);
+    }
+
+    /**
      * @param $name
      * @return bool
      */

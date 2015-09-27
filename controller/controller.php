@@ -35,6 +35,16 @@ class Controller
             $this->__initialize = $closure->bindTo($this, $this);
             call_user_func($this->__initialize);
         }
+
+        $this->initialize();
+    }
+
+    /**
+     * Void
+     */
+    protected function initialize()
+    {
+
     }
 
     /**
