@@ -15,11 +15,11 @@ class Controller
     protected $name;
 
     /**
-     * Array Config
+     * Array Settings
      *
      * @var array
      */
-    private $config = [];
+    private $settings = [];
 
     /**
      * @param $name
@@ -29,7 +29,7 @@ class Controller
     public function __construct($name, array $config = [], \Closure $closure = null)
     {
         $this->name = $name;
-        $this->config = $config;
+        $this->settings = $config;
 
         if (!empty($closure) && is_callable($closure)) {
             $this->__initialize = $closure->bindTo($this, $this);
@@ -55,7 +55,7 @@ class Controller
      */
     public function getConfig($key = null)
     {
-        return (isset($this->config[$key]) && !is_null($key)) ? $this->config[$key] : $this->config;
+        return (isset($this->settings[$key]) && !is_null($key)) ? $this->settings[$key] : $this->settings;
     }
 
     /**
@@ -73,12 +73,12 @@ class Controller
      */
     public function lazyLoad()
     {
-        if (isset($this->config['file'])) {
+        if (isset($this->settings['file'])) {
             /** @var \Cyan $Cyan */
             $Cyan = \Cyan::initialize();
             /** @var self $controller */
             $controller = $this;
-            require_once $this->config['file'];
+            require_once $this->settings['file'];
         }
     }
 
