@@ -681,7 +681,7 @@ class Router
         }
 
         $sufix = !empty($action) ? $action : 'Index' ;
-        $action = isset($this->$action) && is_callable($this->$action) ? $action : $requested_method.'action'.ucfirst($sufix) ;
+        $action = isset($this->$action) && is_callable($this->$action) ? $action : $requested_method.'Action'.ucfirst($sufix) ;
 
         $return = '';
 
