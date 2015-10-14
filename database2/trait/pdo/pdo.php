@@ -30,9 +30,9 @@ trait Database2TraitPdo
         $pdoDrivers = \PDO::getAvailableDrivers();
         if (empty($pdoDrivers))
         {
-            throw new \PDOException ("PDO does not support any driver.");
+            throw new \Database2Exception("PDO does not support any driver.");
         } elseif (!in_array($config['driver'],\PDO::getAvailableDrivers(),TRUE)) {
-            throw new \PDOException(sprintf('Requested driver "%s" are not available. Available drivers: %s',$config['driver'], implode(', ',\PDO::getAvailableDrivers())));
+            throw new \Database2Exception(sprintf('Requested driver "%s" are not available. Available drivers: %s',$config['driver'], implode(', ',\PDO::getAvailableDrivers())));
         }
 
         switch ($config['driver']) {
@@ -46,7 +46,7 @@ trait Database2TraitPdo
                 $options = [];
                 break;
             default:
-                throw new DatabaseException(sprintf('Driver "%s" not found or is disabled.',$config['driver']));
+                throw new Database2Exception(sprintf('Driver "%s" not found or is disabled.',$config['driver']));
                 break;
         }
 
