@@ -23,13 +23,13 @@ class Controller
 
     /**
      * @param $name
-     * @param array $config
+     * @param array $settings
      * @param callable $closure
      */
-    public function __construct($name, array $config = [], \Closure $closure = null)
+    public function __construct($name, array $settings = [], \Closure $closure = null)
     {
         $this->name = $name;
-        $this->settings = $config;
+        $this->settings = $settings;
 
         if (!empty($closure) && is_callable($closure)) {
             $this->__initialize = $closure->bindTo($this, $this);
@@ -48,12 +48,12 @@ class Controller
     }
 
     /**
-     * Return Config Array
+     * Return Settings Array
      *
      * @param null $key
      * @return array
      */
-    public function getConfig($key = null)
+    public function getSettings($key = null)
     {
         return (isset($this->settings[$key]) && !is_null($key)) ? $this->settings[$key] : $this->settings;
     }
