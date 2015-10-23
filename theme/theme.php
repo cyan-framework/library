@@ -22,7 +22,8 @@ class Theme extends View
      * @var array
      */
     protected static $share = [
-        'header' => []
+        'header' => [],
+        'footer' => []
     ];
 
     /**
@@ -157,5 +158,23 @@ class Theme extends View
     public function getHeader()
     {
         return !empty(self::$share['header']) ? chr(13).chr(9).implode(chr(13).chr(9),self::$share['header']) : null ;
+    }
+
+    /**
+     * Add custom string to footer position
+     *
+     * @param $content
+     */
+    public function addFooter($content)
+    {
+        self::$share['footer'][] = $content;
+    }
+
+    /**
+     * get Header
+     */
+    public function getFooter()
+    {
+        return !empty(self::$share['footer']) ? chr(13).chr(9).implode(chr(13).chr(9),self::$share['footer']) : null ;
     }
 }

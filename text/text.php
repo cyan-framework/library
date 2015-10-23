@@ -55,7 +55,19 @@ class Text
      */
     public function loadLanguage($lang_code, $identifier_base = 'app:language')
     {
-        $lang_path = Finder::getInstance()->getPath($identifier_base.'.'.$lang_code.'.'.$lang_code,'.ini');
+        $langIdentifier = $identifier_base.'.'.$lang_code.'.'.$lang_code;
+        return $this->loadLanguageIdentifier($langIdentifier);
+    }
+
+    /**
+     * Load a Language from Identifier
+     *
+     * @param $langIdentifier
+     * @return bool
+     */
+    public function loadLanguageIdentifier($langIdentifier)
+    {
+        $lang_path = Finder::getInstance()->getPath($langIdentifier,'.ini');
         if (file_exists($lang_path)) {
             $this->strings = empty($this->strings) ? parse_ini_file($lang_path) : array_merge($this->strings, parse_ini_file($lang_path));
             return true;
