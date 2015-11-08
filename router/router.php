@@ -64,6 +64,13 @@ class Router
     protected $_default_uri = '';
 
     /**
+     * Enable prefix action method name
+     *
+     * @var bool
+     */
+    private $requestPrefixActionName = false;
+
+    /**
      * @param array $config
      * @param callable $closure
      */
@@ -100,6 +107,18 @@ class Router
         FactoryPlugin::getInstance()->assign('router', $this);
 
         $this->trigger('Initialize', $this);
+    }
+
+    /**
+     * Clear existing Routes
+     *
+     * @return $this
+     */
+    public function clearRoutes()
+    {
+        $this->_route = [];
+
+        return $this;
     }
 
     /**
@@ -612,6 +631,16 @@ class Router
     }
 
     /**
+     * Return REQUESTED_METHOD
+     *
+     * @return string
+     */
+    public function getRequestedMethod()
+    {
+        return strtolower($_SERVER['REQUEST_METHOD']);
+    }
+
+    /**
      * Run dispatcher
      *
      * @param array $config
@@ -622,7 +651,7 @@ class Router
         $this->trigger('BeforeRun', $this);
 
         if (empty($config)) {
-            $requested_method = strtolower($_SERVER['REQUEST_METHOD']);
+            $requested_method = $this->getRequestedMethod();
             if (empty($this->_route)) {
                 throw new RouterException('You must configure a router before run an application');
             }
@@ -681,7 +710,7 @@ class Router
         }
 
         $sufix = !empty($action) ? $action : 'Index' ;
-        $action = isset($this->$action) && is_callable($this->$action) ? $action : $requested_method.'Action'.ucfirst($sufix) ;
+        $action = isset($this->$action) && is_callable($this->$action) ? $action : $this->buildActionName($sufix) ;
 
         $return = '';
 
@@ -714,6 +743,25 @@ class Router
         $this->trigger('AfterRun', $this);
 
         return $return;
+    }
+
+    /**
+     * Enable pattern action name
+     * add prefix requested method if true
+     *
+     * @param bool|false $bool
+     */
+    public function setRequestMethodActionName($bool = false)
+    {
+        $this->requestPrefixActionName = $bool;
+    }
+
+    private function buildActionName($sufix)
+    {
+        $actionName = $this->requestPrefixActionName ? 'Action' : 'action' ;
+        $actionPrefix = $this->requestPrefixActionName ? $this->getRequestedMethod(): ''  ;
+        $actionSufix = ucfirst($sufix);
+        return sprintf('%s%s%s',$actionPrefix,$actionName,$actionSufix);
     }
 
     /**

@@ -65,9 +65,9 @@ class Text
      * @param $langIdentifier
      * @return bool
      */
-    public function loadLanguageIdentifier($langIdentifier)
+    public function loadLanguageIdentifier($langIdentifier, $suffix='')
     {
-        $lang_path = Finder::getInstance()->getPath($langIdentifier,'.ini');
+        $lang_path = Finder::getInstance()->getPath($langIdentifier,$suffix.'.ini');
         if (file_exists($lang_path)) {
             $this->strings = empty($this->strings) ? parse_ini_file($lang_path) : array_merge($this->strings, parse_ini_file($lang_path));
             return true;

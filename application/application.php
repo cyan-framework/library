@@ -208,6 +208,8 @@ abstract class Application
     {
         $session = Session::getInstance();
         $session->set('app.lang', $lang);
+
+        return $this;
     }
 
     /**

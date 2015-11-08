@@ -57,6 +57,7 @@ class View
             $config['path'] = $this->finder->getPath('app:view');
         }
         if (!empty(\Cyan::initialize()->Application->current)) {
+            $this->setContainer('application', \Cyan::initialize()->Application->current);
             $this->set('app_name', \Cyan::initialize()->Application->current->getName());
             $this->set('outlet', '');
         }
@@ -238,6 +239,8 @@ class View
         include $this->layout_path;
         $this->_content = ob_get_clean();
 
+        //import application plugins
+        FactoryPlugin::getInstance()->assign('view', $this);
         $this->trigger('Render', $this);
 
         return $this->_content;
@@ -264,7 +267,7 @@ class View
         } catch (RouterException $e) {
             die($e->getMessage());
         } catch (\Exception $e) {
-            throw new \RuntimeException($e->getMessage());
+            die($e->getMessage());
         }
     }
 }
