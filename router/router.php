@@ -173,6 +173,18 @@ class Router
     }
 
     /**
+     * Return Base URL
+     *
+     * @param bool|false $stripFile
+     * @return string
+     */
+    public function getBase($stripFile = false)
+    {
+        $baseURL = $this->base;
+        return $stripFile ? str_replace(basename($baseURL),'',$baseURL) : $baseURL ;
+    }
+
+    /**
      * Define Error Handle
      *
      * @param callable $closure
