@@ -153,7 +153,7 @@ class Database2Result
 
         if ( !$this->parent ) throw new \LogicException( 'Cannot set reference key on basic Result' );
 
-        $clone = clone $this;
+        $clone = $this;
 
         if ( $clone->single ) {
 
@@ -540,7 +540,7 @@ class Database2Result
      */
     function select( $expr ) {
 
-        $clone = clone $this;
+        $clone = $this;
 
         if ( $clone->select === null ) {
 
@@ -565,7 +565,7 @@ class Database2Result
      */
     function where( $condition, $params = array() ) {
 
-        $clone = clone $this;
+        $clone = $this;
 
         // conditions in key-value array
         if ( is_array( $condition ) ) {
@@ -642,7 +642,7 @@ class Database2Result
      */
     function orderBy( $column, $direction = "ASC" ) {
 
-        $clone = clone $this;
+        $clone = $this;
 
         $clone->orderBy[] = $this->db->quoteIdentifier( $column ) . " " . $direction;
 
@@ -665,7 +665,7 @@ class Database2Result
 
         }
 
-        $clone = clone $this;
+        $clone = $this;
 
         $clone->limitCount = $count;
         $clone->limitOffset = $offset;

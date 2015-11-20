@@ -11,6 +11,20 @@ trait Database2TraitPdo
     static $WRITE = 'write';
 
     /**
+     * Create Database on connect
+     *
+     * @var bool
+     */
+    protected $createDatabase = false;
+
+    /**
+     * Select Database on Connect
+     *
+     * @var bool
+     */
+    protected $selectDatabase = true;
+
+    /**
      * PDO Statement
      *
      * @var \PDOStatement
@@ -21,6 +35,28 @@ trait Database2TraitPdo
      * @var \PDO
      */
     protected $pdo = [];
+
+    /**
+     * @param $create
+     * @return $this
+     */
+    public function setCreateDatabase($create)
+    {
+        $this->createDatabase = $create;
+
+        return $this;
+    }
+
+    /**
+     * @param $select
+     * @return $this
+     */
+    public function setSelectDatabase($select)
+    {
+        $this->selectDatabase = $select;
+
+        return $this;
+    }
 
     /**
      * @return \PDO
@@ -35,14 +71,15 @@ trait Database2TraitPdo
             throw new \Database2Exception(sprintf('Requested driver "%s" are not available. Available drivers: %s',$config['driver'], implode(', ',\PDO::getAvailableDrivers())));
         }
 
+        $selectDatabase = false;
         switch ($config['driver']) {
             case 'sqlsrv':
-                $dsn = sprintf('%s:Server=%s;Database=%s',$config['driver'],$config['host'], $config['database']);
+                $dsn = sprintf('%s:Server=%s;',$config['driver'],$config['host'], $config['database']);
                 $options = [];
                 break;
             case 'pgsql':
             case 'mysql':
-                $dsn = sprintf('%s:host=%s;dbname=%s',$config['driver'],$config['host'], $config['database']);
+                $dsn = sprintf('%s:host=%s;',$config['driver'],$config['host'], $config['database']);
                 $options = [];
                 break;
             default:
@@ -54,6 +91,14 @@ trait Database2TraitPdo
 
         $pdo = new \PDO($dsn, $config['username'], $config['password'], $options);
         $pdo->setAttribute( \PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION );
+        if ($this->createDatabase) {
+            $pdo->query("CREATE DATABASE IF NOT EXISTS {$config['database']}");
+        }
+
+        if ($this->selectDatabase) {
+            $pdo->query("use {$config['database']}");
+        }
+
         return $pdo;
     }
 

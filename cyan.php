@@ -179,6 +179,7 @@ class Cyan
         $this->Api = FactoryApi::getInstance();
         $this->Application = FactoryApplication::getInstance();
         $this->Controller = FactoryController::getInstance();
+        $this->Database = FactoryDatabase::getInstance();
         $this->View = FactoryView::getInstance();
         $this->Router = FactoryRouter::getInstance();
         $this->Plugin = FactoryPlugin::getInstance();
