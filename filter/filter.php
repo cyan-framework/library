@@ -15,6 +15,13 @@ class Filter
     protected $filters = [];
 
     /**
+     * List of Callback Filters
+     *
+     * @var array
+     */
+    protected $callback = [];
+
+    /**
      * Self Instance
      *
      * @var self
@@ -62,7 +69,38 @@ class Filter
             throw new FilterException(sprintf('Filter "%s" not found in %s',$filter,get_class($this)));
         }
 
+        $value = $this->applyCallback($filter, $value);
+
         return $value;
+    }
+
+    /**
+     * Apply a callback filter
+     *
+     * @param $filter
+     * @param $value
+     * @return mixed
+     */
+    public function applyCallback($filter, $value)
+    {
+        if (isset($this->callback[$filter])) {
+            return $this->callback[$filter]($value);
+        }
+
+        return $value;
+    }
+
+    /**
+     * Add a Closure do filter
+     *
+     * @param $filter
+     * @param \Closure $callback
+     */
+    public function addFilterCallback($filter, \Closure $callback)
+    {
+        $this->callback[$filter] = $callback;
+
+        return $this;
     }
 
     /**
