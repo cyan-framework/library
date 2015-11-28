@@ -44,7 +44,7 @@ trait TraitsContainer
     public function getContainer($name)
     {
         if (!isset($this->_containers[$name])) {
-            throw new \RuntimeException(sprintf("Container %s not found in %s",$name,get_class($this)));
+            throw new TraitsException(sprintf("Container %s not found in %s",$name,get_class($this)));
         }
 
         return $this->_containers[$name];
@@ -61,7 +61,7 @@ trait TraitsContainer
     public function setContainer($name, $value, $override = false)
     {
         if (isset($this->_containers[$name]) && !$override) {
-            throw new \RuntimeException(sprintf("Container %s alreadyu defined in %s",$name,get_class($this)));
+            throw new TraitsException(sprintf("Container %s alreadyu defined in %s",$name,get_class($this)));
         }
 
         $this->_containers[$name] = $value;

@@ -115,7 +115,7 @@ abstract class Application
             $this->__initializer();
         }
 
-        $this->Router = Router::getInstance();
+        $this->Router = new Router();
         $this->Controller = FactoryController::getInstance();
         $this->Database = FactoryDatabase::getInstance();
         $this->Text = Text::getInstance();

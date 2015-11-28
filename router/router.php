@@ -275,6 +275,21 @@ class Router
     }
 
     /**
+     * Configure via multiple methods
+     *
+     * @param array $methods
+     * @param $uri
+     * @param $config
+     * @param null $route_name
+     */
+    public function via(array $methods, $uri, $config, $route_name = null)
+    {
+        foreach ($methods as $methodName) {
+            $this->mapRequestMethod($methodName, $uri, $config, $route_name);
+        }
+    }
+
+    /**
      * @param $uri
      * @param $config
      * @return $this
@@ -497,13 +512,13 @@ class Router
 
         $special_pos = strpos($uri,'/*');
         $isSpecial = $special_pos === false ? false : true ;
-
-        $diff = array_diff($parts, $this->path);
-        $validate_uri = array_diff($parts, $diff);
+        $validate_uri = array_diff($parts, $this->path);
 
         if ($special_pos) {
+            $key = array_search('*', $validate_uri);
+            unset($validate_uri[$key]);
             if (empty($validate_uri)) {
-                return $route;
+                return $config;
             }
         } else if (count($parts) != count($this->path) && !$isSpecial) {
             return $route;
@@ -681,6 +696,11 @@ class Router
             if (isset($this->_route[$requested_method])) {
                 foreach ($this->_route[$requested_method] as $uri => $uriConfig) {
                     $config = $this->matchUri($uri, $uriConfig);
+
+                    if (is_callable($config)) {
+                        return $config();
+                    }
+
                     if (isset($config['action']) || isset($config['controller'])) break;
                 }
             }
@@ -689,6 +709,11 @@ class Router
             if (isset($this->_special_route[$requested_method]) && empty($config)) {
                 foreach ($this->_special_route[$requested_method] as $uri => $uriConfig) {
                     $config = $this->matchUri($uri, $uriConfig);
+
+                    if (is_callable($config)) {
+                        return $config();
+                    }
+
                     if (isset($config['action']) || isset($config['controller'])) break;
                 }
             }
@@ -768,6 +793,12 @@ class Router
         $this->requestPrefixActionName = $bool;
     }
 
+    /**
+     * Build Action Name
+     *
+     * @param $sufix
+     * @return string
+     */
     private function buildActionName($sufix)
     {
         $actionName = $this->requestPrefixActionName ? 'Action' : 'action' ;

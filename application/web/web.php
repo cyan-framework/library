@@ -28,7 +28,10 @@ class ApplicationWeb extends Application
         }
 
         $this->View = FactoryView::getInstance();
-        $this->Theme = Theme::getInstance();
+        if (!isset($this->_data['build_theme'])) {
+            $this->Theme = Theme::getInstance();
+        }
+
 
         //import application plugins
         FactoryPlugin::getInstance()->assign('application', $this);
@@ -74,11 +77,13 @@ class ApplicationWeb extends Application
         //setup language
         $this->Text->loadLanguage($this->getLanguage());
 
-        $view = new View([
-            'path' => $this->Theme->getPath().'/',$this->getTheme()
-        ]);
-        $view->set('messages', $this->getMessageQueue())->tpl($this->getTheme(),'messages');
-        $this->Theme->set('system_messages', (string)$view);
+        if (!isset($this->_data['build_theme'])) {
+            $view = new View([
+                'path' => $this->Theme->getPath().'/',$this->getTheme()
+            ]);
+            $view->set('messages', $this->getMessageQueue())->tpl($this->getTheme(),'messages');
+            $this->Theme->set('system_messages', (string)$view);
+        }
 
         $this->trigger('BeforeRun', $this);
 
@@ -86,10 +91,13 @@ class ApplicationWeb extends Application
 
         $this->trigger('AfterRun', $this);
 
+        if (!isset($this->_data['build_theme'])) {
+            $this->Theme->setContainer('application', $this);
+            $this->Theme->set('outlet', (string)$response);
 
-        $this->Theme->setContainer('application', $this);
-        $this->Theme->set('outlet', (string)$response);
-
-        echo $this->Theme->tpl($this->getTheme());
+            echo $this->Theme->tpl($this->getTheme());
+        } else {
+            echo $response;
+        }
     }
 }
