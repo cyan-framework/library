@@ -258,6 +258,25 @@ class Form
     }
 
     /**
+     * Check if required field are not empty
+     *
+     * @return bool|FormField
+     */
+    public function isValid()
+    {
+        foreach ($this->fields as $group) {
+            /** @var FormField $field */
+            foreach ($group as $field) {
+                if ($field->getAttribute('required', false) && empty($field->getValue())) {
+                    return $field;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Add Field Path
      *
      * @param null $path
