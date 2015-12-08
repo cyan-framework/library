@@ -29,7 +29,7 @@ trait TraitsEvent
         foreach ($this->_plugins as $name => $plugin) {
             $hasMethod = (method_exists($plugin,$method) || (isset($plugin->$method) && is_callable($plugin->$method)));
             if (!$hasMethod) continue;
-            call_user_func_array([$plugin, $method],$args);
+            call_user_func_array([$plugin, $method], $args);
         }
 
         return $this;

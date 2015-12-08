@@ -10,11 +10,11 @@ class Form
     use TraitsSingleton;
 
     /**
-     * Controle name for field groups
+     * Controle name for fields
      *
      * @var String
      */
-    private $controlName = 'fields';
+    private $controlName = 'item';
 
     /**
      * Field Paths
@@ -43,7 +43,7 @@ class Form
      * @param $form
      * @param array $data
      */
-    public function __construct($formIdentifier = null, $controlName = "fields")
+    public function __construct($formIdentifier = null, $controlName = "item")
     {
         $this->controlName = $controlName;
 

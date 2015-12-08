@@ -14,16 +14,24 @@ class FactoryPlugin extends Factory
      *
      * @param $type
      * @param $name
-     * @param callable $closure
+     * @param $closure
      * @return $this
      */
-    public function create($type, $name, \Closure $closure = null)
+    public function create($type, $name, $closure = null)
     {
         if (!isset($this->_registry[$type])) {
             $this->_registry[$type] = [];
         }
 
-        $this->_registry[$type][$name] = new Plugin($closure);
+        if ($closure instanceof \Closure) {
+            $plugin = new Plugin($closure);
+        } elseif ($closure instanceof Plugin) {
+            $plugin = $closure;
+        } else {
+            throw new FactoryException(sprintf('Error: %s is not a instance of Plugin',gettype($closure)));
+        }
+
+        $this->_registry[$type][$name] = $plugin;
 
         return $this;
     }
@@ -41,6 +49,19 @@ class FactoryPlugin extends Factory
         $this->_registry[$type][$name] = $plugin;
 
         return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTypes()
+    {
+        $types = [];
+        foreach ($this->_registry as $type => $plugin) {
+            $types[] = $type;
+        }
+
+        return $types;
     }
 
     /**

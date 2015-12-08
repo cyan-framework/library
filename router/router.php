@@ -643,6 +643,10 @@ class Router
             $uri = '';
         }
 
+        if ($isSpecial && strpos($uri,'/*') !== false) {
+            $uri = str_replace('/*','/',$uri);
+        }
+
         return $base_url . '/' . $uri;
     }
 

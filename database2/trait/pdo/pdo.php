@@ -96,7 +96,7 @@ trait Database2TraitPdo
         }
 
         if ($this->selectDatabase) {
-            $pdo->query("use {$config['database']}");
+            $pdo->query(sprintf('use `%s`',$config['database']));
         }
 
         return $pdo;

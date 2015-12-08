@@ -33,7 +33,7 @@ trait TraitsContainer
      */
     public function getContainers()
     {
-        return $this->_containers;
+        return array_keys($this->_containers);
     }
 
     /**
@@ -51,6 +51,17 @@ trait TraitsContainer
     }
 
     /**
+     * Check if container exists
+     *
+     * @param $name
+     * @return bool
+     */
+    public function hasContainer($name)
+    {
+        return isset($this->_containers[$name]);
+    }
+
+    /**
      * Register a Container
      *
      * @param $name
@@ -61,7 +72,7 @@ trait TraitsContainer
     public function setContainer($name, $value, $override = false)
     {
         if (isset($this->_containers[$name]) && !$override) {
-            throw new TraitsException(sprintf("Container %s alreadyu defined in %s",$name,get_class($this)));
+            throw new TraitsException(sprintf("Container %s already defined in %s",$name,get_class($this)));
         }
 
         $this->_containers[$name] = $value;

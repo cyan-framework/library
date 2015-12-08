@@ -66,6 +66,8 @@ class FormField
     public function setAttribute($attributeName, $attributeValue)
     {
         $this->_attributes[$attributeName] = $attributeValue;
+
+        return $this;
     }
 
 
@@ -79,6 +81,8 @@ class FormField
     {
         foreach($attributes as $attributeName => $attributeValue)
             $this->setAttribute($attributeName, $attributeValue);
+
+        return $this;
     }
 
 

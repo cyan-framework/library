@@ -78,7 +78,7 @@ class View
                 $base_url = $app->Router->base;
             }
 
-            $this->set('base_url', $app->Router->base);
+            $this->set('base_url', $app->Router->getBase());
             $this->set('assets_url', rtrim($base_url));
             $this->set('title', isset($app_config['title']) ? $app_config['title'] : $app->getName() );
             $this->set('app_name', $app->getName());
@@ -252,9 +252,34 @@ class View
      * @param $uri
      * @param array $config
      */
-    public function link_to($name, array $config = [])
+    public function linkTo($name, array $config = [])
     {
-        return \Cyan::initialize()->Application->current->Router->generate($name, $config);
+        $Cyan = \Cyan::initialize();
+
+        $App = $Cyan->Application->current;
+        if (is_null($App)) {
+            $App = $Cyan->Api->current;
+        }
+
+        return is_null($App) ? $text : $App->Router->generate($name, $config);
+    }
+
+    /**
+     * Translate a text
+     *
+     * @param $text
+     * @return mixed
+     */
+    public function translate($text)
+    {
+        $Cyan = \Cyan::initialize();
+
+        $App = $Cyan->Application->current;
+        if (is_null($App)) {
+            $App = $Cyan->Api->current;
+        }
+
+        return is_null($App) ? $text : $App->Text->translate($text);
     }
 
     /**
