@@ -35,8 +35,8 @@ class Theme extends View
     {
         $Cyan = \Cyan::initialize();
         $finder = $Cyan->Finder;
-        $app = $Cyan->Application->current;
-        $appConfig = $app->getConfig();
+        $App = $Cyan->Application->current;
+        $appConfig = $App->getConfig();
 
         $default_path = $Cyan->getRootPath() . DIRECTORY_SEPARATOR . 'theme' ;
         if ($finder->hasResource('app') && !isset($config['path'])) {
@@ -56,20 +56,20 @@ class Theme extends View
             }
         }
 
-        if ($app instanceof Application) {
-            $base_url = $app->Router->getBase(true);
+        if ($App instanceof Application) {
+            $base_url = $App->Router->getBase(true);
             $assets_url = isset($appConfig['assets_url']) ? $appConfig['assets_url'] : null;
             if (is_null($assets_url) && isset($config['assets_url'])) {
                 $assets_url = $config['assets_url'];
             }
             if (is_null($assets_url)) {
-                $assets_url = rtrim($base_url);
+                $assets_url = $base_url;
             }
 
-            $this->set('base_url', isset($appConfig['base_url']) ? $appConfig['base_url'] : isset($config['base_url']) ? $config['base_url'] : $app->Router->getBase());
+            $this->set('base_url', isset($appConfig['base_url']) ? $appConfig['base_url'] : isset($config['base_url']) ? $config['base_url'] : $App->Router->getBase());
             $this->set('assets_url', $assets_url);
-            $this->set('title', isset($appConfig['title']) ? $appConfig['title'] : $app->getName() );
-            $this->set('app_name', isset($appConfig['app_name']) ? $appConfig['app_name'] : $app->getName() );
+            $this->set('title', isset($appConfig['title']) ? $appConfig['title'] : $App->getName() );
+            $this->set('app_name', isset($appConfig['app_name']) ? $appConfig['app_name'] : $App->getName() );
         }
 
         $this->trigger('Initialize', $this);

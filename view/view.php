@@ -77,7 +77,7 @@ class View
                 $assets_url = $config['assets_url'];
             }
             if (is_null($assets_url)) {
-                $assets_url = rtrim($base_url);
+                $assets_url = $base_url;
             }
 
             $this->set('base_url', $App->Router->getBase());
