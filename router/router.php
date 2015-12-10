@@ -181,7 +181,7 @@ class Router
     public function getBase($stripFile = false)
     {
         $baseURL = $this->base;
-        return $stripFile ? str_replace(basename($baseURL),'',$baseURL) : $baseURL ;
+        return $stripFile ? strpos($baseURL,'.php') ? str_replace(basename($baseURL,'.php'),'',$baseURL) : $baseURL : $baseURL ;
     }
 
     /**

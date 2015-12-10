@@ -50,16 +50,13 @@ class View
      */
     public function __construct(array $config = [])
     {
-        $this->finder = Finder::getInstance();
+        $Cyan = \Cyan::initialize();
+        $this->finder = $Cyan->Finder;
+        $App = $Cyan->Application->current;
 
-        $default_path = \Cyan::initialize()->getRootPath() . DIRECTORY_SEPARATOR . 'view' ;
+        $default_path = $Cyan->getRootPath() . DIRECTORY_SEPARATOR . 'view' ;
         if ($this->finder->hasResource('app') && !isset($config['path'])) {
             $config['path'] = $this->finder->getPath('app:view');
-        }
-        if (!empty(\Cyan::initialize()->Application->current)) {
-            $this->setContainer('application', \Cyan::initialize()->Application->current);
-            $this->set('app_name', \Cyan::initialize()->Application->current->getName());
-            $this->set('outlet', '');
         }
         $this->_path = isset($config['path']) ? $config['path'] : $default_path ;
 
@@ -67,21 +64,26 @@ class View
             $this->tpl($config['tpl']);
         }
 
-        $app = \Cyan::initialize()->Application->current;
+        if ($App instanceof Application) {
+            $this->setContainer('application', $App);
+            $this->set('app_name', $App->getName());
+            $this->set('outlet', '');
 
-        if ($app instanceof Application) {
-            $app_config = $app->getConfig();
+            $appConfig = $App->getConfig();
 
-            if (substr($app->Router->base,-4) === '.php') {
-                $base_url = str_replace(basename($app->Router->base),'',$app->Router->base);
-            } else {
-                $base_url = $app->Router->base;
+            $base_url = $App->Router->getBase(true);
+            $assets_url = isset($appConfig['assets_url']) ? $appConfig['assets_url'] : null;
+            if (is_null($assets_url) && isset($config['assets_url'])) {
+                $assets_url = $config['assets_url'];
+            }
+            if (is_null($assets_url)) {
+                $assets_url = rtrim($base_url);
             }
 
-            $this->set('base_url', $app->Router->getBase());
-            $this->set('assets_url', rtrim($base_url));
-            $this->set('title', isset($app_config['title']) ? $app_config['title'] : $app->getName() );
-            $this->set('app_name', $app->getName());
+            $this->set('base_url', $App->Router->getBase());
+            $this->set('assets_url', $assets_url);
+            $this->set('title', isset($appConfig['title']) ? $appConfig['title'] : $App->getName() );
+            $this->set('app_name', $App->getName());
         }
 
         $this->trigger('Initialize', $this);
@@ -211,6 +213,20 @@ class View
     }
 
     /**
+     * Render Layout
+     *
+     * @param $folder
+     * @param null $layout
+     * @param null $path
+     * @return mixed
+     * @throws RuntimeException
+     */
+    public function display($folder, $layout = null, $path = null)
+    {
+        return $this->tpl($folder, $layout, $path);
+    }
+
+    /**
      * @return string
      */
     public function getContent()
@@ -254,12 +270,7 @@ class View
      */
     public function linkTo($name, array $config = [])
     {
-        $Cyan = \Cyan::initialize();
-
-        $App = $Cyan->Application->current;
-        if (is_null($App)) {
-            $App = $Cyan->Api->current;
-        }
+        $App = $this->getContainer('application');
 
         return is_null($App) ? $text : $App->Router->generate($name, $config);
     }
@@ -272,14 +283,23 @@ class View
      */
     public function translate($text)
     {
-        $Cyan = \Cyan::initialize();
-
-        $App = $Cyan->Application->current;
-        if (is_null($App)) {
-            $App = $Cyan->Api->current;
-        }
+        $App = $this->getContainer('application');
 
         return is_null($App) ? $text : $App->Text->translate($text);
+    }
+
+    /**
+     * Translate a text using sprintf
+     *
+     * @param $text
+     * @return mixed
+     */
+    public function sprintf()
+    {
+        $args = func_get_args();
+        $App = $this->getContainer('application');
+
+        return is_null($App) ? call_user_func_array('sprintf', $args) : call_user_func_array([$App->Text,'srptinf'], $args);
     }
 
     /**

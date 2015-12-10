@@ -79,7 +79,15 @@ class Database2
         return $this;
     }
 
-
+    /**
+     * Create a Query
+     *
+     * @return Query
+     */
+    public function createQuery()
+    {
+        return Query::getInstance($this->getConfig());
+    }
 
     /**
      * @param $data

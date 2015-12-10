@@ -33,18 +33,19 @@ class Theme extends View
      */
     public function __construct(array $config = [])
     {
-        $finder = Finder::getInstance();
-        $app = \Cyan::initialize()->Application->current;
+        $Cyan = \Cyan::initialize();
+        $finder = $Cyan->Finder;
+        $app = $Cyan->Application->current;
+        $appConfig = $app->getConfig();
 
-        $default_path = \Cyan::initialize()->getRootPath() . DIRECTORY_SEPARATOR . 'theme' ;
+        $default_path = $Cyan->getRootPath() . DIRECTORY_SEPARATOR . 'theme' ;
         if ($finder->hasResource('app') && !isset($config['path'])) {
             $iniSetup = parse_ini_file($finder->getPath('app:application','.ini'), true);
             $config['path'] = $finder->getPath('app:'.$iniSetup['folder']['theme']);
         }
         $this->_path = isset($config['path']) ? $config['path'] : $default_path ;
-
-        if (isset($config['theme'])) {
-            $this->tpl($config['theme']);
+        if (isset($appConfig['theme'])) {
+            $this->tpl($appConfig['theme']);
         } else {
             $default_app_template = $default_path.DIRECTORY_SEPARATOR.'application'.DIRECTORY_SEPARATOR.'application.php';
             $app_template = $this->_path.DIRECTORY_SEPARATOR.'application'.DIRECTORY_SEPARATOR.'application.php';
@@ -56,18 +57,19 @@ class Theme extends View
         }
 
         if ($app instanceof Application) {
-            $app_config = $app->getConfig();
-
-            if (substr($app->Router->base,-4) === '.php') {
-                $base_url = str_replace(basename($app->Router->base),'',$app->Router->base);
-            } else {
-                $base_url = $app->Router->base;
+            $base_url = $app->Router->getBase(true);
+            $assets_url = isset($appConfig['assets_url']) ? $appConfig['assets_url'] : null;
+            if (is_null($assets_url) && isset($config['assets_url'])) {
+                $assets_url = $config['assets_url'];
+            }
+            if (is_null($assets_url)) {
+                $assets_url = rtrim($base_url);
             }
 
-            $this->set('base_url', $app->Router->base);
-            $this->set('assets_url', rtrim($base_url));
-            $this->set('title', isset($app_config['title']) ? $app_config['title'] : $app->getName() );
-            $this->set('app_name', isset($app_config['app_name']) ? $app_config['app_name'] : $app->getName() );
+            $this->set('base_url', isset($appConfig['base_url']) ? $appConfig['base_url'] : isset($config['base_url']) ? $config['base_url'] : $app->Router->getBase());
+            $this->set('assets_url', $assets_url);
+            $this->set('title', isset($appConfig['title']) ? $appConfig['title'] : $app->getName() );
+            $this->set('app_name', isset($appConfig['app_name']) ? $appConfig['app_name'] : $app->getName() );
         }
 
         $this->trigger('Initialize', $this);

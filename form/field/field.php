@@ -99,6 +99,8 @@ class FormField
         }
 
         $this->_options = $elements;
+
+        return $this;
     }
 
 
@@ -123,6 +125,8 @@ class FormField
     public function setValue($value)
     {
         $this->_value = $value;
+
+        return $this;
     }
 
 
@@ -153,6 +157,8 @@ class FormField
     {
         foreach($attributes as $attribute)
             unset($this->_attributes[$attribute]);
+
+        return $this;
     }
 
 
