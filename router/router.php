@@ -110,6 +110,16 @@ class Router
     }
 
     /**
+     * Check if request is ajax
+     *
+     * @return bool
+     */
+    public function isAjaxRequest()
+    {
+        return (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') ? true : false;
+    }
+
+    /**
      * Clear existing Routes
      *
      * @return $this
