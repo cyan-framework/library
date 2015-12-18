@@ -7,8 +7,6 @@ namespace Cyan\Library;
  */
 class Form
 {
-    use TraitsSingleton;
-
     /**
      * Controle name for fields
      *
@@ -36,6 +34,48 @@ class Form
      * @var \SimpleXMLElement
      */
     private $xml;
+
+    /**
+     * Multiton Instance
+     *
+     * @var array
+     */
+    private static $_instance = [];
+
+    /**
+     * Singleton Instance
+     *
+     * @param array $config
+     * @return Singleton
+     */
+    public static function getInstance() {
+        $args = func_get_args();
+        $id = $args[0];
+        if (!isset(self::$_instance[$id])) {
+            $total_args = count($args);
+            switch ($total_args)
+            {
+                case 0:
+                    $instance = new self;
+                    break;
+                case 1:
+                    $instance = new self($args[0]);
+                    break;
+                case 2:
+                    $instance = new self($args[0], $args[1]);
+                    break;
+                case 3:
+                    $instance = new self($args[0], $args[1], $args[2]);
+                    break;
+                default:
+                    $instance = call_user_func_array([new self], $args);
+                    break;
+
+            }
+            self::$_instance[$id] = $instance;
+        }
+        return self::$_instance[$id];
+    }
 
     /**
      * Form constructor.

@@ -189,8 +189,17 @@ trait Database2TraitSql
 
             $this->onQuery( $singleQuery );
 
-            $statement = $this->prepare( $singleQuery );
-            $statement->execute();
+            try {
+                $statement = $this->prepare( $singleQuery );
+                $statement->execute();
+            } catch (\PDOException $e) {
+                echo $singleQuery;
+                echo '<br />';
+                echo $e->getTraceAsString();
+                echo '<br />';
+                die($e->getMessage());
+            }
+
 
         }
 

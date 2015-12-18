@@ -66,7 +66,12 @@ class FactoryController extends Factory
             throw new TraitsException(sprintf('Controller Class "%s" not found',$class_name));
         }
 
-        return $class_name::getInstance($class_name, $App->Router->getSetupClass(ucfirst($class_name)))->setContainer('application', $App);
+        $instance = $class_name::getInstance($class_name, $App->Router->getSetupClass(ucfirst($class_name)));
+        if (!$instance->hasContainer('application')) {
+            $instance->setContainer('application', $App);
+        }
+
+        return $instance;
     }
 
     /**

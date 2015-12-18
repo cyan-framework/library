@@ -46,15 +46,29 @@ class QueryInsert extends QueryBase
      */
     public function getQuery()
     {
-        if (strpos($this->statements['values'][0],':') === false) {
+        if (!is_array($this->statements['values'])) {
+            if (strpos($this->statements['values'][0],':') === false) {
+                $valuesCondition = '","';
+                $valuesPrefix = '"';
+            } else {
+                $valuesCondition = ',';
+                $valuesPrefix = '';
+            }
+        } else {
             $valuesCondition = '","';
             $valuesPrefix = '"';
-        } else {
-            $valuesCondition = ',';
-            $valuesPrefix = '';
         }
 
-        $sql = sprintf('INSERT INTO %s (%s) VALUES ('.$valuesPrefix.'%s'.$valuesPrefix.')', $this->table, implode(',',$this->statements['columns']), implode($valuesCondition, $this->statements['values']));
+
+
+        $sql =  sprintf('INSERT INTO %s (%s)', $this->table, implode(',',$this->statements['columns']));
+
+        $insertValues = [];
+        foreach ($this->statements['values'] as $insertData) {
+            $insertValues[] = sprintf("({$valuesPrefix}%s{$valuesPrefix})", implode($valuesCondition, $insertData));
+        }
+
+        $sql .= sprintf('VALUES %s;',implode(',',$insertValues));
 
         return $sql;
     }
