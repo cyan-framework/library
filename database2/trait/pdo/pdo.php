@@ -80,6 +80,9 @@ trait Database2TraitPdo
             case 'pgsql':
             case 'mysql':
                 $dsn = sprintf('%s:host=%s;',$config['driver'],$config['host'], $config['database']);
+                if (isset($config['charset'])) {
+                    $dsn .= sprintf('charset=%s',$config['charset']);
+                }
                 $options = [];
                 break;
             default:
