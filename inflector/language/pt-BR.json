@@ -1,0 +1,8 @@
+{
+	"pluralization": {
+		"/il/": "$1is",
+		"/el/": 'eis",
+		"/al/i": "ais",
+		"/$/": "s",
+	}
+}
