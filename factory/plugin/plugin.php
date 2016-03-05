@@ -72,7 +72,7 @@ class FactoryPlugin extends Factory
     {
         $type = strtolower($type);
         $required = __NAMESPACE__.'\TraitEvent';
-        $reflection_class = new \ReflectionClass($target_object);
+        $reflection_class = new ReflectionClass($target_object);
         $parent = $reflection_class->getParentClass();
 
         $use = $reflection_class->getTraitNames();

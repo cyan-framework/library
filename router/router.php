@@ -70,6 +70,18 @@ class Router
     }
 
     /**
+     * Return SEF
+     *
+     * @return bool
+     *
+     * @since 1.0.0
+     */
+    public function getSef()
+    {
+        return $this->sef;
+    }
+
+    /**
      * Return REQUESTED_METHOD
      *
      * @return string
@@ -391,9 +403,9 @@ class Router
             } else {
                 $route = $this->routes[$this->default_route['uri']];
                 if ($route->match($uri)) {
-                    $response = [self::FOUND, $route->handler, $route->handler_arguments];
+                    $response = [self::FOUND, $route->handler, $route->handler_arguments, $route];
                 } else {
-                    $this->redirect($this->generate($this->default_route['uri']));
+                    $this->redirect($this->generate($this->default_route['uri'], $this->default_route['parameters']));
                 }
             }
         } else {
@@ -509,6 +521,10 @@ class Router
         $route_prefix = !$this->sef ? $this->getBaseUrl() : '' ;
         $route_sufix = $route->generate($tokens);
 
+        if (substr($route_prefix,-1) != '/') {
+            $route_prefix .= '/';
+        }
+
         return $route_prefix.$route_sufix;
     }
 
@@ -525,13 +541,23 @@ class Router
         $script_name = basename($_SERVER['SCRIPT_NAME']);
         $parse_url = parse_url($this->getRequestedURL());
         $path = array_filter(array_intersect(explode('/', $parse_url['path']),explode('/', $_SERVER['SCRIPT_NAME'])));
+
         if ($strip_script_file && in_array($script_name,$path)) {
             $script_key = array_search($script_name,$path);
             unset($path[$script_key]);
         } elseif (!in_array($script_name,$path)) {
-            $path[] = basename($_SERVER['SCRIPT_NAME']);
+            if (!$this->sef) {
+                $path[] = basename($_SERVER['SCRIPT_NAME']);
+            }
         }
-        return sprintf('%s://%s/%s/', $parse_url['scheme'],$parse_url['host'], implode('/',$path));
+
+        $url = sprintf('%s://%s/', $parse_url['scheme'],$parse_url['host']);
+
+        if (!empty($path)) {
+            $url .= implode('/',$path);
+        }
+
+        return $url;
     }
 
     /**
