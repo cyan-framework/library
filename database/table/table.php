@@ -147,7 +147,7 @@ class DatabaseTable
      */
     public function fetch()
     {
-        $sth = $this->db->prepare((string)$this->query);
+        $sth = $this->db->prepare($this->query);
         $sth->execute($this->query->getParameters());
         return $sth->fetch(\PDO::FETCH_ASSOC);
     }
