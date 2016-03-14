@@ -11,44 +11,9 @@ class View
     use TraitContainer, TraitEvent;
 
     /**
-     * View base path
-     *
-     * @var string
-     * @since 1.0.0
-     */
-    protected $base_path;
-
-    /**
-     * Layout file path
-     *
-     * @var string
-     * @since 1.0.0
-     */
-    protected $layout_path;
-
-    /**
-     * View Folder
-     *
-     * @var string
-     * @since 1.0.0
-     */
-    protected $folder;
-
-    /**
-     * Layout File
-     *
-     * @var string
-     * @since 1.0.0
+     * @var Layout
      */
     protected $layout;
-
-    /**
-     * Data Mapper
-     *
-     * @var array
-     * @since 1.0.0
-     */
-    protected $data = [];
 
     /**
      * View Constructor
@@ -59,10 +24,6 @@ class View
      */
     public function __construct(array $config = [])
     {
-        if (isset($config['folder'])) {
-            $this->setFolder($config['folder']);
-        }
-
         if (isset($config['layout'])) {
             $this->setLayout($config['layout']);
         }
@@ -73,6 +34,10 @@ class View
 
         if (isset($config['base_path'])) {
             $this->setBasePath($config['base_path']);
+        }
+
+        if (is_string($this->layout)) {
+            $this->setLayout($this->layout);
         }
     }
 
@@ -103,7 +68,7 @@ class View
      */
     public function setBasePath($path)
     {
-        $this->base_path = $path;
+        $this->layout->addPath($path);
 
         return $this;
     }
@@ -117,7 +82,7 @@ class View
      */
     public function getBasePath()
     {
-        return $this->base_path;
+        return $this->layout->addPath();
     }
 
     /**
@@ -132,7 +97,7 @@ class View
      */
     public function set($key, $value)
     {
-        $this->data[$key] = $value;
+        $this->layout->set($key, $value);
 
         return $this;
     }
@@ -146,9 +111,9 @@ class View
      *
      * @since 1.0.0
      */
-    public function get($key)
+    public function get($key, $default_value = null)
     {
-        return isset($this->data[$key]) ? $this->data[$key] : null ;
+        return $this->layout->get($key, $default_value);
     }
 
     /**
@@ -162,7 +127,7 @@ class View
      */
     public function setData(array $data)
     {
-        $this->data = array_merge($this->data,$data);
+        $this->layout->bind($data);
 
         return $this;
     }
@@ -196,68 +161,6 @@ class View
     }
 
     /**
-     * Render Layout
-     *
-     * @param string $folder
-     * @param string $layout
-     * @param string $path
-     *
-     * @return $this
-     *
-     * @since 1.0.0
-     * @throws ViewException
-     */
-    public function tpl($folder, $layout = null, $path = null)
-    {
-        if (is_null($folder)) {
-            throw new ViewException('Folder cant be null');
-        }
-
-        $layout = is_null($layout) ? 'index' : $layout ;
-        $base_path = is_null($path) ? $this->base_path : $path ;
-        $view_path = sprintf('%s/%s', $base_path, $folder);
-        $layout_path = sprintf('%s/%s.php', $view_path, $layout);
-
-        if (empty($folder) || !is_dir($view_path)) {
-            throw new ViewException(sprintf('View folder path "%s" not found',$view_path));
-        }
-
-        if (!file_exists($layout_path)) {
-            throw new ViewException(sprintf('View Layout not found "%s"', $layout_path));
-        }
-
-        $this->layout_path = $layout_path;
-
-        return $this;
-    }
-
-    /**
-     * Set view Folder
-     *
-     * @param string $folder
-     *
-     * @return $this
-     *
-     * @since 1.0.0
-     */
-    public function setFolder($folder)
-    {
-        $this->folder = $folder;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     *
-     * @since 1.0.0
-     */
-    public function getFolder()
-    {
-        return $this->folder;
-    }
-
-    /**
      * Set Layout
      *
      * @param $layout
@@ -268,9 +171,25 @@ class View
      */
     public function setLayout($layout)
     {
-        $this->layout = $layout;
+        if (!is_string($layout)) {
+            throw new ViewException(sprintf('Layout must be string, %s given.',gettype($layout)));
+        }
+        $this->layout = Layout::getInstance($layout,$layout,[]);
+        if (!$this->layout->hasContainer('view')) {
+            $this->layout->setContainer('view', $this);
+        }
 
         return $this;
+    }
+
+    /**
+     * @return Layout
+     *
+     * @since 1.0.0
+     */
+    public function getLayout()
+    {
+        return $this->layout;
     }
 
     /**
@@ -280,16 +199,16 @@ class View
      *
      * @since 1.0.0
      */
-    public function display()
+    public function display($layout = null)
     {
-        if (is_null($this->layout_path) && !empty($this->folder) && !empty($this->layout)) {
-            $this->tpl($this->folder, $this->layout);
+        $layout = !empty($layout) ? $layout : $this->layout;
+
+        if (!($this->layout instanceof Layout)) {
+            $this->setLayout($layout);
         }
 
         $Cyan = \Cyan::initialize();
-        ob_start();
-        include $this->layout_path;
-        $this->buffer_content = ob_get_clean();
+        $this->buffer_content = $this->layout->display();
         $this->trigger('Render', $this);
 
         return $this->buffer_content;

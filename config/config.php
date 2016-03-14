@@ -9,15 +9,21 @@ namespace Cyan\Library;
  *
  * @method Config getInstance
  */
-class Config
+class Config implements \ArrayAccess
 {
-    use TraitSingleton;
+    use TraitMultiton;
 
     /**
-     * @var \stdClass
+     * @var array
      * @since 1.0.0
      */
-    private $object;
+    private $data;
+
+    /**
+     * @var string
+     * @since 1.0.0
+     */
+    private $separator = '.';
 
     /**
      * Load a config file
@@ -56,9 +62,25 @@ class Config
      *
      * @since 1.0.0
      */
-    public function loadArray($array)
+    public function loadArray(array $array)
     {
-        $this->object = !empty($this->object) ? (object) array_merge_recursive((array)$this->object, $array) : $array;
+        $this->bind($array);
+
+        return $this;
+    }
+
+    /**
+     * bind array
+     *
+     * @param array $data
+     *
+     * @return $this
+     *
+     * @since 1.0.0
+     */
+    public function bind(array $data)
+    {
+        $this->data = !empty($this->data) ? array_merge($this->data, $data) : $data;
 
         return $this;
     }
@@ -66,64 +88,174 @@ class Config
     /**
      * Load from json string
      *
-     * @param $json_string
+     * @param $string
+     * @param $format
      *
      * @return $this
      *
      * @since 1.0.0
      */
-    public function loadString($json_string)
+    public function loadString($string, $format = 'json')
     {
-        $this->object = !empty($this->object) ? (object) array_merge_recursive((array)$this->object, json_decode($json_string, true)) : json_decode($json_string);
+        switch (strtolower($format)) {
+            case 'json':
+                $array = json_decode($string, true);
+                break;
+        }
+
+        $this->bind($array);
 
         return $this;
     }
 
     /**
-     * Read object from dot notation
+     * @param $key
      *
-     * @param $identifier
-     * @param null $default_value
-     * @return \stdClass
+     * @return bool
      *
      * @since 1.0.0
      */
-    public function get($identifier, $default_value = null)
+    public function exists($key)
     {
-        if (strpos($identifier,'.')) {
-            $node = $this->object;
-            foreach (explode('.',$identifier) as $attribute) {
-                $node = $this->getAttribute($node, $attribute, $default_value);
+        return !is_null($this->get($key));
+    }
+
+    /**
+     * @param $key
+     * @param $value
+     *
+     * @return $this
+     *
+     * @throws ConfigException
+     *
+     * @since 1.0.0
+     */
+    public function set($key, $value)
+    {
+        $node = &$this->data;
+
+        foreach(explode('.', $key) as $step)
+        {
+            if (!isset($node[$step])) {
+                $node[$step] = $value;
+            }  elseif (is_array($node[$step])) {
+                $node = &$this->data[$step];
+            } else {
+                throw new ConfigException(sprintf('Key %s is %s cant be defined',$key, gettype($node)));
             }
-        } else {
-            $node = $this->getAttribute($this->object, $identifier, $default_value);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param $key
+     * @param null $default_value
+     *
+     * @return array|string|null
+     *
+     * @since 1.0.0
+     */
+    public function get($key, $default_value = null)
+    {
+        $node = $this->data;
+
+        foreach (explode('.', $key) as $step) {
+            if (!isset($node[$step])) {
+                return $default_value;
+            } else {
+                $node = $node[$step];
+            }
         }
 
         return $node;
     }
 
     /**
-     * Return and attribute
+     * @param $key
      *
-     * @param $node
-     * @param $attribute_name
-     * @param $default_value
+     * @return bool
      *
      * @since 1.0.0
      */
-    private function getAttribute($node, $attribute_name, $default_value)
+    public function remove($key)
     {
-        if (is_object($node)) {
-            if (isset($node->$attribute_name)) {
-                return $node->$attribute_name;
-            }
-        } elseif (is_array($node)) {
-            if (isset($node[$attribute_name])) {
-                return $node[$attribute_name];
+        $node = &$this->data;
+
+        $keys = explode('.', $key);
+        $totalKeys = count($keys) - 1;
+        foreach ($keys as $key => $step) {
+            if (isset($node[$step])) {
+                if ($key == $totalKeys) {
+                    unset($node[$step]);
+                    return true;
+                } else {
+                    $node = &$node[$step];
+                }
             }
         }
 
+        return false;
+    }
 
-        return $default_value;
+    /**
+     * @param mixed $key
+     *
+     * @return bool
+     *
+     * @since 1.0.0
+     */
+    public function offsetUnset($key)
+    {
+        return $this->remove($key);
+    }
+
+    /**
+     * @param mixed $key
+     *
+     * @return bool
+     *
+     * @since 1.0.0
+     */
+    public function offsetExists($key)
+    {
+        return $this->exists($key);
+    }
+
+    /**
+     * @param mixed $key
+     *
+     * @return array|null|string
+     *
+     * @since 1.0.0
+     */
+    public function offsetGet($key)
+    {
+        return $this->get($key);
+    }
+
+    /**
+     * @param mixed $key
+     * @param mixed $value
+     *
+     * @return Config
+     *
+     * @throws ConfigException
+     *
+     * @since 1.0.0
+     */
+    public function offsetSet($key, $value)
+    {
+        return $this->set($key, $value);
+    }
+
+    /**
+     * @return array
+     *
+     * @since 1.0.0
+     */
+    public function toArray()
+    {
+        return $this->data;
     }
 }

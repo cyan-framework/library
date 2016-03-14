@@ -13,14 +13,6 @@ class Theme extends View
     use TraitSingleton;
 
     /**
-     * Theme Folder
-     *
-     * @var string
-     * @since 1.0.0
-     */
-    protected $folder;
-
-    /**
      * Static global Data
      *
      * @var array
@@ -65,18 +57,6 @@ class Theme extends View
     public function addFooter($content)
     {
         self::$share['footer'][] = $content;
-    }
-
-    /**
-     * Return folder
-     *
-     * @return string
-     *
-     * @since 1.0.0
-     */
-    public function getTheme()
-    {
-        return $this->theme;
     }
 
     /**

@@ -18,7 +18,7 @@ class FactoryView extends Factory
         if (!isset($this->$name)) {
             if (empty($config)) {
                 $config = [
-                    'tpl' => strtolower($name)
+                    'layout' => strtolower($name)
                 ];
             }
             $this->__set($name,new $class_name($config));

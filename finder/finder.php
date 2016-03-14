@@ -222,6 +222,14 @@ class Finder
         if (is_string($return)) {
             return $return;
         } elseif (($return instanceof \stdClass) || is_callable($return) || is_array($return)) {
+            $config = Config::getInstance($identifier);
+            if (is_array($return)) {
+                $config->loadArray($return);
+                $return = $config;
+            } elseif (($return instanceof \stdClass)) {
+                $config->loadObject($return);
+                $return = $config;
+            }
             $this->cache[$identifier] = $return;
         } else {
             foreach ($this->callbacks as $callback) {

@@ -61,7 +61,7 @@ class Text
      *
      * @since 1.0.0
      */
-    public function loadLanguage($lang_code, $identifier_base = 'language:')
+    public function loadLanguage($lang_code, $identifier_base)
     {
         $langIdentifier = $identifier_base.$lang_code.'.'.$lang_code;
         return $this->loadLanguageIdentifier($langIdentifier);

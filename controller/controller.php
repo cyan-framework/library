@@ -83,7 +83,7 @@ class Controller
      */
     public function getName()
     {
-        $reflection_class = new \ReflectionClass($this);
+        $reflection_class = new ReflectionClass($this);
         return !empty($this->name) ? $this->name : $reflection_class->getShortName();
     }
 
@@ -139,7 +139,7 @@ class Controller
         $arguments = func_get_args();
         $method_name = array_shift($arguments);
 
-        if (method_exists($this, $method_name)) {
+        if (is_callable([$this, $method_name])) {
             switch (count($arguments)) {
                 case 0:
                     $return = $this->$method_name();

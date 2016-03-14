@@ -130,7 +130,7 @@ abstract class ApplicationBase
     /**
      * Read Application Config
      *
-     * @return Array
+     * @return Config
      */
     public function getConfig()
     {
