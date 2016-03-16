@@ -12,6 +12,7 @@ class View
 
     /**
      * @var Layout
+     * @since 1.0.0
      */
     protected $layout;
 
@@ -208,7 +209,7 @@ class View
         }
 
         $Cyan = \Cyan::initialize();
-        $this->buffer_content = $this->layout->display();
+        $this->buffer_content = $this->layout->render();
         $this->trigger('Render', $this);
 
         return $this->buffer_content;

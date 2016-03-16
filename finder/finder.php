@@ -189,8 +189,8 @@ class Finder
      */
     public function getIdentifier($identifier, $default = null)
     {
-        if (isset($_cache[$identifier])) {
-            return $_cache[$identifier];
+        if (isset($this->cache[$identifier])) {
+            return $this->cache[$identifier];
         }
         $parse = parse_url($identifier);
 
@@ -214,10 +214,9 @@ class Finder
         }
 
         $Cyan = \Cyan::initialize();
-        $return = require $file_path;
-
         $class_name = ucfirst($parse['scheme']) . implode(array_map('ucfirst', explode('.',$parse['path'])));
 
+        $return = require $file_path;
         // no cache for string response
         if (is_string($return)) {
             return $return;
@@ -233,7 +232,8 @@ class Finder
             $this->cache[$identifier] = $return;
         } else {
             foreach ($this->callbacks as $callback) {
-                if ((bool)$callback($identifier, $this, $return, $parse['path'], $class_name)) {
+                if ($return = $callback($identifier, $this, $return, $parse, $class_name)) {
+                    $this->cache[$identifier] = $return;
                     return $return;
                 }
             }

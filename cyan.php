@@ -15,8 +15,6 @@ require_once 'autoload' . DIRECTORY_SEPARATOR . 'autoload.php';
 /**
  * Class Cyan
  *
- * @since 1.0.0
- *
  * @property \Cyan\Library\Application $Application
  * @property \Cyan\Library\Autoload $Autoload
  * @property \Cyan\Library\Cache $Cache
@@ -29,11 +27,13 @@ require_once 'autoload' . DIRECTORY_SEPARATOR . 'autoload.php';
  * @property \Cyan\Library\Text $Text
  * @property \Cyan\Library\Router $Router
  * @property \Cyan\Library\Session $Session
+ * @property \Cyan\Library\Extension $Extension
  *
+ * @since 1.0.0
  */
 class Cyan
 {
-    use \Cyan\Library\TraitPrototype {
+    use \Cyan\Library\TraitPrototype, \Cyan\Library\TraitContainer {
         __set as setPrototype;
     }
 

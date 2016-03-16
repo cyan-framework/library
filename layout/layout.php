@@ -4,6 +4,7 @@ namespace Cyan\Library;
 /**
  * Class Layout
  * @package Cyan\Library
+ * @since 1.0.0
  */
 class Layout
 {
@@ -11,19 +12,24 @@ class Layout
 
     /**
      * @var Config
+     * @since 1.0.0
      */
     protected $data;
 
     /**
      * @var Config
+     * @since 1.0.0
      */
     protected $options;
 
     /**
      * Layout constructor.
+     *
      * @param string $layout
      * @param Config $data
      * @param Config $options
+     *
+     * @since 1.0.0
      */
     public function __construct($layout, array $data, array $options = [])
     {
@@ -42,7 +48,10 @@ class Layout
     /**
      * @param $key
      * @param $value
+     *
      * @return $this
+     *
+     * @since 1.0.0
      */
     public function set($key, $value)
     {
@@ -52,7 +61,10 @@ class Layout
     /**
      * @param $key
      * @param null $default_value
+     *
      * @return array|null|string
+     *
+     * @since 1.0.0
      */
     public function get($key, $default_value = null)
     {
@@ -61,7 +73,10 @@ class Layout
 
     /**
      * @param $key
+     *
      * @return mixed
+     *
+     * @since 1.0.0
      */
     public function exists($key)
     {
@@ -70,7 +85,10 @@ class Layout
 
     /**
      * @param $key
+     *
      * @return bool
+     *
+     * @since 1.0.0
      */
     public function remove($key)
     {
@@ -83,14 +101,20 @@ class Layout
      * @param $layout
      * @param array $data
      * @param array $options
+     *
+     * @return string
+     *
+     * @since 1.0.0
      */
-    public static function render($layout, array $data, $options = [])
+    public static function display($layout, array $data, array $options = [])
     {
-        return self::getInstance($layout,$layout, $data, $options)->display();
+        return self::getInstance($layout,$layout, $data, $options)->render();
     }
 
     /**
      * @return Config
+     *
+     * @since 1.0.0
      */
     public function getData()
     {
@@ -99,6 +123,8 @@ class Layout
 
     /**
      * @return Config
+     *
+     * @since 1.0.0
      */
     public function getOptions()
     {
@@ -106,10 +132,22 @@ class Layout
     }
 
     /**
+     * Render layout
+     *
+     * @param null $layout
+     * @param array $data
+     * @param array $options
+     *
      * @return string
+     *
+     * @since 1.0.0
      */
-    public function display()
+    public function render($layout = null, array $data = [], array $options = [])
     {
+        if (!empty($layout)) {
+            return self::display($layout, $data, $options);
+        }
+
         $output = '';
         $layout_path = str_replace('.',DIRECTORY_SEPARATOR,$this->layout).'.php';
         if ($file = FilesystemPath::find(self::addIncludePath(),$layout_path)) {
