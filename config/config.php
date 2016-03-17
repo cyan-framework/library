@@ -172,6 +172,16 @@ class Config implements \ArrayAccess
     }
 
     /**
+     * @return $this
+     */
+    public function clear()
+    {
+        $this->data = [];
+
+        return $this;
+    }
+
+    /**
      * @param $key
      *
      * @return bool

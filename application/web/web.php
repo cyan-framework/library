@@ -10,6 +10,7 @@ namespace Cyan\Library;
  * @property \Cyan\Library\Text $Text
  * @property \Cyan\Library\Router $Router
  * @property \Cyan\Library\Session $Session
+ * @property \Cyan\Library\Theme $Theme
  */
 class ApplicationWeb extends ApplicationBase
 {

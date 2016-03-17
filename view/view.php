@@ -128,7 +128,7 @@ class View
      */
     public function setData(array $data)
     {
-        $this->layout->bind($data);
+        $this->layout->setData($data);
 
         return $this;
     }
@@ -175,7 +175,7 @@ class View
         if (!is_string($layout)) {
             throw new ViewException(sprintf('Layout must be string, %s given.',gettype($layout)));
         }
-        $this->layout = Layout::getInstance($layout,$layout,[]);
+        $this->layout = new Layout($layout,[]);
         if (!$this->layout->hasContainer('view')) {
             $this->layout->setContainer('view', $this);
         }

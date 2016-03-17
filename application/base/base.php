@@ -140,7 +140,7 @@ abstract class ApplicationBase
     /**
      * Return Helper
      *
-     * @param $name
+     * @param string $name
      *
      * @return mixed
      *
@@ -151,14 +151,9 @@ abstract class ApplicationBase
     public function getHelper($name)
     {
         if (!isset($this->helpers[$name])) {
-            $class = strtolower($name);
-            $file_path = $this->Cyan->Finder->getPath(sprintf('cyan:%s.%s',$class,$class),'.php');
-            if (!file_exists($file_path)) {
-                throw new \CyanException(sprintf('Cyan\\%s not found in %s',$name, $file_path));
-            }
-            $class_name = sprintf('\Cyan\Library\%s', $name);
+            $class_name = __NAMESPACE__.'\\'.$name;
             $reflection = new ReflectionClass($class_name);
-            if (in_array('TraitSingleton',$reflection->getTraitNames())) {
+            if (in_array('TraitSingleton',$reflection->getTraitNames()) || is_callable([$class_name,'getInstance'])) {
                 $this->helpers[$name] = $class_name::getInstance();
             } else {
                 $this->helpers[$name] = $reflection->newInstance();

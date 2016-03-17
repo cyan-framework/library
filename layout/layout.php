@@ -8,7 +8,13 @@ namespace Cyan\Library;
  */
 class Layout
 {
-    use TraitMultiton, TraitFilepath, TraitContainer;
+    use TraitFilepath, TraitContainer;
+
+    /**
+     * @var string
+     * @since 1.0.0
+     */
+    protected $identifier;
 
     /**
      * @var Config
@@ -21,6 +27,35 @@ class Layout
      * @since 1.0.0
      */
     protected $options;
+
+    /**
+     * Singleton instances accessible by array key
+     */
+    protected static $instances = [];
+
+    /**
+     * Return an instance of the class.
+     */
+    public static function getInstance($name = null)
+    {
+        $args = array_slice(func_get_args(), 1);
+        $name = $name ?: 'default';
+        $static = get_called_class();
+        $key = sprintf('%s::%s', $static, $name);
+        if(!array_key_exists($key, static::$instances))
+        {
+            static::$instances[$key] = new self($name, []);
+        }
+
+        if (isset($args[0])) {
+            static::$instances[$key]->setData($args[0], true);
+        }
+        if (isset($args[1])) {
+            static::$instances[$key]->setOptions($args[1], true);
+        }
+
+        return static::$instances[$key];
+    }
 
     /**
      * Layout constructor.
@@ -108,7 +143,7 @@ class Layout
      */
     public static function display($layout, array $data, array $options = [])
     {
-        return self::getInstance($layout,$layout, $data, $options)->render();
+        return self::getInstance($layout, $data, $options)->render();
     }
 
     /**
@@ -122,6 +157,22 @@ class Layout
     }
 
     /**
+     * @param array $data
+     * @param bool $override
+     * @return $this
+     */
+    public function setData(array $data, $override = false)
+    {
+        if ($override) {
+            $this->data->clear();
+        }
+
+        $this->data->loadArray($data);
+
+        return $this;
+    }
+
+    /**
      * @return Config
      *
      * @since 1.0.0
@@ -129,6 +180,34 @@ class Layout
     public function getOptions()
     {
         return $this->options;
+    }
+
+    /**
+     * @param array $options
+     * @param bool $override
+     * @return $this
+     */
+    public function setOptions(array $options, $override = false)
+    {
+        if ($override) {
+            $this->options->clear();
+        }
+
+        $this->options->loadArray($options);
+
+        return $this;
+    }
+
+    /**
+     * Return layout string
+     *
+     * @return string
+     *
+     * @since 1.0.0
+     */
+    public function getLayout()
+    {
+        return $this->layout;
     }
 
     /**
