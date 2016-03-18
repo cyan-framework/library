@@ -518,7 +518,7 @@ class Router
         /** @var RouterRoute $route */
         $route = $this->routes[$route_name];
 
-        $route_prefix = !$this->sef ? $this->getBaseUrl() : '' ;
+        $route_prefix = $this->getBaseUrl();
         $route_sufix = $route->generate($tokens);
 
         if (substr($route_prefix,-1) != '/') {
@@ -555,6 +555,10 @@ class Router
 
         if (!empty($path)) {
             $url .= implode('/',$path);
+        }
+
+        if (substr($url,-1) != '/') {
+            $url .= '/';
         }
 
         return $url;

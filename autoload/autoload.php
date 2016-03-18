@@ -130,6 +130,24 @@ class Autoload
     }
 
     /**
+     * Register a alias for a class
+     *
+     * @param string $class_name
+     * @param string $class_alias
+     * @param bool $autoload
+     *
+     * @return $this
+     *
+     * @since 1.0.0
+     */
+    public function registerClassAlias($class_name, $class_alias, $autoload = true)
+    {
+        class_alias($class_name, $class_alias, $autoload);
+
+        return $this;
+    }
+
+    /**
      * Registers an array of namespaces
      *
      * @param array $namespaces An array of namespaces (namespaces as keys and locations as values)
