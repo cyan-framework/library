@@ -224,7 +224,19 @@ class Layout
     public function render($layout = null, array $data = [], array $options = [])
     {
         if (!empty($layout)) {
-            return self::display($layout, $data, $options);
+            $newLayout = self::display($layout, $data, $options);
+
+            foreach ($this->getContainers() as $container_name) {
+                if (!$newLayout->hasContainer($container_name)) {
+                    $newLayout->setContainer($container_name,$this->getContainer($container_name));
+
+                    if ($container_name == 'view' && $this->getContainer('view')->hasContainer('application') && !$newLayout->hasContainer('application')) {
+                        $newLayout->setContainer('application', $this->getContainer('view')->getContainer('application'));
+                    }
+                }
+            }
+
+            return $newLayout->render();
         }
 
         $output = '';

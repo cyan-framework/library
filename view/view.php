@@ -179,6 +179,9 @@ class View
         if (!$this->layout->hasContainer('view')) {
             $this->layout->setContainer('view', $this);
         }
+        if (!$this->layout->hasContainer('application') && $this->hasContainer('application')) {
+            $this->layout->setContainer('application', $this->getContainer('application'));
+        }
 
         return $this;
     }
