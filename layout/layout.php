@@ -137,13 +137,13 @@ class Layout
      * @param array $data
      * @param array $options
      *
-     * @return string
+     * @return self
      *
      * @since 1.0.0
      */
     public static function display($layout, array $data, array $options = [])
     {
-        return self::getInstance($layout, $data, $options)->render();
+        return self::getInstance($layout, $data, $options);
     }
 
     /**
@@ -225,6 +225,9 @@ class Layout
     {
         if (!empty($layout)) {
             $newLayout = self::display($layout, $data, $options);
+            foreach (array_diff($this->addPath(),$newLayout->addPath()) as $base_path) {
+                $newLayout->addPath($base_path);
+            }
 
             foreach ($this->getContainers() as $container_name) {
                 if (!$newLayout->hasContainer($container_name)) {

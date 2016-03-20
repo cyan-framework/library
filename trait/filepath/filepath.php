@@ -12,7 +12,7 @@ trait TraitFilepath
     public static function addIncludePath($path = null)
     {
         if (!empty($path) && file_exists($path) && is_dir($path)) {
-            self::$file_paths[] = $path;
+            array_unshift(self::$file_paths,$path);
         }
 
         return self::$file_paths;

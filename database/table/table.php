@@ -159,11 +159,11 @@ class DatabaseTable
      *
      * @since 1.0.0
      */
-    public function fetchAll()
+    public function fetchAll($pdo = \PDO::FETCH_ASSOC)
     {
         $sth = $this->db->prepare($this->query);
         $sth->execute($this->query->getParameters());
-        return $sth->fetchAll(\PDO::FETCH_ASSOC);
+        return $sth->fetchAll($pdo);
     }
 
     /**
