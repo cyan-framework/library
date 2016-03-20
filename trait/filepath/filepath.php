@@ -15,6 +15,8 @@ trait TraitFilepath
             array_unshift(self::$file_paths,$path);
         }
 
+        self::$file_paths = array_unique(self::$file_paths);
+
         return self::$file_paths;
     }
 

@@ -83,8 +83,24 @@ class Controller
      */
     public function getName()
     {
-        $reflection_class = new ReflectionClass($this);
-        return !empty($this->name) ? $this->name : $reflection_class->getShortName();
+        if (empty($this->name)) {
+            $reflection = new ReflectionClass(__CLASS__);
+            $self_class_name = strtolower($reflection->getShortName());
+
+            $class_parts = explode('_', Inflector::underscore(get_called_class()));
+            $class_name = implode(array_slice($class_parts, array_search($self_class_name,$class_parts) + 1));
+
+            if (empty($class_name)) {
+                $remove_parts = [];
+                $remove_parts[] = $self_class_name;
+                $remove_parts[] = strtolower($this->getContainer('application')->getName());
+                $class_name = implode(array_unique(array_diff($class_parts, $remove_parts)));
+            }
+
+            $this->name = $class_name;
+        }
+        
+        return $this->name;
     }
 
     /**

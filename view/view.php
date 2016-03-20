@@ -11,6 +11,14 @@ class View
     use TraitContainer, TraitEvent;
 
     /**
+     * View Name
+     *
+     * @var string
+     * @since 1.0.0
+     */
+    protected $name;
+
+    /**
      * @var Layout
      * @since 1.0.0
      */
@@ -25,8 +33,8 @@ class View
      */
     public function __construct(array $config = [])
     {
-        if (isset($config['layout'])) {
-            $this->setLayout($config['layout']);
+        if (isset($config['name'])) {
+            $this->name = $config['name'];
         }
 
         if (isset($config['data'])) {
@@ -37,7 +45,9 @@ class View
             $this->setBasePath($config['base_path']);
         }
 
-        if (is_string($this->layout)) {
+        if (isset($config['layout']) && empty($this->layout)) {
+            $this->setLayout($config['layout']);
+        } elseif(is_string($this->layout)) {
             $this->setLayout($this->layout);
         }
     }
@@ -98,6 +108,10 @@ class View
      */
     public function set($key, $value)
     {
+        if (!$this->layout instanceof Layout) {
+        throw new ViewException(sprintf('View %s layout not started!',get_called_class()));
+        }
+
         $this->layout->set($key, $value);
 
         return $this;
@@ -184,6 +198,35 @@ class View
         }
 
         return $this;
+    }
+
+    /**
+     * Return name
+     *
+     * @return string
+     *
+     * @since 1.0.0
+     */
+    public function getName()
+    {
+        if (empty($this->name)) {
+            $reflection = new ReflectionClass(__CLASS__);
+            $self_class_name = strtolower($reflection->getShortName());
+
+            $class_parts = explode('_', Inflector::underscore(get_called_class()));
+            $class_name = implode(array_slice($class_parts, array_search($self_class_name,$class_parts) + 1));
+
+            if (empty($class_name)) {
+                $remove_parts = [];
+                $remove_parts[] = $self_class_name;
+                $remove_parts[] = strtolower($this->getContainer('application')->getName());
+                $class_name = implode(array_unique(array_diff($class_parts, $remove_parts)));
+            }
+
+            $this->name = $class_name;
+        }
+
+        return $this->name;
     }
 
     /**
