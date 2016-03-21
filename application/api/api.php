@@ -1,5 +1,5 @@
 <?php
-namespace Cyan\Library;
+namespace Cyan\Framework;
 
 class ApplicationApi extends ApplicationBase
 {

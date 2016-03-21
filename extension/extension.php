@@ -1,9 +1,9 @@
 <?php
-namespace Cyan\Library;
+namespace Cyan\Framework;
 
 /**
  * Class Extension
- * @package Cyan\Library
+ * @package Cyan\Framework
  * @since 1.0.0
  */
 class Extension
@@ -24,7 +24,7 @@ class Extension
                 throw new ExtensionException(sprintf('Extension type "%s" not found!',ucfirst($type)));
             }
             $required_traits = [
-                'Cyan\Library\TraitSingleton'
+                'Cyan\Framework\TraitSingleton'
             ];
 
             $reflection_class = new ReflectionClass($class_name);

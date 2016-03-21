@@ -1,9 +1,9 @@
 <?php
-namespace Cyan\Library;
+namespace Cyan\Framework;
 
 /**
  * Class Finder
- * @package Cyan\Library\Finder
+ * @package Cyan\Framework\Finder
  * @since 1.0.0
  *
  * @method Finder getInstance

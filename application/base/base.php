@@ -1,5 +1,5 @@
 <?php
-namespace Cyan\Library;
+namespace Cyan\Framework;
 
 abstract class ApplicationBase
 {

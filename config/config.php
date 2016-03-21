@@ -1,10 +1,10 @@
 <?php
 
-namespace Cyan\Library;
+namespace Cyan\Framework;
 
 /**
  * Class Config
- * @package Cyan\Library
+ * @package Cyan\Framework
  * @since 1.0.0
  *
  * @method Config getInstance

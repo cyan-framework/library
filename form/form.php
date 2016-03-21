@@ -1,9 +1,9 @@
 <?php
-namespace Cyan\Library;
+namespace Cyan\Framework;
 
 /**
  * Class Form
- * @package Cyan\Library
+ * @package Cyan\Framework
  * @since 1.0.0
  */
 class Form
@@ -203,7 +203,7 @@ class Form
 
         $namespace = $node->getAttribute('cf-namespace');
         if (empty($namespace)) {
-            $namespace = 'Cyan\Library';
+            $namespace = 'Cyan\Framework';
         }
         $class_name = $this->loadField($type, $namespace);
 

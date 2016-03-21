@@ -1,9 +1,9 @@
 <?php
-namespace Cyan\Library;
+namespace Cyan\Framework;
 
 /**
  * Class Text
- * @package Cyan\Library
+ * @package Cyan\Framework
  * @since 1.0.0
  *
  * @method Text getInstance

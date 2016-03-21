@@ -1,9 +1,9 @@
 <?php
-namespace Cyan\Library;
+namespace Cyan\Framework;
 
 abstract class ApplicationWebsocket
 {
-    protected $userClass                            = '\Cyan\Library\ApplicationWebsocketUser';
+    protected $userClass                            = '\Cyan\Framework\ApplicationWebsocketUser';
     protected $maxBufferSize;
     protected $master;
     protected $sockets                              = [];

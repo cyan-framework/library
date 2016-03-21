@@ -1,9 +1,9 @@
 <?php
-namespace Cyan\Library;
+namespace Cyan\Framework;
 
 /**
  * Class ControllerException
- * @package Cyan\Library
+ * @package Cyan\Framework
  * @since 1.0.0
  */
 class ControllerException extends \RuntimeException {}

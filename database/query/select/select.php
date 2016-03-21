@@ -1,9 +1,9 @@
 <?php
-namespace Cyan\Library;
+namespace Cyan\Framework;
 
 /**
  * Class DatabaseQuerySelect
- * @package Cyan\Library
+ * @package Cyan\Framework
  */
 class DatabaseQuerySelect extends DatabaseQueryBase
 {

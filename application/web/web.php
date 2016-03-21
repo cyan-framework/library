@@ -1,16 +1,16 @@
 <?php
-namespace Cyan\Library;
+namespace Cyan\Framework;
 
 /**
  * Class ApplicationWeb
- * @package Cyan\Library
+ * @package Cyan\Framework
  * @since 1.0.0
  *
- * @property \Cyan\Library\Database $Database
- * @property \Cyan\Library\Text $Text
- * @property \Cyan\Library\Router $Router
- * @property \Cyan\Library\Session $Session
- * @property \Cyan\Library\Theme $Theme
+ * @property \Cyan\Framework\Database $Database
+ * @property \Cyan\Framework\Text $Text
+ * @property \Cyan\Framework\Router $Router
+ * @property \Cyan\Framework\Session $Session
+ * @property \Cyan\Framework\Theme $Theme
  */
 class ApplicationWeb extends ApplicationBase
 {
@@ -166,17 +166,17 @@ class ApplicationWeb extends ApplicationBase
         $route_info = $this->Router->dispatchFromRequest();
 
         switch ($route_info[0]) {
-            case \Cyan\Library\Router::ERROR:
+            case \Cyan\Framework\Router::ERROR:
                 $output = $this->Router->getErrorsAsMessage();
                 break;
-            case \Cyan\Library\Router::NOT_FOUND:
+            case \Cyan\Framework\Router::NOT_FOUND:
                 $output = '404';
                 break;
-            case \Cyan\Library\Router::METHOD_NOT_ALLOWED:
+            case \Cyan\Framework\Router::METHOD_NOT_ALLOWED:
                 $allowed_methods = $route_info[1];
                 $output = sprintf('Allowed methods: %s', implode(',', $allowed_methods));
                 break;
-            case \Cyan\Library\Router::FOUND:
+            case \Cyan\Framework\Router::FOUND:
                 $handler = $route_info[1];
                 $vars = $route_info[2];
                 $route = $route_info[3];
@@ -185,11 +185,11 @@ class ApplicationWeb extends ApplicationBase
                     $return = call_user_func_array($handler, $vars);
                     if (is_string($return)) {
                         echo $return;
-                    } elseif (($return instanceof \Cyan\Library\ApplicationWeb)) {
+                    } elseif (($return instanceof \Cyan\Framework\ApplicationWeb)) {
                         $return->initialize();
                         $output = $return->execute();
                     } else {
-                        throw new ApplicationException(sprintf('Response should be String|Cyan\Library\ApplicationWeb instead of %s', gettype($return)));
+                        throw new ApplicationException(sprintf('Response should be String|Cyan\Framework\ApplicationWeb instead of %s', gettype($return)));
                     }
                 } elseif (is_array($handler)) {
 
@@ -198,13 +198,13 @@ class ApplicationWeb extends ApplicationBase
                     }
 
                     $reflection_class = new ReflectionClass($handler['class_name']);
-                    if (!in_array('Cyan\Library\TraitSingleton',$reflection_class->getTraitNames())) {
+                    if (!in_array('Cyan\Framework\TraitSingleton',$reflection_class->getTraitNames())) {
                         $instance = $handler['class_name']::getInstance();
                     } else {
                         $instance = $reflection_class->newInstance();
                     }
 
-                    if (in_array('Cyan\Library\TraitContainer',$reflection_class->getTraitNames())) {
+                    if (in_array('Cyan\Framework\TraitContainer',$reflection_class->getTraitNames())) {
                         if (!$instance->hasContainer('application')) {
                             $instance->setContainer('application', $this);
                         }

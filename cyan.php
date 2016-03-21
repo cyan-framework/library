@@ -4,36 +4,36 @@ require_once 'exception.php';
 // import autoload
 require_once 'autoload' . DIRECTORY_SEPARATOR . 'autoload.php';
 // register autoload
-\Cyan\Library\Autoload::getInstance([
+\Cyan\Framework\Autoload::getInstance([
     'namespaces' => [
-        'Cyan\\Library' => __DIR__
+        'Cyan\\Framework' => __DIR__
     ]
 ]);
 
-\Cyan\Library\Finder::getInstance()->registerResource('cyan', __DIR__);
+\Cyan\Framework\Finder::getInstance()->registerResource('cyan', __DIR__);
 
 /**
  * Class Cyan
  *
- * @property \Cyan\Library\Application $Application
- * @property \Cyan\Library\Autoload $Autoload
- * @property \Cyan\Library\Cache $Cache
- * @property \Cyan\Library\Csrf $CSRF
- * @property \Cyan\Library\Data $Data
- * @property \Cyan\Library\Database $Database
- * @property \Cyan\Library\Filter $Filter
- * @property \Cyan\Library\Finder $Finder
- * @property \Cyan\Library\Form $Form
- * @property \Cyan\Library\Text $Text
- * @property \Cyan\Library\Router $Router
- * @property \Cyan\Library\Session $Session
- * @property \Cyan\Library\Extension $Extension
+ * @property \Cyan\Framework\Application $Application
+ * @property \Cyan\Framework\Autoload $Autoload
+ * @property \Cyan\Framework\Cache $Cache
+ * @property \Cyan\Framework\Csrf $CSRF
+ * @property \Cyan\Framework\Data $Data
+ * @property \Cyan\Framework\Database $Database
+ * @property \Cyan\Framework\Filter $Filter
+ * @property \Cyan\Framework\Finder $Finder
+ * @property \Cyan\Framework\Form $Form
+ * @property \Cyan\Framework\Text $Text
+ * @property \Cyan\Framework\Router $Router
+ * @property \Cyan\Framework\Session $Session
+ * @property \Cyan\Framework\Extension $Extension
  *
  * @since 1.0.0
  */
 class Cyan
 {
-    use \Cyan\Library\TraitPrototype, \Cyan\Library\TraitContainer {
+    use \Cyan\Framework\TraitPrototype, \Cyan\Framework\TraitContainer {
         __set as setPrototype;
     }
 
@@ -96,8 +96,8 @@ class Cyan
     {
         define('_CYAN_EXEC', true);
 
-        $this->addHelper(\Cyan\Library\Autoload::getInstance());
-        $this->addHelper(\Cyan\Library\Finder::getInstance());
+        $this->addHelper(\Cyan\Framework\Autoload::getInstance());
+        $this->addHelper(\Cyan\Framework\Finder::getInstance());
     }
 
     /**
@@ -167,7 +167,7 @@ class Cyan
             if (!file_exists($file_path)) {
                 throw new CyanException(sprintf('Cyan\\%s not found in %s',$name, $file_path));
             }
-            $class_name = sprintf('\Cyan\Library\%s', $name);
+            $class_name = sprintf('\Cyan\Framework\%s', $name);
             $reflection = new ReflectionClass($class_name);
             if (in_array('TraitSingleton',$reflection->getTraitNames())) {
                 $this->helpers[$name] = $class_name::getInstance();

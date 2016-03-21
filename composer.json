@@ -14,7 +14,7 @@
     }
   ],
   "autoload": {
-    "psr-4": {"Cyan\\Library\\": ""},
+    "psr-4": {"Cyan\\Framework\\": ""},
     "files": ["cyan.php"]
   },
   "require": {

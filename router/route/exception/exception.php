@@ -1,9 +1,9 @@
 <?php
-namespace Cyan\Library;
+namespace Cyan\Framework;
 
 /**
  * Class RouterRouteException
- * @package Cyan\Library
+ * @package Cyan\Framework
  * @since 1.0.0
  */
 class RouterRouteException extends \RuntimeException {}

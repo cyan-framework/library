@@ -1,9 +1,9 @@
 <?php
-namespace Cyan\Library;
+namespace Cyan\Framework;
 
 /**
  * Class Application
- * @package Cyan\Library
+ * @package Cyan\Framework
  */
 class Application
 {

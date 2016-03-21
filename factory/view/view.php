@@ -1,9 +1,9 @@
 <?php
-namespace Cyan\Library;
+namespace Cyan\Framework;
 
 /**
  * Class FactoryView
- * @package Cyan\Library
+ * @package Cyan\Framework
  * @since 1.0.0
  */
 class FactoryView extends Factory

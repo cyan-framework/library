@@ -1,9 +1,9 @@
 <?php
-namespace Cyan\Library;
+namespace Cyan\Framework;
 
 /**
  * Class Inflector
- * @package Cyan\Library
+ * @package Cyan\Framework
  */
 abstract class Inflector
 {
