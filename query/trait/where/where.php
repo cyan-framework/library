@@ -9,7 +9,12 @@ trait QueryTraitWhere
 {
     public function where($condition)
     {
-        $this->statements['where'][] = $condition;
+        if (isset($this->statements['where']) && count($this->statements['where'])) {
+            $this->statements['where'][] = ' AND '.$condition;
+        } else {
+            $this->statements['where'][] = $condition;
+        }
+
         return $this;
     }
 
