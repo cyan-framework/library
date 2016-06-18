@@ -160,6 +160,18 @@ class Router
     }
 
     /**
+     * Check if default route has been already set
+     *
+     * @return bool
+     *
+     * @since 1.0.0
+     */
+    public function hasDefaultRoute()
+    {
+        return !empty($this->default_route['uri']);
+    }
+
+    /**
      * @param string $path
      *
      * @return $this
