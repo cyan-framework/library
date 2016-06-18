@@ -184,10 +184,12 @@ class Finder
      * @example type:path.name
      *
      * @param $identifier
+     * @param $arguments
+     * @param $default
      *
      * @since 1.0.0
      */
-    public function getIdentifier($identifier, $default = null)
+    public function getIdentifier($identifier, array $arguments = [], $default = null)
     {
         if (isset($this->cache[$identifier])) {
             return $this->cache[$identifier];
@@ -216,35 +218,43 @@ class Finder
         $Cyan = \Cyan::initialize();
         $class_name = ucfirst($parse['scheme']) . implode(array_map('ucfirst', explode('.',$parse['path'])));
 
-        $return = require $file_path;
-        // no cache for string response
-        if (is_string($return)) {
-            return $return;
-        } elseif (($return instanceof \stdClass) || is_callable($return) || is_array($return)) {
-            $config = Config::getInstance($identifier);
-            if (is_array($return)) {
-                $config->loadArray($return);
-                $return = $config;
-            } elseif (($return instanceof \stdClass)) {
-                $config->loadObject($return);
-                $return = $config;
-            }
-            $this->cache[$identifier] = $return;
-        } else {
-            foreach ($this->callbacks as $callback) {
-                if ($return = $callback($identifier, $this, $return, $parse, $class_name)) {
-                    $this->cache[$identifier] = $return;
-                    return $return;
+        if (!class_exists($class_name,false)) {
+            $return = require $file_path;
+            // no cache for string response
+            if (is_string($return)) {
+                return $return;
+            } elseif (($return instanceof \stdClass) || is_callable($return) || is_array($return)) {
+                $config = Config::getInstance($identifier);
+                if (is_array($return)) {
+                    $config->loadArray($return);
+                    $return = $config;
+                } elseif (($return instanceof \stdClass)) {
+                    $config->loadObject($return);
+                    $return = $config;
                 }
-            }
+                $this->cache[$identifier] = $return;
+            } else {
+                foreach ($this->callbacks as $callback) {
+                    if ($return = $callback($identifier, $this, $return, $parse, $class_name)) {
+                        $this->cache[$identifier] = $return;
+                        return $return;
+                    }
+                }
 
-            if (!class_exists($class_name,false)) {
-                throw new FinderException(sprintf('Undefined "%s" class in path "%s".',$class_name,$file_path));
+                if (!class_exists($class_name,false)) {
+                    throw new FinderException(sprintf('Undefined "%s" class in path "%s".',$class_name,$file_path));
+                }
+                $class = new ReflectionClass($class_name);
+                $instance = $class->newInstanceArgs($arguments);
+                $this->cache[$identifier] = $instance;
             }
-
-            $instance = new $class_name;
+        } else {
+            $class = new ReflectionClass($class_name);
+            $instance = $class->newInstanceArgs($arguments);
             $this->cache[$identifier] = $instance;
         }
+
+
 
         if (isset($this->cache[$identifier])) {
             return $this->cache[$identifier];
