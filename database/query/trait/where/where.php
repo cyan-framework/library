@@ -19,7 +19,7 @@ trait DatabaseQueryTraitWhere
      */
     public function where($condition)
     {
-        $this->statements['where'][] = $condition;
+        $this->statements['where'][] = (isset($this->statements['where']) && count($this->statements['where'])) ? ' AND '.$condition : $condition;
 
         return $this;
     }
