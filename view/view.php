@@ -254,6 +254,13 @@ class View
             $this->setLayout($layout);
         }
 
+        if (!$this->layout->hasContainer('view')) {
+            $this->layout->setContainer('view', $this);
+        }
+        if (!$this->layout->hasContainer('application') && $this->hasContainer('application')) {
+            $this->layout->setContainer('application', $this->getContainer('application'));
+        }
+
         $Cyan = \Cyan::initialize();
         $this->buffer_content = $this->layout->render();
         $this->trigger('Render', $this);
