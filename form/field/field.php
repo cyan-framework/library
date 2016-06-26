@@ -44,7 +44,7 @@ class FormField
      * @var array
      * @since 1.0.0
      */
-    private $options = [];
+    protected $options = [];
 
     /**
      * Form control_name
@@ -226,14 +226,14 @@ class FormField
         $elements = array();
         foreach($options as $option)
         {
-            $option->_attributes["name"] = $option->text;
-            $option->_attributes["value"] = $option->value;
+            $option->attributes["name"] = $option->text;
+            $option->attributes["value"] = $option->value;
 
             $option = new FormFieldOption($option->attributes);
             $elements[] = $option;
         }
 
-        $this->_options = $elements;
+        $this->options = !empty($this->options) ? array_merge($this->options,$elements) : $elements;
 
         return $this;
     }

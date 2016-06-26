@@ -30,6 +30,8 @@ class FormFieldSelect extends FormField
      */
     public function renderField()
     {
+        $options = $this->getOptions();
+
         $field = "<select";
 
         $field .= " name='{$this->getInputName()}'";
@@ -39,7 +41,6 @@ class FormFieldSelect extends FormField
         $field .= " >";
 
         $value = $this->getValue();
-        $options = $this->getOptions();
 
         if(count($options) > 0)
         {

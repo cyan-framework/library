@@ -87,20 +87,26 @@ trait DatabaseQueryTraitSpecialfield
 
                     $join_table = $sParts[0];
                     $left_join_table = $join_table;
-                    if ($this->schema->isAlias($join_table)) {
-                        $join_table_alias = $join_table;
-                        $join_table = $this->schema->getTable($join_table);
-                        $left_join_table = sprintf('%s AS %s',$join_table,$join_table_alias);
-                    } else {
-                        $join_table_alias = $this->schema->getAlias($join_table);
-                    }
-                    $back_reference_id = $this->schema->getBackReference($join_table, $this->table);
-                    $reference_key = $this->schema->getReference($this->table,$join_table);
 
-                    if (!in_array($join_table,$join_tables_search)) {
-                        $join_tables_search[] = $join_table;
-                        $this->leftJoin($left_join_table, sprintf('%s.%s = %s.%s',$join_table,$back_reference_id,$this->table,$reference_key));
+                    if ($join_table != $from) {
+                        if ($this->schema->isAlias($join_table)) {
+                            $join_table_alias = $join_table;
+                            $join_table = $this->schema->getTable($join_table);
+                            $left_join_table = sprintf('%s AS %s',$join_table,$join_table_alias);
+                        } else {
+                            $join_table_alias = $this->schema->getAlias($join_table);
+                        }
+                        $back_reference_id = $this->schema->getBackReference($join_table, $this->table);
+                        $reference_key = $this->schema->getReference($this->table,$join_table);
+
+                        if (!in_array($join_table,$join_tables_search)) {
+                            $join_tables_search[] = $join_table;
+                            $this->leftJoin($left_join_table, sprintf('%s.%s = %s.%s',$join_table,$back_reference_id,$this->table,$reference_key));
+                        }
                     }
+
+
+
 
                     $add_list[] = $field;
                 }
