@@ -40,6 +40,19 @@ class DatabaseQuerySelect extends DatabaseQueryBase
     }
 
     /**
+     * Select fields
+     *
+     * @param $columns
+     * @return $this
+     */
+    public function selectRaw($columns)
+    {
+        $this->statements['select_raw'][] = $columns;
+
+        return $this;
+    }
+
+    /**
      * Count a column
      *
      * @param $column
@@ -61,8 +74,12 @@ class DatabaseQuerySelect extends DatabaseQueryBase
     {
         $from = !empty($this->table_alias) ? sprintf('%s AS %s', $this->table, $this->table_alias) : $this->table ;
 
+        if (!isset($this->statements['select_raw'])) {
+            $this->statements['select_raw'] = [];
+        }
+
         $sql_parts = [
-            'select' => [],
+            'select' => $this->statements['select_raw'],
             'where' => []
         ];
 

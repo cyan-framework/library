@@ -167,6 +167,20 @@ class DatabaseTable
     }
 
     /**
+     * Array Columns
+     *
+     * @return mixed
+     *
+     * @since 1.0.0
+     */
+    public function fetchColumn($column = 0)
+    {
+        $sth = $this->db->prepare($this->query);
+        $sth->execute($this->query->getParameters());
+        return $sth->fetchAll(\PDO::FETCH_COLUMN, $column);
+    }
+
+    /**
      * Call methods from query or database
      *
      * @param $method_name
