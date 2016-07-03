@@ -29,14 +29,20 @@ class Config implements \ArrayAccess
      * Load a config file
      *
      * @param $file_path
+     * @param $format
      *
      * @return $this
      *
      * @since 1.0.0
      */
-    public function loadFile($file_path)
+    public function loadFile($file_path, $format = '')
     {
-        switch (pathinfo(basename($file_path), PATHINFO_EXTENSION)) {
+        if (empty($format)) {
+            $format = pathinfo(basename($file_path), PATHINFO_EXTENSION);
+            if (!in_array($format,['php','json'])) $format = 'php';
+        }
+
+        switch ($format) {
             case 'php':
                 $array = require_once $file_path;
                 if (!is_array($array)) {
@@ -267,5 +273,31 @@ class Config implements \ArrayAccess
     public function toArray()
     {
         return $this->data;
+    }
+
+    /**
+     * @param $file_path
+     *
+     * @return bool
+     *
+     * @since 1.0.0
+     */
+    public function writeFile($format, $file_path)
+    {
+        switch ($format) {
+            case 'php':
+                if (!is_array($this->data)) {
+                    throw new ConfigException('Config data must be an array to write php files');
+                }
+
+                $data = '<?php'.chr(13);
+                $data .= 'return '.var_export($this->data,true).';'.chr(13);
+                break;
+            case 'json':
+                $data = json_encode($this->data);
+                break;
+        }
+        
+        return file_put_contents($file_path,$data);
     }
 }

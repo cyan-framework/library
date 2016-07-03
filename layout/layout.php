@@ -115,7 +115,7 @@ class Layout
      */
     public function exists($key)
     {
-        return $this->exists($key);
+        return $this->data->exists($key);
     }
 
     /**

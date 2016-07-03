@@ -37,7 +37,7 @@ class ApplicationWeb extends ApplicationBase
     {
         $this->setContainer('factory_view', new FactoryView());
 
-        return parent::initialize();
+        parent::initialize();
     }
 
     /**

@@ -1,7 +1,12 @@
 <?php
 namespace Cyan\Framework;
 
-class ExtensionType
+/**
+ * Class ExtensionType
+ * @package Cyan\Framework
+ * @since 1.0.0
+ */
+abstract class ExtensionType
 {
     use TraitContainer, TraitFilepath;
 }

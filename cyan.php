@@ -1,4 +1,9 @@
 <?php
+define('_CYAN_MIN_PHP_VERSION', '5.5');
+if (version_compare(PHP_VERSION, _CYAN_MIN_PHP_VERSION, '<')) {
+    die('Cyan Framework require PHP '._CYAN_MIN_PHP_VERSION.' or later. Your php version is '.phpversion());
+}
+
 // import CyanException class
 require_once 'exception.php';
 // import autoload

@@ -11,8 +11,8 @@ class Extension
     use TraitSingleton, TraitContainer, TraitFilepath;
 
     /**
-     * @param $adapter
-     * @throws ArchitectureException
+     * @param $type
+     * @throws ExtensionException
      */
     public static function get($type)
     {

@@ -89,6 +89,10 @@ trait DatabaseTraitPdo
      */
     protected function createPdo($config)
     {
+        if (!extension_loaded('pdo')) {
+            die('PDO is required to use connect to database.');
+        }
+
         $pdoDrivers = \PDO::getAvailableDrivers();
         if (empty($pdoDrivers))
         {
@@ -97,7 +101,6 @@ trait DatabaseTraitPdo
             throw new DatabaseException(sprintf('Requested driver "%s" are not available. Available drivers: %s',$config['driver'], implode(', ',\PDO::getAvailableDrivers())));
         }
 
-        $selectDatabase = false;
         switch ($config['driver']) {
             case 'sqlsrv':
                 $dsn = sprintf('%s:Server=%s;',$config['driver'],$config['host'], $config['database']);
@@ -112,7 +115,7 @@ trait DatabaseTraitPdo
                 $options = [];
                 break;
             default:
-                throw new DatabaseException(sprintf('Driver "%s" not found or is disabled.',$config['driver']));
+                throw new DatabaseException(sprintf('Driver "%s" not found or is not suported.',$config['driver']));
                 break;
         }
 

@@ -180,7 +180,13 @@ class Router
      */
     public function setRoutePathPrefix($path)
     {
-        $this->map['pathPrefix'] = !isset($this->map['pathPrefix']) ? $path : $this->map['pathPrefix'].'/'.$path ;
+        if (!isset($this->map['pathPrefix'])) {
+            $this->map['pathPrefix'] = $path;
+        } elseif ($this->map['pathPrefix'] == '/') {
+            $this->map['pathPrefix'] = $path;
+        } else {
+            $this->map['pathPrefix'] = $this->map['pathPrefix'].'/'.$path;
+        }
 
         return $this;
     }
@@ -517,7 +523,25 @@ class Router
     }
 
     /**
+     * Redirect to uri
+     *
      * @param $route_name
+     * @param $tokens
+     *
+     * @since 1.0.0
+     */
+    public function redirectTo($route_name, array $tokens = [])
+    {
+        return $this->redirect($this->generate($route_name, $tokens));
+    }
+
+    /**
+     * Generate a route
+     *
+     * @param $route_name
+     * @param $tokens
+     *
+     * @since 1.0.0
      */
     public function generate($route_name, array $tokens = [])
     {

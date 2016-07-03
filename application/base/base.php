@@ -135,7 +135,15 @@ abstract class ApplicationBase
     public function getConfig()
     {
         $default_config = $this->Cyan->Finder->getIdentifier(sprintf('%s:config.application',$this->getName()), [], []);
-        return $this->Cyan->Finder->getIdentifier(sprintf('config:application.%s',$this->getName()), [], $default_config);
+        $app_config = $this->Cyan->Finder->getIdentifier(sprintf('config:application.%s.config.application',$this->getName()), [], $default_config);
+
+        if (!($app_config instanceof Config)) {
+            $config = Config::getInstance($this->getName().'.config');
+            $config->loadArray($app_config);
+            $app_config = $config;
+        }
+
+        return $app_config;
     }
 
     /**
