@@ -211,6 +211,22 @@ class Layout
     }
 
     /**
+     * Check if a layout exists
+     *
+     * @param string $identifier
+     * @return bool
+     */
+    public function existsLayout($identifier = null)
+    {
+        $identifier = is_null($identifier) ? $this->getLayout() : $identifier ;
+
+        $Cyan = \Cyan::initialize();
+        $layout_path = $Cyan->Finder->getPath($identifier);
+
+        return file_exists($layout_path);
+    }
+
+    /**
      * Render layout
      *
      * @param null $layout

@@ -105,19 +105,35 @@ class Form
         /** @var \Cyan $Cyan */
         $Cyan = \Cyan::initialize();
 
-        $form_path = $Cyan->Finder->getPath($form_identifier,'.xml');
-        if (!file_exists($form_path)) {
-            throw new FormException(sprintf('Form "%s" not found.', $form_path));
-        }
-
-        /** @var \SimpleXMLElement xml */
-        $this->xml = simplexml_load_file($form_path, __NAMESPACE__.'\XmlElement');
-
-        foreach ($this->xml->children() as $node) {
-            $this->setXML($node);
-        }
-
         self::addFieldPath($Cyan->Finder->getPath('cyan:form.field'));
+
+        $this->load($form_identifier);
+    }
+
+    /**
+     * @param string|SimpleXMLElement $data
+     */
+    public function load($data)
+    {
+        /** @var \Cyan $Cyan */
+        $Cyan = \Cyan::initialize();
+
+        if (is_string($data) && strpos($data,':')) {
+            $form_path = $Cyan->Finder->getPath($data,'.xml');
+            if (!file_exists($form_path)) {
+                throw new FormException(sprintf('Form "%s" not found.', $form_path));
+            }
+
+            /** @var \SimpleXMLElement xml */
+            $this->xml = simplexml_load_file($form_path, __NAMESPACE__.'\XmlElement');
+
+            foreach ($this->xml->xpath('fields') as $node) {
+                $this->setXML($node);
+            }
+        } elseif ($data instanceof XmlElement) {
+            $this->xml = $data;
+            $this->setXML($data);
+        }
 
         $this->instanceElements();
     }
@@ -129,6 +145,8 @@ class Form
      */
     private function instanceElements()
     {
+        $fields = [];
+
         foreach($this->fields as $group_name => $element)
             $fields[$group_name] = $this->getChildsByParent($group_name);
 
