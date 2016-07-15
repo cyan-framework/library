@@ -297,6 +297,7 @@ class Config implements \ArrayAccess
                 $data = json_encode($this->data);
                 break;
         }
+        FilesystemPath::create(dirname($file_path));
         
         return file_put_contents($file_path,$data);
     }

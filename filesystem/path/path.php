@@ -33,4 +33,14 @@ abstract class FilesystemPath
 
         return false;
     }
+
+    /**
+     * @param $path
+     * @param int $mode
+     * @return bool
+     */
+    public static function create($path, $mode = 755)
+    {
+        return is_dir($path) || mkdir($path, $mode, true);
+    }
 }

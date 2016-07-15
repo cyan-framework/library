@@ -37,10 +37,6 @@ class View
             $this->name = $config['name'];
         }
 
-        if (isset($config['data'])) {
-            $this->setData($config['data']);
-        }
-
         if (isset($config['base_path'])) {
             $this->setBasePath($config['base_path']);
         }
@@ -49,6 +45,10 @@ class View
             $this->setLayout($config['layout']);
         } elseif(is_string($this->layout)) {
             $this->setLayout($this->layout);
+        }
+
+        if (isset($config['data'])) {
+            $this->setData($config['data']);
         }
     }
 

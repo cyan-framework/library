@@ -25,8 +25,9 @@ trait TraitEvent
      */
     public function trigger()
     {
-        if (empty($this->plugins)) return $this;
-
+        if (empty($this->plugins)) return null;
+        $return = [];
+        
         $args = func_get_args();
 
         $method = 'on' . array_shift($args);
@@ -35,28 +36,28 @@ trait TraitEvent
             if (!$hasMethod) continue;
             switch (count($args)) {
                 case 0:
-                    $plugin->$method();
+                    $return[] = $plugin->$method();
                     break;
                 case 1:
-                    $plugin->$method($args[0]);
+                    $return[] = $plugin->$method($args[0]);
                     break;
                 case 2:
-                    $plugin->$method($args[0], $args[1]);
+                    $return[] = $plugin->$method($args[0], $args[1]);
                     break;
                 case 3:
-                    $plugin->$method($args[0], $args[1], $args[2]);
+                    $return[] = $plugin->$method($args[0], $args[1], $args[2]);
                     break;
                 case 4:
-                    $plugin->$method($args[0], $args[1], $args[2], $args[3]);
+                    $return[] = $plugin->$method($args[0], $args[1], $args[2], $args[3]);
                     break;
                 default:
-                    call_user_func_array([$plugin, $method], $args);
+                    $return[] = call_user_func_array([$plugin, $method], $args);
                     break;
             }
 
         }
 
-        return $this;
+        return $return;
     }
 
     /**

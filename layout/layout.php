@@ -8,7 +8,7 @@ namespace Cyan\Framework;
  */
 class Layout
 {
-    use TraitFilepath, TraitContainer;
+    use TraitFilepath, TraitContainer, TraitPrototype;
 
     /**
      * @var string
