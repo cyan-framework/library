@@ -1,7 +1,7 @@
 <?php
 namespace Cyan\Framework;
 
-abstract class ApplicationWebsocket
+class ApplicationWebsocket
 {
     protected $userClass                            = '\Cyan\Framework\ApplicationWebsocketUser';
     protected $maxBufferSize;
@@ -13,21 +13,103 @@ abstract class ApplicationWebsocket
     protected $headerOriginRequired                 = false;
     protected $headerSecWebSocketProtocolRequired   = false;
     protected $headerSecWebSocketExtensionsRequired = false;
+    // events
+    protected $events = [];
+    // config
+    private $config = [
+        'addr' => '127.0.0.1',
+        'port' => 9000,
+        'bufferLength' => 2048
+    ];
+    // init control
+    private $started = false;
+    // current user
+    private $currentUser;
 
-    public function __construct($addr, $port, $bufferLength = 2048)
+    public function __construct($addr = '', $port= '9000', $bufferLength = 2048)
     {
-        $this->maxBufferSize = $bufferLength;
-        $this->master = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)  or die("Failed: socket_create()");
-        socket_set_option($this->master, SOL_SOCKET, SO_REUSEADDR, 1) or die("Failed: socket_option()");
-        socket_bind($this->master, $addr, $port)                      or die("Failed: socket_bind()");
-        socket_listen($this->master,20)                               or die("Failed: socket_listen()");
-        $this->sockets['m'] = $this->master;
-        $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: ".$this->master);
+        $this->config['addr'] = !empty($addr) ? $addr : getHostByName(getHostName());
+        $this->config['port'] = $port;
+        $this->config['bufferLength'] = $bufferLength;
     }
 
-    abstract protected function process($user,$message); // Called immediately when the data is recieved.
-    abstract protected function connected($user);        // Called after the handshake response is sent to the client.
-    abstract protected function closed($user);           // Called after the connection is closed.
+    public function listen($port='')
+    {
+        if (!empty($port)) $this->config['port'] = $port;
+
+        if (!$this->started) {
+            $this->maxBufferSize = $this->config['bufferLength'];
+            $this->master = socket_create(AF_INET, SOCK_STREAM, SOL_TCP)  or die("Failed: socket_create()");
+            socket_set_option($this->master, SOL_SOCKET, SO_REUSEADDR, 1) or die("Failed: socket_option()");
+            socket_bind($this->master, $this->config['addr'], $this->config['port'])                      or die("Failed: socket_bind()");
+            socket_listen($this->master,20)                               or die("Failed: socket_listen()");
+            $this->sockets['m'] = $this->master;
+            $this->stdout("Server started\nListening on: {$this->config['addr']}:{$this->config['port']}\nMaster socket: ".$this->master);
+            $this->started = true;
+        }
+
+        return $this;
+    }
+
+    public function on($event, \Closure $callback)
+    {
+        if (is_string($event) && is_callable($callback)) {
+            $this->events[$event] = $callback->bindTo($this, $this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * Called immediately when the data is recieved.
+     *
+     * @param $user
+     * @param $message
+     */
+    protected function process($user, $message)
+    {
+        if ($request = json_decode($message)) {
+
+            $event = $request->event;
+            unset($request->event);
+
+            if (isset($this->events[$event])) {
+                $function = $this->events[$event];
+                $arguments = get_object_vars($request->data);
+
+                $this->currentUser = $user;
+                call_user_func_array($function, $arguments);
+            }
+        }
+    }
+
+    /**
+     * Called after the handshake response is sent to the client.
+     *
+     * @param $user
+     */
+    protected function connected($user)
+    {
+        if (isset($this->events['connection'])) {
+            $this->currentUser = $user;
+            $function = $this->events['connection'];
+            $function($user);
+        }
+    }
+
+    /**
+     * Called after the connection is closed.
+     *
+     * @param $user
+     */
+    protected function closed($user)
+    {
+        if (isset($this->events['disconnect'])) {
+            $this->currentUser = $user;
+            $function = $this->events['disconnect'];
+            $function($user);
+        }
+    }
 
     protected function connecting($user)
     {
@@ -35,8 +117,17 @@ abstract class ApplicationWebsocket
         // the handshake has completed.
     }
 
+    public function emit($event, array $data)
+    {
+        $message = new \stdClass();
+        $message->$event = $data;
+
+        return $this->send($this->currentUser, json_encode($message));
+    }
+
     protected function send($user, $message)
     {
+        if (!is_string($message)) $this->stdout('message must be a string');
         if ($user->handshake) {
             $message = $this->frame($message,$user);
             socket_write($user->socket, $message, strlen($message));
@@ -74,6 +165,10 @@ abstract class ApplicationWebsocket
     }
 
     public function run() {
+        if (!$this->started) {
+            $this->listen();
+        }
+
         while(true) {
             if (empty($this->sockets)) {
                 $this->sockets['m'] = $this->master;
