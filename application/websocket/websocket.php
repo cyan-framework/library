@@ -9,6 +9,8 @@ class ApplicationWebsocket
     protected $sockets                              = [];
     protected $users                                = [];
     protected $heldMessages                         = [];
+    protected $timerEvent                           = 0;
+    protected $timeEvents                           = [];
     protected $interactive                          = true;
     protected $headerOriginRequired                 = false;
     protected $headerSecWebSocketProtocolRequired   = false;
@@ -53,9 +55,17 @@ class ApplicationWebsocket
 
     public function on($event, \Closure $callback)
     {
-        if (is_string($event) && is_callable($callback)) {
+        if (is_string($event)) {
             $this->events[$event] = $callback->bindTo($this, $this);
         }
+
+        return $this;
+    }
+
+    public function every($time, \Closure $callback)
+    {
+        if (!isset($this->timeEvents[$time])) $this->timeEvents[$time] = [];
+        $this->timeEvents[$time][] = $callback;
 
         return $this;
     }
@@ -140,8 +150,13 @@ class ApplicationWebsocket
     }
 
     protected function tick() {
-        // Override this for any process that should happen periodically.  Will happen at least once
-        // per second, but possibly more often.
+        $this->timerEvent++;
+
+        foreach ($this->timeEvents as $time => $callbackList) {
+            if (($this->timerEvent % $time) == 0) {
+                foreach ($callbackList as $callback) $callback();
+            }
+        }
     }
 
     protected function _tick() {
