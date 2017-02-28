@@ -35,6 +35,24 @@ class Database
     }
 
     /**
+     * Return Database Config
+     *
+     * @param $scope Database::$READ or Database::$WRITE
+     *
+     * @return array
+     *
+     * @since 1.0.0
+     */
+    public function getConfig($scope = null)
+    {
+        if (!empty($scope) && $scope != self::$READ && $scope != self::$WRITE) {
+            $scope = null;
+        }
+
+        return !empty($scope) ? $this->config[$scope] : $this->config;
+    }
+
+    /**
      * @return DatabaseSchema
      *
      * @since 1.0.0
