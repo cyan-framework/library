@@ -25,6 +25,12 @@ class Form
     private static $field_paths = [];
 
     /**
+     * @var array
+     * @since 1.0.0
+     */
+    private static $field_namespace = [];
+
+    /**
      * Group fields
      *
      * @var array
@@ -223,6 +229,10 @@ class Form
         if (empty($namespace)) {
             $namespace = 'Cyan\Framework';
         }
+
+        if (isset(self::$field_namespace[$type])) {
+            $namespace = self::$field_namespace[$type];
+        }
         $class_name = $this->loadField($type, $namespace);
 
         $options = [];
@@ -397,5 +407,31 @@ class Form
         }
 
         return self::$field_paths;
+    }
+
+    /**
+     * Addd a custom namespace for a field type
+     *
+     * @param $type
+     * @param $namespace
+     */
+    public static function addFieldNamespace($type,$namespace)
+    {
+        self::$field_namespace[$type] = $namespace;
+    }
+
+    /**
+     * List of fields namespaces
+     *
+     * @return array
+     */
+    public static function getFieldNamespaces()
+    {
+        return self::$field_namespace;
+    }
+
+    public static function getFieldNamespace($type)
+    {
+        return isset(self::$field_namespace[$type]) ? self::$field_namespace[$type] : null;
     }
 }

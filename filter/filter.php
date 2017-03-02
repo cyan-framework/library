@@ -117,13 +117,14 @@ class Filter
      */
     public function getArray(array $filters, array $handle)
     {
+        $data = [];
         foreach ($filters as $key => $filter) {
             if (isset($handle[$key])) {
-                $handle[$key] = $this->filter($filter, $handle[$key]);
+                $data[$key] = $this->filter($filter, $handle[$key]);
             }
         }
 
-        return $handle;
+        return $data;
     }
 
     /**
