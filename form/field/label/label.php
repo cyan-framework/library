@@ -78,4 +78,18 @@ class FormFieldLabel extends FormField
 
         return $field;
     }
+
+    /**
+     * @return string
+     */
+    public function getValue()
+    {
+        $Cyan = \Cyan::initialize();
+
+        if ($Cyan->hasContainer('application')) {
+            $this->value = $Cyan->getContainer('application')->Text->translate($this->value);
+        }
+
+        return $this->value;
+    }
 }

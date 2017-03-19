@@ -14,7 +14,7 @@ class FormField
      * @var string
      * @since 1.0.0
      */
-    private $name = null;
+    protected $name = null;
 
     /**
      * Value of input
@@ -22,7 +22,7 @@ class FormField
      * @var string
      * @since 1.0.0
      */
-    private $value = null;
+    protected $value = null;
 
     /**
      * attributes
@@ -30,14 +30,15 @@ class FormField
      * @var array
      * @since 1.0.0
      */
-    private $attributes = [];
+    protected $attributes = [];
+
     /**
      * Label Field
      *
      * @var FormFieldLabel
      * @since 1.0.0
      */
-    private $label = null;
+    protected $label = null;
 
     /**
      * Options list
@@ -52,7 +53,7 @@ class FormField
      * @var string
      * @since 1.0.0
      */
-    private $control_name = '';
+    protected $control_name = '';
 
     /**
      * Render template for render() method
@@ -60,7 +61,7 @@ class FormField
      * @var string
      * @since 1.0.0
      */
-    private static $render_template = '%s&nbsp;%s';
+    protected static $render_template = '%s&nbsp;%s';
 
     /**
      * List of attributes to be unset after constructor.
