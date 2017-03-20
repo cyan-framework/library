@@ -57,7 +57,7 @@ class Finder
     public function registerResource($name, $path)
     {
         $name = strtolower($name);
-        $this->resources[$name] = $path;
+        $this->resources[$name][] = $path;
 
         return $this;
     }
@@ -85,8 +85,18 @@ class Finder
      */
     public function getResource($name)
     {
+        $return = null;
         $name = strtolower($name);
-        return isset($this->resources[$name]) ? $this->resources[$name] : null ;
+
+        if (isset($this->resources[$name])) {
+            if (count($this->resources[$name]) == 1) {
+                $return = $this->resources[$name][0];
+            } else {
+                $return = $this->resources[$name];
+            }
+        }
+
+        return $return;
     }
 
     /**
@@ -149,7 +159,13 @@ class Finder
             throw new FinderException(sprintf('"%s" are not registered as an resource.',$parse['scheme']));
         }
 
-        return implode(DIRECTORY_SEPARATOR,array_merge([$this->resources[$parse['scheme']]], empty($parse['path']) ? [] : explode('.',$parse['path']))).$ext;
+        $base_path = $this->getResource($parse['scheme']);
+
+        if (is_array($base_path)) {
+            $base_path = end($base_path);
+        }
+
+        return $base_path.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR,array_merge(empty($parse['path']) ? [] : explode('.',$parse['path']))).$ext;
     }
 
     /**
@@ -205,14 +221,25 @@ class Finder
         if (isset($this->alias[$parse['scheme']])) {
             $base_path = $this->getPath($this->alias[$parse['scheme']]);
         } else {
-            $base_path = $this->resources[$parse['scheme']];
+            $base_path = $this->getResource($parse['scheme']);
         }
 
-        $file_path = $base_path . DIRECTORY_SEPARATOR . str_replace('.',DIRECTORY_SEPARATOR,$parse['path']);
-        $file_path = strtolower($file_path) . '.php';
+        if (is_array($base_path)) {
+            foreach ($base_path as $base) {
+                $file_path = $base_path . DIRECTORY_SEPARATOR . str_replace('.',DIRECTORY_SEPARATOR,$parse['path']);
+                $file_path = strtolower($file_path) . '.php';
 
-        if (!file_exists($file_path)) {
-            return $default;
+                if (!file_exists($file_path)) {
+                    return $default;
+                }
+            }
+        } else {
+            $file_path = $base_path . DIRECTORY_SEPARATOR . str_replace('.',DIRECTORY_SEPARATOR,$parse['path']);
+            $file_path = strtolower($file_path) . '.php';
+
+            if (!file_exists($file_path)) {
+                return $default;
+            }
         }
 
         $Cyan = \Cyan::initialize();
