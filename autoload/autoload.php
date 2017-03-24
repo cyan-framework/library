@@ -361,7 +361,7 @@ class Autoload
         $path = str_replace("\\",DIRECTORY_SEPARATOR, $path);
         //Don't re-include files and stat the file if it exists.
         if (!in_array($path, get_included_files()) && is_readable($path)) {
-            require $path;
+            require_once $path;
         }
 
         return true;
