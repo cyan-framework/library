@@ -47,6 +47,23 @@ abstract class Inflector
 			}
 		}
 	}
+	
+	/**
+	 * Load a language
+	 */
+	public static function loadLanguage($language)
+    	{
+		$file = __DIR__ . '/language/'.$language.'.json';
+		if (file_exists($file)) {
+		    $output = json_decode(file_get_contents($file), true);
+		    if ($output == JSON_ERROR_NONE) throw new RuntimeException('error');
+		    if (is_array($output)) {
+			foreach ($output as $type => $rules) {
+			    self::setRules($type, $rules);
+			}
+		    }
+		}
+    	}
 
     /**
      * @param $word
