@@ -114,7 +114,10 @@ abstract class Inflector
 			$matches = null;
 			$plural = preg_replace($regexp, $replacement, $word, -1, $matches);
 			if ($matches > 0) {
-                self::addWord($word,$plural);
+				if ($word == $plural) {
+					$word = self::singularize($word);
+				}
+                		self::addWord($word,$plural);
 				return $plural;
 			}
 		}
@@ -133,17 +136,18 @@ abstract class Inflector
 			return self::$_cache['singularized'][$word];
  	   	}
  	   	
- 	   	if (empty(self::$_rules['singularization'])) {
-			foreach (self::$_rules['singularization'] as $regexp => $replacement)
-			{
-				$matches = null;
-				$plural = preg_replace($regexp, $replacement, $word, -1, $matches);
-				if ($matches > 0) {
-	                self::addWord($word,$plural);
-					return $plural;
+		foreach (self::$_rules['singularization'] as $regexp => $replacement)
+		{
+			$matches = null;
+			$plural = preg_replace($regexp, $replacement, $word, -1, $matches);
+			if ($matches > 0) {
+				if ($word == $plural) {
+					$plural = self::pluralize($plural);
 				}
+				self::addWord($word,$plural);
+				return $plural;
 			}
- 	   	}
+		}
  	   	
  	   	return $word;
 	}
